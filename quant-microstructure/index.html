@@ -1,0 +1,276 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>quant-microstructure Explorer</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&family=Space+Grotesk:wght@400;500&display=swap">
+<style>/* Layout: the video's three-column console. Stage rail, component list, animated diagram; the map spans the last two. */
+:root{color-scheme:dark;--bg:#060a0b;--panel:#080d0b;--card:#0a100d;--node:#0b120e;--ink:#eef2ee;--soft:#b9c1ba;--mute:#8d968f;--dim:#5b655e;--line:#1f2a24;--line2:#2c3a30;--lime:#c6f135;--olive:#1d2a12;--violet:#8c7dff;--warn:#f2b84b;
+--display:"Space Grotesk",ui-sans-serif,system-ui,sans-serif;--mono:"JetBrains Mono",ui-monospace,monospace}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{margin:0;background:radial-gradient(1100px 700px at 62% 62%,#0d1610 0%,transparent 70%),radial-gradient(800px 500px at 10% 100%,#0b130e 0%,transparent 70%),var(--bg);background-attachment:fixed;color:var(--ink);font-family:var(--display);font-size:15px}
+button{font:inherit;color:inherit;background:none;border:0;cursor:pointer;text-align:left}
+:focus-visible{outline:2px solid var(--lime);outline-offset:2px}
+.app{min-height:100%;display:flex;flex-direction:column;gap:22px;padding-block:22px 14px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));max-width:1720px;margin:0 auto}
+@media(min-width:900px){.app{padding-left:max(44px,env(safe-area-inset-left,0px));padding-right:max(44px,env(safe-area-inset-right,0px))}}
+.mono{font-family:var(--mono);text-transform:uppercase;letter-spacing:.2em;font-size:11px;color:var(--mute)}
+.top{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;align-items:center;padding-bottom:12px;border-bottom:1px solid var(--line)}
+.brand{color:var(--ink);font-weight:500;font-size:13px}
+.nav{display:flex;align-items:center;gap:18px;flex-wrap:wrap}
+.home{color:var(--lime);text-decoration:none;padding:4px 10px;margin-left:-10px;border-radius:8px;transition:background .2s}
+.home:hover{background:#1d2a12}
+.head h1{margin:0;font-size:clamp(32px,4vw,52px);font-weight:500;letter-spacing:-.02em;line-height:1.1;text-wrap:balance}
+.head h1 em{font-style:normal;color:var(--lime);margin-left:.35em;text-shadow:0 0 28px #c6f13555}
+.head p{margin:8px 0 0;font-size:clamp(15px,1.4vw,19px);color:var(--soft);min-height:1.4em}
+.cols{display:grid;grid-template-columns:230px minmax(0,1fr) minmax(0,1.08fr);gap:0 34px;flex:1;align-items:start}
+.side{padding-right:30px;border-right:1px solid var(--line);display:flex;flex-direction:column;gap:12px;align-self:stretch;min-width:0}
+.tabs{display:flex;flex-direction:column;gap:6px}
+.tab{display:flex;align-items:center;gap:14px;height:46px;padding:0 16px;border-radius:12px;border:1.5px solid transparent;color:var(--mute);font-size:16px;white-space:nowrap;transition:color .2s,background .2s,border-color .2s}
+.tab b{font:500 11px var(--mono);color:var(--lime);opacity:.85}
+.tab:hover{color:var(--ink);background:#0e1611}
+.tab[aria-selected=true]{color:var(--ink);border-color:var(--lime);background:linear-gradient(90deg,#26361499,#14200f66);box-shadow:0 0 22px #c6f13522}
+.gpu{margin-top:auto;text-align:center;padding-top:6px}
+.gpu canvas{width:100%;max-width:200px;height:auto;display:block;margin:0 auto}
+.gpu strong{display:block;color:var(--lime);font-weight:500;font-size:16px;margin-top:4px}
+.gpu span{color:var(--mute);font-size:13px}
+.mid,.right{min-width:0;display:flex;flex-direction:column;gap:12px}
+.list{display:flex;flex-direction:column;gap:8px}
+.row{position:relative;display:block;width:100%;border-radius:13px;border:1px solid var(--line2);background:var(--card);padding:11px 16px 11px 50px;transition:border-color .2s,background .2s,box-shadow .2s}
+.row:hover{border-color:#47604c}
+.row i{position:absolute;left:18px;top:15px;font:400 11px var(--mono);color:var(--mute)}
+.row h3{margin:0;font-size:17px;font-weight:500;padding-right:96px}
+.row p{margin:2px 0 0;font-size:14px;color:var(--mute)}
+.row u{position:absolute;right:14px;top:14px;font:400 10px var(--mono);color:var(--mute);text-decoration:none;letter-spacing:.06em;max-width:92px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.row[aria-expanded=true]{border:1.5px solid var(--lime);background:linear-gradient(90deg,#2a3b1680,#17230f40);box-shadow:0 0 24px #c6f13520}
+.row[aria-expanded=true] p{color:var(--soft)}
+.more{display:grid;grid-template-columns:minmax(84px,auto) minmax(0,1fr);gap:4px 14px;margin-top:10px;font-size:13px}
+.more dt{font:400 10px/1.9 var(--mono);text-transform:uppercase;letter-spacing:.1em;color:var(--mute)}
+.more dd{margin:0;color:var(--soft);overflow-wrap:anywhere}
+.more code{font:400 12px var(--mono);color:var(--ink)}
+.chips{display:flex;flex-wrap:wrap;gap:4px;grid-column:1/-1;margin-top:4px}
+.chips span{font:400 11px var(--mono);padding:2px 7px;border-radius:6px;background:#141c15;color:var(--soft)}
+.flag{grid-column:1/-1;margin-top:6px;display:flex;gap:8px;font-size:13px;color:var(--warn);line-height:1.4}
+.flag::before{content:"▲";font-size:9px;line-height:18px}
+.panel{position:relative;border:1px solid var(--line);border-radius:16px;background:var(--panel);overflow:hidden}
+.scroll{overflow-x:auto}
+#svg{display:block;width:100%;height:auto}
+.is-map .mid{display:none}.is-map .right{grid-column:2/4}
+.is-map #svg{min-width:760px;max-height:max(440px,calc(100vh - 310px))}
+.is-map .gpu canvas{max-width:190px}
+.cap{font-size:16px;color:var(--soft);min-height:2.7em;margin:0;line-height:1.35}
+.cap b{font:400 12px var(--mono);color:var(--lime);margin-right:8px}
+.dots{display:flex;flex-wrap:wrap;gap:6px}
+.dot{min-width:30px;height:28px;padding:0 8px;border-radius:7px;border:1px solid var(--line2);font:400 11px var(--mono);color:var(--mute);text-align:center}
+.dot:hover{color:var(--ink);border-color:#47604c}
+.dot[aria-current=true]{background:var(--olive);border-color:var(--lime);color:var(--lime)}
+footer{display:flex;flex-direction:column;gap:10px}
+.bar{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.ctl{display:flex;gap:6px}
+.ctl button{height:32px;padding:0 12px;border-radius:8px;border:1px solid var(--line2);font:400 11px var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--soft)}
+.ctl button:hover{color:var(--ink);border-color:#47604c}
+#play{border-color:var(--lime);color:var(--lime);background:var(--olive)}
+.track{height:3px;background:var(--line);position:relative}
+#prog{position:absolute;left:0;top:0;bottom:0;background:var(--lime);box-shadow:0 0 12px #c6f13588;width:0}
+svg text{font-family:var(--display);fill:var(--ink)}
+svg .m{font-family:var(--mono)}
+svg .go{cursor:pointer}
+svg .go:hover>rect:first-child{stroke:var(--lime)}
+svg .go:focus-visible{outline:none}svg .go:focus-visible>rect:first-child{stroke:var(--lime);stroke-width:2}
+@media(max-width:1180px){
+ .cols{grid-template-columns:minmax(0,1fr);gap:18px}
+ .side{border:0;padding:0}.tabs{flex-direction:row;overflow-x:auto;padding-bottom:4px}.tab{height:40px;flex:none}
+ .gpu{display:none}.is-map .right{grid-column:auto}
+ .right{order:2}.mid{order:3}
+}
+.head h1{overflow-wrap:anywhere}
+</style>
+<body>
+<div class="app">
+ <div class="top"><span class="nav"><a class="mono home" id="home">&larr; Atlas</a><span class="mono brand" id="brand"></span></span><span class="mono" id="stamp"></span></div>
+ <div class="head"><h1 id="title"></h1><p id="sub"></p></div>
+ <main class="cols" id="cols">
+  <nav class="side" aria-label="Stages">
+   <span class="mono">Views</span>
+   <div class="tabs" id="tabs" role="tablist"></div>
+   <div class="gpu" id="gpu" hidden><canvas id="chip" width="400" height="270" aria-hidden="true"></canvas><strong id="hwname"></strong><span id="hwsub"></span></div>
+  </nav>
+  <section class="mid"><span class="mono" id="sec" style="color:var(--lime)"></span><div class="list" id="list"></div></section>
+  <section class="right">
+   <span class="mono" id="plabel"></span>
+   <div class="panel scroll"><svg id="svg" role="img" aria-label="Animated diagram of the selected component"></svg></div>
+   <p class="cap" id="cap" aria-live="polite"></p>
+   <div class="dots" id="dots" aria-label="Steps"></div>
+  </section>
+ </main>
+ <footer>
+  <div class="bar"><span class="mono" id="foot" style="font-size:10px"></span>
+   <div class="ctl"><button id="prev" aria-label="Previous component">Prev</button><button id="play">Play tour</button><button id="next" aria-label="Next component">Next</button></div></div>
+  <div class="track"><div id="prog"></div></div>
+ </footer>
+</div>
+
+<script>
+const STATE={},REPOS=["AgenticEnv","DeutschAutoCorrect","JobTracker","Portfolio","RamTracker","VoiceClone","agenticenv-chat","data-ingest","genealogy","live-subs","quant-backtest","quant-dev","quant-microstructure","quant-modeling","quant-platform"],ROOT='..';
+/* Live values from repos/<name>/state.json. A public build has none, so L() returns the fallback. */
+const L=(key,fallback=null)=>STATE[key]??fallback;
+const B=1.97,STEP=B*2,NS='http://www.w3.org/2000/svg',$=s=>document.querySelector(s),svg=$('#svg');
+const LIME='#c6f135',MUTE='#8d968f',LINE='#2c3a30',VIOLET='#8c7dff',WARN='#f2b84b',INK='#eef2ee',SOFT='#b9c1ba';
+const still=matchMedia('(prefers-reduced-motion: reduce)').matches;
+const clamp=(v,a=0,b=1)=>Math.min(b,Math.max(a,v)),ease=p=>1-Math.pow(1-clamp(p),3);
+let A=[],U=[];
+
+function el(n,a={},p=svg){const e=document.createElementNS(NS,n);for(const k in a)e.setAttribute(k,a[k]);p.appendChild(e);return e}
+function txt(g,x,y,s,o={}){const e=el('text',{x,y,'font-size':o.size??16,'text-anchor':o.anchor??'middle','font-weight':o.w??400,class:o.mono?'m':''},g);e.textContent=s;e.style.fill=o.fill??INK;if(o.ls)e.style.letterSpacing=o.ls;return e}
+const reveal=(e,at,o={})=>(A.push({e,tin:at*STEP,dy:o.dy??10,blur:o.blur??7}),e);
+
+/* Drawing kit for the 650×520 panel. `at` is expressed in steps, so diagrams line up with the captions. */
+const d={
+ g(at=0,o){return reveal(el('g'),at,o)},
+ box(x,y,w,h,title,sub,o={}){const g=d.g(o.at??0);
+  el('rect',{x,y,width:w,height:h,rx:11,fill:'#0b120e',stroke:LINE},g);
+  if(title)txt(g,x+w/2,y+(sub?h/2-3:h/2+6),title,{size:o.size??17,w:500,mono:o.mono});
+  if(sub)txt(g,x+w/2,y+h/2+17,sub,{size:o.subsize??13,fill:MUTE,mono:o.submono});
+  if(o.hl!=null)reveal(el('rect',{x,y,width:w,height:h,rx:11,fill:(o.c??LIME)+'14',stroke:o.c??LIME,'stroke-width':2,'pointer-events':'none'},g),o.hl,{dy:0,blur:0});
+  if(o.to)link(g,o.to,title);return g},
+ line(pts,o={}){const at=(o.at??0)*STEP,p=el('path',{d:'M'+pts.map(q=>q.join(' ')).join('L'),fill:'none',stroke:o.c??MUTE,'stroke-width':o.w??1.5,pathLength:1});
+  U.push(t=>{p.style.strokeDasharray=`${ease((t-at)/(o.dur??.5))} 1`;p.style.opacity=t<at?0:1});return p},
+ text(x,y,s,o={}){const g=d.g(o.at??0);return txt(g,x,y,s,o)},
+ pill(s,at,c=LIME){const g=d.g(0,{dy:0});el('rect',{x:24,y:456,width:602,height:46,rx:11,fill:c===LIME?'#1d2a12':'#2b2110'},g);const t=d.g(at);txt(t,325,485,s,{size:17,w:500,fill:c})},
+ grid(x,y,cols,rows,o={}){const u=o.u??30,v=o.v??26,gap=o.gap??8;for(let r=0;r<rows;r++)for(let c=0;c<cols;c++){const X=x+c*(u+gap),Y=y+r*(v+gap),i=r*cols+c;
+  reveal(el('rect',{x:X,y:Y,width:u,height:v,rx:4,fill:'#2b3a30'}),(o.at??0)+(r+c)*.015,{dy:0,blur:3});
+  if(o.fill&&o.fill(i)){const f=el('rect',{x:X,y:Y,width:u,height:v,rx:4,fill:o.fill(i)===true?LIME:o.fill(i)}),tin=(o.fillAt??1)*STEP+i*.05;U.push(t=>f.style.opacity=ease((t-tin)/.2))}}},
+ count(x,y,n,at,o={}){const e=d.text(x,y,'0',{...o,at,mono:1}),tin=at*STEP;U.push(t=>{e.textContent=Math.round(n*ease((t-tin)/.8)).toLocaleString('en-US')+(o.unit??'')})}
+};
+/* `to` is a component id, or `repo#id` for another page. A repo outside this build gets no link. */
+function follow(to){const[repo,id]=to.split('#');if(id)location.href=`${ROOT}/${repo}/index.html#${id}`;else open(to)}
+function link(g,to,label){if(to.includes('#')&&!REPOS.includes(to.split('#')[0]))return;g.dataset.to=to;g.classList.add('go');g.setAttribute('tabindex','0');g.setAttribute('role','button');g.setAttribute('aria-label','Open '+label);g.addEventListener('click',()=>follow(to));g.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();follow(to)}})}
+
+/* Content of the quant-microstructure page. Read from the repository at da27c9c. */
+const META={name:'quant-microstructure',accent:'how a price forms',snapshot:'2026-10-31',commit:'da27c9c',
+ footer:'A study repository / it never sends an order',mapTab:'Layer map',
+ mapSub:'One view of the layers, and the path of one simulated day.',mapLabel:'Layer map / follow one replay'};
+const ZONES=[{x:20,w:230,label:'EVENTS'},{x:255,w:270,label:'BOOK'},{x:530,w:270,label:'MEASURE'},{x:805,w:275,label:'DECIDE'}];
+const VIEWS=[
+{id:'market',name:'Market',sub:'One event format, a book, and a matching engine.',rows:[
+ {id:'events',name:'Event format',desc:'Integers, and one format for all',tag:'core/event.hpp',chips:['Add','Cancel','Trade','Level','Clear'],facts:[['Streams','Order by order (L3), or by price level (L2)'],['Types','Integer ticks, lots and nanoseconds'],['Gaps','<code>feed/sequence_tracker</code>'],['Producer','<code>data-ingest</code> records Bitstamp in this format']],
+  label:'Events / five things can happen',steps:['A stream is a list of events.','A gap in the numbering is detected.'],draw(){
+  ['Add','Cancel','Trade','Level','Clear'].forEach((s,i)=>{d.box(40,64+i*74,250,58,s,null,{at:i*.12,mono:1,size:16,hl:1+i*.05})});d.box(380,180,230,100,'Stream','L3 or L2',{at:1,hl:1.2});d.line([[290,230],[380,230]],{at:1,c:LIME});d.pill('Clear belongs to both',1.5)}},
+ {id:'book',name:'Book and engine',desc:'L3, L2 and price-time matching',tag:'book/, matching/',facts:[['L3','<code>order_book</code>, order by order'],['L2','<code>level_book</code>, by price level'],['Bridge','<code>level_aggregator</code>, from L3 to L2'],['Engine','Price-time priority'],['Tests','Property tests, and a benchmark in <code>RESULTS.md</code>']],
+  label:'Book / queues at each price (example)',steps:['Orders rest in queues at each price.','An incoming order takes the best price, oldest first.'],draw(){
+  [[3,VIOLET],[5,VIOLET],[2,VIOLET],[4,LIME],[6,LIME],[3,LIME]].forEach(([n,c],i)=>{const y=70+i*58,g=d.g(i*.1);txt(g,60,y+26,String(101-i-(i>2?1:0)),{size:14,mono:1,anchor:'start',fill:SOFT});for(let k=0;k<n;k++){el('rect',{x:120+k*62,y:y+4,width:54,height:32,rx:4,fill:c,opacity:.8},g)}});d.pill('Price first, then time',1.5)}},
+ {id:'simulators',name:'Simulators',desc:'Order flow, tested on closed formulas',tag:'sim/',chips:['zero intelligence','Hawkes','queue-reactive','Roll','Kyle','Glosten-Milgrom'],facts:[['Hawkes','Simulation, maximum likelihood, time-change validation'],['Signs','A long-memory order-splitting model'],['Rule','Each model is tested against its closed formula']],flag:'No parameter is calibrated yet: every model is tested on simulated markets only.',
+  label:'Hawkes / an event calls others (example)',steps:['Each event raises the intensity.','The excitation then decays.'],draw(){
+  let x=60;const P=[[60,340]];[120,170,190,290,420,450,470,560].forEach(t=>{P.push([t,Math.max(200,340-((t*7)%120))]);P.push([t+1,180+((t*3)%50)])});d.line(P,{c:LIME,dur:1.2});d.line([[50,350],[600,350]],{});d.text(330,386,'time',{size:13,fill:MUTE});d.pill('Clusters, as in real flow',1.6)}}]},
+
+{id:'measure',name:'Measure',sub:'What a tape can say.',rows:[
+ {id:'measures',name:'Measures',desc:'Spreads, volatility and flow',tag:'measures/',chips:['quoted spread','effective spread','realised spread','Roll','imbalance','realised variance','signature plot','two scales','sign correlation','response function'],facts:[['Input','A tape of quotes and trades'],['Trade signs','Convention: a buy is +1']],
+  label:'Spreads / three views of one trade',steps:['Quoted spread is what is shown.','Effective and realised spreads are what a trade paid.'],draw(){
+  ['Quoted','Effective','Realised'].forEach((s,i)=>{d.box(165,90+i*110,320,84,s,['shown','paid','kept by the maker'][i],{at:i*.35,hl:1+i*.1})});d.pill('One trade, three spreads',1.5)}},
+ {id:'impact',name:'Market impact',desc:'What a trade moves',tag:'impact/',chips:['propagator','Kyle lambda','metaorders','round-trip cost'],facts:[['Propagator','Bouchaud, Gefen, Potters and Wyart'],['Metaorder','Injected into the simulator'],['Decision','ADR-012']],flag:'The zero-intelligence simulator does not reproduce the square-root law of metaorder impact. The repository records this as a negative result.',
+  label:'Impact / the expected curve is missing (example)',steps:['Real markets show impact growing with the square root of size.','This simulator does not.'],draw(){
+  d.line([[80,380],[80,90]],{});d.line([[80,380],[590,380]],{});const P=[];for(let i=0;i<=20;i++){const x=i/20;P.push([80+x*500,380-Math.sqrt(x)*260])}d.line(P,{at:.3,c:MUTE,dur:1});d.line([[80,380],[580,240]],{at:1,c:WARN,dur:1});d.text(430,120,'square-root law',{size:13,fill:MUTE,at:.5});d.text(450,300,'simulator',{size:13,fill:WARN,at:1.2});d.pill('A negative result, kept on record',1.5,WARN)}}]},
+
+{id:'decide',name:'Decide',sub:'What a trade costs, and what quoting earns.',rows:[
+ {id:'replay',name:'Book backtest',desc:'One strategy, replayed or simulated',tag:'replay/',facts:[['Interface','One strategy, two runners'],['Replay','<code>runReplay</code>, on an L2 or L3 stream'],['Simulation','<code>runSimulation</code>, where the market reacts'],['Realism','Latency, queue position, fees'],['L2 queues','<code>QueueModel</code>, pessimistic by default']],
+  label:'Backtest / orders arrive late',steps:['A strategy sees the book, and sends an order.','It takes effect after the latency, at the back of the queue.'],draw(){
+  d.box(40,110,200,90,'Strategy',null);d.box(410,110,200,90,'Book',null,{at:.3,to:'book'});d.line([[240,155],[410,155]],{at:.8,c:LIME,dur:1});d.text(325,140,'latency',{size:13,fill:MUTE,at:.8});d.box(165,290,320,80,'Queue position','behind what already rests',{at:1,hl:1.2});d.pill('A fill is not a given',1.6)}},
+ {id:'execution',name:'Optimal execution',desc:'How to work a large order',tag:'execution/',chips:['Almgren-Chriss','TWAP','VWAP','POV','implementation shortfall'],facts:[['Frontier','Almgren-Chriss trajectories and efficient frontier'],['Carried out','Schedules run in the backtest'],['Limits','ADR-013']],
+  label:'Execution / fast or patient (example)',steps:['Trading fast costs impact.','Trading slowly costs risk.'],draw(){
+  d.line([[80,380],[80,90]],{});d.line([[80,380],[590,380]],{});[.2,.5,1.2].forEach((k,i)=>{const P=[];for(let j=0;j<=20;j++){const x=j/20;P.push([80+x*500,90+290*(1-(1-x)*Math.exp(-k*2*x))])}d.line(P,{at:.3+i*.3,c:[MUTE,SOFT,LIME][i],dur:1})});d.text(330,412,'time',{size:13,fill:MUTE});d.pill('Impact against risk',1.5)}},
+ {id:'making',name:'Market making',desc:'What quoting earns',tag:'mm/',chips:['Avellaneda-Stoikov','Guéant-Lehalle-Fernandez-Tapia','markouts','P&L decomposition'],facts:[['Quotes','Depend on the inventory'],['Backtest','A market maker for the book backtest']],
+  label:'Quoting / inventory shifts the quotes (example)',steps:['A long maker shades its quotes down.','Markouts then show who was adverse.'],draw(){
+  d.line([[325,80],[325,400]],{c:MUTE});d.box(120,110,180,70,'Ask',null,{at:.3});d.box(350,110,180,70,'Ask, long',null,{at:1,hl:1.2});d.box(120,290,180,70,'Bid',null,{at:.3});d.box(350,290,180,70,'Bid, long',null,{at:1,hl:1.2});d.pill('Reservation price moves with inventory',1.5)}}]},
+
+{id:'verify',name:'Verification',sub:'A learning repository, with a real build.',rows:[
+ {id:'verification',name:'Tests and wheel',desc:'GoogleTest, benchmark and Python',tag:'tests/',facts:[['Tests','24 files, 180 <code>TEST</code> macros'],['Wheel','<code>quantmicrostructure</code>, for analysis and charts'],['CI','<code>format-check</code>, <code>build-test</code>, <code>wheel</code>'],['Scope','No trading API key, anywhere']],
+  label:'CI / three jobs',steps:['The format is checked first.','The C++ tests and the wheel build next.'],draw(){
+  ['format-check','build-test','wheel'].forEach((s,i)=>{const y=90+i*110;d.box(165,y,320,80,s,null,{at:i*.3,mono:1,hl:1+i*.1});if(i)d.line([[325,y-30],[325,y]],{at:i*.3,c:LIME})});d.pill('Not a trading system',1.5)}}]}
+];
+
+/* Map: from the event stream to a strategy's result. */
+const N={cap:[40,100,190,64,'data-ingest','Bitstamp capture','events'],sim:[40,220,190,64,'Simulators','order flow','simulators'],ev:[40,340,190,64,'Events','L3 or L2','events'],
+ l3:[275,100,230,64,'L3 book','order by order','book'],l2:[275,220,230,64,'L2 book','price levels','book'],eng:[275,340,230,64,'Matching','price-time','book'],
+ mea:[550,100,230,64,'Measures','spreads, flow','measures'],imp:[550,220,230,64,'Impact','propagator','impact'],bt:[550,340,230,64,'Book backtest','latency, queue','replay'],
+ exe:[825,220,235,64,'Execution','Almgren-Chriss','execution'],mm:[825,340,235,64,'Market making','Avellaneda-Stoikov','making']};
+const E={ce:[[135,164],[135,220]],se:[[135,284],[135,340]],el:[[230,372],[252,372],[252,132],[275,132]],l2:[[390,164],[390,220]],lm:[[505,132],[550,132]],mi:[[665,164],[665,220]],ib:[[665,284],[665,340]],be:[[780,372],[825,372]],bx:[[780,360],[802,360],[802,252],[825,252]]};
+const TRACE=[
+ ['Click any box to open it, or step through one replay.',[],[]],
+ ['Simulators produce a stream, in the same format as recorded data.',['sim','ev'],['se']],
+ ['The events rebuild the book, order by order.',['ev','l3'],['el']],
+ ['L3 aggregates into price levels when a study needs only those.',['l3','l2'],['l2']],
+ ['The tape gives spreads, volatility and flow.',['l3','mea'],['lm']],
+ ['A strategy runs in the backtest, with latency and queue position.',['imp','bt'],['ib']],
+ ['Market making and execution live behind the same interface.',['bt','mm','exe'],['be','bx']]];
+
+const COMPS=VIEWS.flatMap(v=>v.rows.map(r=>({...r,view:v.id}))),ORDER=['map',...COMPS.map(c=>c.id)];
+const S={view:'map',id:'map',t:0,tour:false,last:0,steps:TRACE.map(s=>s[0]),paused:false};
+
+function drawMap(){
+ svg.setAttribute('viewBox','0 0 1100 600');
+ ZONES.forEach(({x,w,label,dashed})=>{el('rect',{x,y:48,width:w-10,height:510,rx:14,fill:dashed?'#0c1511':'#090f0c',stroke:'#1f2a24','stroke-dasharray':dashed?'6 5':''});txt(svg,x+14,34,label,{size:13,mono:1,fill:MUTE,anchor:'start',ls:'.14em'})});
+ const paths={};for(const k in E)paths[k]=el('path',{d:'M'+E[k].map(q=>q.join(' ')).join('L'),fill:'none',stroke:'#34443a','stroke-width':1.5});
+ const hot={};for(const k in E)hot[k]=el('path',{d:paths[k].getAttribute('d'),fill:'none',stroke:LIME,'stroke-width':2.4});
+ const lit={};
+ for(const k in N){const[x,y,w,h,a,b,to]=N[k],g=el('g');el('rect',{x,y,width:w,height:h,rx:11,fill:'#0b120e',stroke:LINE},g);txt(g,x+w/2,y+(b?h/2-3:h/2+6),a,{size:w<110?14:17,w:500});if(b)txt(g,x+w/2,y+h/2+18,b,{size:13,fill:MUTE,mono:b[0]===':'||b[0]==='/'});
+  lit[k]=el('rect',{x,y,width:w,height:h,rx:11,fill:'#c6f13518',stroke:LIME,'stroke-width':2,'pointer-events':'none'},g);link(g,to,a)}
+ const dot=[0,1,2,3].map(()=>el('circle',{r:5,fill:LIME}));
+ U.push(t=>{const s=Math.floor(t/STEP),[,ns,es]=TRACE[Math.min(s,TRACE.length-1)],since=t-s*STEP,p=ease(since/.35);
+  for(const k in lit)lit[k].style.opacity=ns.includes(k)?p:0;
+  for(const k in hot){const on=es.includes(k);hot[k].style.opacity=on?1:0}
+  dot.forEach((c,i)=>{const k=es[i];if(!k){c.style.opacity=0;return}const q=paths[k],L=q.getTotalLength(),pt=q.getPointAtLength(L*((since/1.4)%1));c.setAttribute('cx',pt.x);c.setAttribute('cy',pt.y);c.style.opacity=1})})
+}
+
+const C=$('#chip').getContext('2d');
+function chip(t){C.clearRect(0,0,400,270);const a=.72+.3*Math.sin(t*.42),e=.62,sc=.94;
+ const rot=([x,y,z])=>{const X=x*Math.cos(a)-y*Math.sin(a),Y=x*Math.sin(a)+y*Math.cos(a);return[X,Y*Math.cos(e)-z*Math.sin(e),Y*Math.sin(e)+z*Math.cos(e)]};
+ const face=(pts,c)=>{C.beginPath();pts.map(rot).forEach((p,i)=>{const x=200+p[0]*sc,y=132+p[1]*sc;i?C.lineTo(x,y):C.moveTo(x,y)});C.closePath();C.fillStyle=`rgb(${c.join(',')})`;C.fill();C.strokeStyle='rgba(0,0,0,.45)';C.stroke()};
+ const shade=(c,s)=>c.map(v=>Math.round(v*s));
+ const cub=(x0,y0,z0,x1,y1,z1,c)=>{for(const[n,pts,s]of[[[1,0,0],[[x1,y0,z0],[x1,y1,z0],[x1,y1,z1],[x1,y0,z1]],.55],[[-1,0,0],[[x0,y0,z0],[x0,y1,z0],[x0,y1,z1],[x0,y0,z1]],.3],[[0,1,0],[[x0,y1,z0],[x1,y1,z0],[x1,y1,z1],[x0,y1,z1]],.4],[[0,-1,0],[[x0,y0,z0],[x1,y0,z0],[x1,y0,z1],[x0,y0,z1]],.3]])if(rot(n)[2]>0)face(pts,shade(c,s));face([[x0,y0,z1],[x1,y0,z1],[x1,y1,z1],[x0,y1,z1]],c)};
+ cub(-105,-80,-34,105,80,-12,[122,126,118]);face([[-94,-68,-12],[94,-68,-12],[94,68,-12],[-94,68,-12]],[26,30,27]);
+ [...Array(8)].map((_,i)=>-92+i*25).sort((u,v)=>(u-v)*Math.sin(a)).forEach(x=>cub(x,-66,-12,x+16,66,18,[182,184,170]))}
+
+function seek(t){
+ for(const a of A){const p=ease((t-a.tin)/.42),s=a.e.style;s.opacity=t>=a.tin?p:0;s.transform=`translateY(${a.dy*(1-p)}px)`;const b=a.blur*(1-p);s.filter=b>.05&&t>=a.tin?`blur(${b}px)`:'none'}
+ U.forEach(f=>f(t));
+ const s=Math.min(Math.floor(t/STEP),S.steps.length-1);
+ if(s!==S.shown){S.shown=s;const m=S.id==='map';$('#cap').innerHTML=`<b>${m?s:s+1}/${m?S.steps.length-1:S.steps.length}</b>`+S.steps[s];[...$('#dots').children].forEach((b,i)=>i===s?b.setAttribute('aria-current','true'):b.removeAttribute('aria-current'))}
+ const i=ORDER.indexOf(S.id);$('#prog').style.width=100*(i+(s+1)/S.steps.length)/ORDER.length+'%'}
+
+function renderList(v){
+ $('#list').replaceChildren(...v.rows.map((r,i)=>{const b=document.createElement('button');b.className='row';b.dataset.id=r.id;const on=r.id===S.id;b.setAttribute('aria-expanded',on);
+  b.innerHTML=`<i>${String(i+1).padStart(2,'0')}</i><h3>${r.name}</h3><p>${r.desc}</p><u${r.status?' style="color:var(--warn)"':''}>${r.status??r.tag}</u>`+(on?`<dl class="more">${(r.facts||[]).filter(([,w])=>w!=null).map(([k,w])=>`<dt>${k}</dt><dd>${w}</dd>`).join('')}${r.chips?`<div class="chips">${r.chips.map(c=>`<span>${c}</span>`).join('')}</div>`:''}${r.flag?`<div class="flag"><span>${r.flag}</span></div>`:''}</dl>`:'');
+  b.onclick=()=>open(r.id);return b}))}
+
+function open(id,keepTour){
+ const c=COMPS.find(x=>x.id===id),view=c?VIEWS.find(v=>v.id===c.view):null;
+ if(!keepTour)S.tour=false;S.id=id;S.view=c?c.view:'map';S.t=0;S.shown=-1;S.paused=false;S.hold=0;A=[];U=[];svg.replaceChildren();
+ $('#cols').classList.toggle('is-map',!c);
+ [...$('#tabs').children].forEach(b=>{const on=b.dataset.view===S.view;b.setAttribute('aria-selected',on);if(on)$('#tabs').scrollLeft=b.offsetLeft-16});
+ if(c){svg.setAttribute('viewBox','0 0 650 520');S.steps=c.steps;$('#sec').textContent=`${String(VIEWS.indexOf(view)+1).padStart(2,'0')} / ${view.name}`;$('#sub').textContent=view.sub;$('#plabel').textContent=c.label;renderList(view);c.draw()}
+ else{S.steps=TRACE.map(s=>s[0]);$('#sub').textContent=META.mapSub;$('#plabel').textContent=META.mapLabel;drawMap()}
+ const dots=$('#dots');dots.replaceChildren(...S.steps.map((_,i)=>{const b=document.createElement('button');b.className='dot';b.textContent=c?i+1:i;b.setAttribute('aria-label','Go to step '+(c?i+1:i));b.onclick=()=>{S.tour=false;S.paused=true;S.t=c?(i+1)*STEP-.02:i*STEP+.001;seek(S.t);syncPlay()};return b}));
+ try{history.replaceState(null,'','#'+id)}catch{}
+ if(!c)S.paused=!S.tour;
+ if(still)S.t=c?S.steps.length*STEP-.01:0;
+ seek(S.t);syncPlay()}
+
+function syncPlay(){$('#play').textContent=S.tour?'Pause tour':'Play tour'}
+function step(d){const i=(ORDER.indexOf(S.id)+d+ORDER.length)%ORDER.length;open(ORDER[i])}
+function frame(now){const dt=Math.min(.1,(now-S.last)/1000||0);S.last=now;if(META.hardware)chip(now/1000);
+ if(!S.paused){const end=S.steps.length*STEP-.01;
+  if(S.t<end){S.t=Math.min(end,S.t+dt);seek(S.t)}
+  else if(S.tour&&(!still||(S.hold+=dt)>4)){const i=ORDER.indexOf(S.id);i<ORDER.length-1?open(ORDER[i+1],true):(S.tour=false,syncPlay())}}
+ else if(S.id==='map'&&S.shown>0&&!still){const b=S.shown*STEP;S.t=b+((S.t-b+dt)%(STEP-.01));seek(S.t)}
+ requestAnimationFrame(frame)}
+
+$('#tabs').replaceChildren(...[{id:'map',name:META.mapTab??'System map'},...VIEWS].map((v,i)=>{const b=document.createElement('button');b.className='tab';b.dataset.view=v.id;b.setAttribute('role','tab');b.innerHTML=`<b>0${i}</b>${v.name}`;b.onclick=()=>open(v.id==='map'?'map':v.rows[0].id);return b}));
+$('#prev').onclick=()=>step(-1);$('#next').onclick=()=>step(1);
+$('#play').onclick=()=>{S.tour=!S.tour;if(S.tour)S.paused=false;else if(S.id==='map')S.paused=true;syncPlay()};
+addEventListener('keydown',e=>{if(e.target.closest('button,.go'))return;if(e.key==='ArrowRight')step(1);if(e.key==='ArrowLeft')step(-1)});
+addEventListener('hashchange',()=>{const id=location.hash.slice(1);if(id!==S.id&&ORDER.includes(id))open(id)});
+$('#home').href=`${ROOT}/index.html`;$('#brand').textContent='\u25C6\u00A0 '+META.name;$('#stamp').textContent=`Explorer / snapshot ${META.snapshot} / ${META.commit}`;$('#foot').textContent=META.footer;
+$('#title').innerHTML=`${META.name}<em>${META.accent}</em>`;
+if(META.hardware){$('#gpu').hidden=false;$('#hwname').textContent=META.hardware.name;$('#hwsub').textContent=META.hardware.sub;chip(0)}
+const h=location.hash.slice(1);open(ORDER.includes(h)?h:'map');requestAnimationFrame(frame);
+
+</script></body></html>

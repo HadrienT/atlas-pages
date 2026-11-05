@@ -1,0 +1,274 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>agenticenv-chat Explorer</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&family=Space+Grotesk:wght@400;500&display=swap">
+<style>/* Layout: the video's three-column console. Stage rail, component list, animated diagram; the map spans the last two. */
+:root{color-scheme:dark;--bg:#060a0b;--panel:#080d0b;--card:#0a100d;--node:#0b120e;--ink:#eef2ee;--soft:#b9c1ba;--mute:#8d968f;--dim:#5b655e;--line:#1f2a24;--line2:#2c3a30;--lime:#c6f135;--olive:#1d2a12;--violet:#8c7dff;--warn:#f2b84b;
+--display:"Space Grotesk",ui-sans-serif,system-ui,sans-serif;--mono:"JetBrains Mono",ui-monospace,monospace}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{margin:0;background:radial-gradient(1100px 700px at 62% 62%,#0d1610 0%,transparent 70%),radial-gradient(800px 500px at 10% 100%,#0b130e 0%,transparent 70%),var(--bg);background-attachment:fixed;color:var(--ink);font-family:var(--display);font-size:15px}
+button{font:inherit;color:inherit;background:none;border:0;cursor:pointer;text-align:left}
+:focus-visible{outline:2px solid var(--lime);outline-offset:2px}
+.app{min-height:100%;display:flex;flex-direction:column;gap:22px;padding-block:22px 14px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));max-width:1720px;margin:0 auto}
+@media(min-width:900px){.app{padding-left:max(44px,env(safe-area-inset-left,0px));padding-right:max(44px,env(safe-area-inset-right,0px))}}
+.mono{font-family:var(--mono);text-transform:uppercase;letter-spacing:.2em;font-size:11px;color:var(--mute)}
+.top{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;align-items:center;padding-bottom:12px;border-bottom:1px solid var(--line)}
+.brand{color:var(--ink);font-weight:500;font-size:13px}
+.nav{display:flex;align-items:center;gap:18px;flex-wrap:wrap}
+.home{color:var(--lime);text-decoration:none;padding:4px 10px;margin-left:-10px;border-radius:8px;transition:background .2s}
+.home:hover{background:#1d2a12}
+.head h1{margin:0;font-size:clamp(32px,4vw,52px);font-weight:500;letter-spacing:-.02em;line-height:1.1;text-wrap:balance}
+.head h1 em{font-style:normal;color:var(--lime);margin-left:.35em;text-shadow:0 0 28px #c6f13555}
+.head p{margin:8px 0 0;font-size:clamp(15px,1.4vw,19px);color:var(--soft);min-height:1.4em}
+.cols{display:grid;grid-template-columns:230px minmax(0,1fr) minmax(0,1.08fr);gap:0 34px;flex:1;align-items:start}
+.side{padding-right:30px;border-right:1px solid var(--line);display:flex;flex-direction:column;gap:12px;align-self:stretch;min-width:0}
+.tabs{display:flex;flex-direction:column;gap:6px}
+.tab{display:flex;align-items:center;gap:14px;height:46px;padding:0 16px;border-radius:12px;border:1.5px solid transparent;color:var(--mute);font-size:16px;white-space:nowrap;transition:color .2s,background .2s,border-color .2s}
+.tab b{font:500 11px var(--mono);color:var(--lime);opacity:.85}
+.tab:hover{color:var(--ink);background:#0e1611}
+.tab[aria-selected=true]{color:var(--ink);border-color:var(--lime);background:linear-gradient(90deg,#26361499,#14200f66);box-shadow:0 0 22px #c6f13522}
+.gpu{margin-top:auto;text-align:center;padding-top:6px}
+.gpu canvas{width:100%;max-width:200px;height:auto;display:block;margin:0 auto}
+.gpu strong{display:block;color:var(--lime);font-weight:500;font-size:16px;margin-top:4px}
+.gpu span{color:var(--mute);font-size:13px}
+.mid,.right{min-width:0;display:flex;flex-direction:column;gap:12px}
+.list{display:flex;flex-direction:column;gap:8px}
+.row{position:relative;display:block;width:100%;border-radius:13px;border:1px solid var(--line2);background:var(--card);padding:11px 16px 11px 50px;transition:border-color .2s,background .2s,box-shadow .2s}
+.row:hover{border-color:#47604c}
+.row i{position:absolute;left:18px;top:15px;font:400 11px var(--mono);color:var(--mute)}
+.row h3{margin:0;font-size:17px;font-weight:500;padding-right:96px}
+.row p{margin:2px 0 0;font-size:14px;color:var(--mute)}
+.row u{position:absolute;right:14px;top:14px;font:400 10px var(--mono);color:var(--mute);text-decoration:none;letter-spacing:.06em;max-width:92px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.row[aria-expanded=true]{border:1.5px solid var(--lime);background:linear-gradient(90deg,#2a3b1680,#17230f40);box-shadow:0 0 24px #c6f13520}
+.row[aria-expanded=true] p{color:var(--soft)}
+.more{display:grid;grid-template-columns:minmax(84px,auto) minmax(0,1fr);gap:4px 14px;margin-top:10px;font-size:13px}
+.more dt{font:400 10px/1.9 var(--mono);text-transform:uppercase;letter-spacing:.1em;color:var(--mute)}
+.more dd{margin:0;color:var(--soft);overflow-wrap:anywhere}
+.more code{font:400 12px var(--mono);color:var(--ink)}
+.chips{display:flex;flex-wrap:wrap;gap:4px;grid-column:1/-1;margin-top:4px}
+.chips span{font:400 11px var(--mono);padding:2px 7px;border-radius:6px;background:#141c15;color:var(--soft)}
+.flag{grid-column:1/-1;margin-top:6px;display:flex;gap:8px;font-size:13px;color:var(--warn);line-height:1.4}
+.flag::before{content:"▲";font-size:9px;line-height:18px}
+.panel{position:relative;border:1px solid var(--line);border-radius:16px;background:var(--panel);overflow:hidden}
+.scroll{overflow-x:auto}
+#svg{display:block;width:100%;height:auto}
+.is-map .mid{display:none}.is-map .right{grid-column:2/4}
+.is-map #svg{min-width:760px;max-height:max(440px,calc(100vh - 310px))}
+.is-map .gpu canvas{max-width:190px}
+.cap{font-size:16px;color:var(--soft);min-height:2.7em;margin:0;line-height:1.35}
+.cap b{font:400 12px var(--mono);color:var(--lime);margin-right:8px}
+.dots{display:flex;flex-wrap:wrap;gap:6px}
+.dot{min-width:30px;height:28px;padding:0 8px;border-radius:7px;border:1px solid var(--line2);font:400 11px var(--mono);color:var(--mute);text-align:center}
+.dot:hover{color:var(--ink);border-color:#47604c}
+.dot[aria-current=true]{background:var(--olive);border-color:var(--lime);color:var(--lime)}
+footer{display:flex;flex-direction:column;gap:10px}
+.bar{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.ctl{display:flex;gap:6px}
+.ctl button{height:32px;padding:0 12px;border-radius:8px;border:1px solid var(--line2);font:400 11px var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--soft)}
+.ctl button:hover{color:var(--ink);border-color:#47604c}
+#play{border-color:var(--lime);color:var(--lime);background:var(--olive)}
+.track{height:3px;background:var(--line);position:relative}
+#prog{position:absolute;left:0;top:0;bottom:0;background:var(--lime);box-shadow:0 0 12px #c6f13588;width:0}
+svg text{font-family:var(--display);fill:var(--ink)}
+svg .m{font-family:var(--mono)}
+svg .go{cursor:pointer}
+svg .go:hover>rect:first-child{stroke:var(--lime)}
+svg .go:focus-visible{outline:none}svg .go:focus-visible>rect:first-child{stroke:var(--lime);stroke-width:2}
+@media(max-width:1180px){
+ .cols{grid-template-columns:minmax(0,1fr);gap:18px}
+ .side{border:0;padding:0}.tabs{flex-direction:row;overflow-x:auto;padding-bottom:4px}.tab{height:40px;flex:none}
+ .gpu{display:none}.is-map .right{grid-column:auto}
+ .right{order:2}.mid{order:3}
+}
+.head h1{overflow-wrap:anywhere}
+</style>
+<body>
+<div class="app">
+ <div class="top"><span class="nav"><a class="mono home" id="home">&larr; Atlas</a><span class="mono brand" id="brand"></span></span><span class="mono" id="stamp"></span></div>
+ <div class="head"><h1 id="title"></h1><p id="sub"></p></div>
+ <main class="cols" id="cols">
+  <nav class="side" aria-label="Stages">
+   <span class="mono">Views</span>
+   <div class="tabs" id="tabs" role="tablist"></div>
+   <div class="gpu" id="gpu" hidden><canvas id="chip" width="400" height="270" aria-hidden="true"></canvas><strong id="hwname"></strong><span id="hwsub"></span></div>
+  </nav>
+  <section class="mid"><span class="mono" id="sec" style="color:var(--lime)"></span><div class="list" id="list"></div></section>
+  <section class="right">
+   <span class="mono" id="plabel"></span>
+   <div class="panel scroll"><svg id="svg" role="img" aria-label="Animated diagram of the selected component"></svg></div>
+   <p class="cap" id="cap" aria-live="polite"></p>
+   <div class="dots" id="dots" aria-label="Steps"></div>
+  </section>
+ </main>
+ <footer>
+  <div class="bar"><span class="mono" id="foot" style="font-size:10px"></span>
+   <div class="ctl"><button id="prev" aria-label="Previous component">Prev</button><button id="play">Play tour</button><button id="next" aria-label="Next component">Next</button></div></div>
+  <div class="track"><div id="prog"></div></div>
+ </footer>
+</div>
+
+<script>
+const STATE={},REPOS=["AgenticEnv","DeutschAutoCorrect","JobTracker","Portfolio","RamTracker","VoiceClone","agenticenv-chat","data-ingest","genealogy","live-subs","quant-backtest","quant-dev","quant-microstructure","quant-modeling","quant-platform"],ROOT='..';
+/* Live values from repos/<name>/state.json. A public build has none, so L() returns the fallback. */
+const L=(key,fallback=null)=>STATE[key]??fallback;
+const B=1.97,STEP=B*2,NS='http://www.w3.org/2000/svg',$=s=>document.querySelector(s),svg=$('#svg');
+const LIME='#c6f135',MUTE='#8d968f',LINE='#2c3a30',VIOLET='#8c7dff',WARN='#f2b84b',INK='#eef2ee',SOFT='#b9c1ba';
+const still=matchMedia('(prefers-reduced-motion: reduce)').matches;
+const clamp=(v,a=0,b=1)=>Math.min(b,Math.max(a,v)),ease=p=>1-Math.pow(1-clamp(p),3);
+let A=[],U=[];
+
+function el(n,a={},p=svg){const e=document.createElementNS(NS,n);for(const k in a)e.setAttribute(k,a[k]);p.appendChild(e);return e}
+function txt(g,x,y,s,o={}){const e=el('text',{x,y,'font-size':o.size??16,'text-anchor':o.anchor??'middle','font-weight':o.w??400,class:o.mono?'m':''},g);e.textContent=s;e.style.fill=o.fill??INK;if(o.ls)e.style.letterSpacing=o.ls;return e}
+const reveal=(e,at,o={})=>(A.push({e,tin:at*STEP,dy:o.dy??10,blur:o.blur??7}),e);
+
+/* Drawing kit for the 650×520 panel. `at` is expressed in steps, so diagrams line up with the captions. */
+const d={
+ g(at=0,o){return reveal(el('g'),at,o)},
+ box(x,y,w,h,title,sub,o={}){const g=d.g(o.at??0);
+  el('rect',{x,y,width:w,height:h,rx:11,fill:'#0b120e',stroke:LINE},g);
+  if(title)txt(g,x+w/2,y+(sub?h/2-3:h/2+6),title,{size:o.size??17,w:500,mono:o.mono});
+  if(sub)txt(g,x+w/2,y+h/2+17,sub,{size:o.subsize??13,fill:MUTE,mono:o.submono});
+  if(o.hl!=null)reveal(el('rect',{x,y,width:w,height:h,rx:11,fill:(o.c??LIME)+'14',stroke:o.c??LIME,'stroke-width':2,'pointer-events':'none'},g),o.hl,{dy:0,blur:0});
+  if(o.to)link(g,o.to,title);return g},
+ line(pts,o={}){const at=(o.at??0)*STEP,p=el('path',{d:'M'+pts.map(q=>q.join(' ')).join('L'),fill:'none',stroke:o.c??MUTE,'stroke-width':o.w??1.5,pathLength:1});
+  U.push(t=>{p.style.strokeDasharray=`${ease((t-at)/(o.dur??.5))} 1`;p.style.opacity=t<at?0:1});return p},
+ text(x,y,s,o={}){const g=d.g(o.at??0);return txt(g,x,y,s,o)},
+ pill(s,at,c=LIME){const g=d.g(0,{dy:0});el('rect',{x:24,y:456,width:602,height:46,rx:11,fill:c===LIME?'#1d2a12':'#2b2110'},g);const t=d.g(at);txt(t,325,485,s,{size:17,w:500,fill:c})},
+ grid(x,y,cols,rows,o={}){const u=o.u??30,v=o.v??26,gap=o.gap??8;for(let r=0;r<rows;r++)for(let c=0;c<cols;c++){const X=x+c*(u+gap),Y=y+r*(v+gap),i=r*cols+c;
+  reveal(el('rect',{x:X,y:Y,width:u,height:v,rx:4,fill:'#2b3a30'}),(o.at??0)+(r+c)*.015,{dy:0,blur:3});
+  if(o.fill&&o.fill(i)){const f=el('rect',{x:X,y:Y,width:u,height:v,rx:4,fill:o.fill(i)===true?LIME:o.fill(i)}),tin=(o.fillAt??1)*STEP+i*.05;U.push(t=>f.style.opacity=ease((t-tin)/.2))}}},
+ count(x,y,n,at,o={}){const e=d.text(x,y,'0',{...o,at,mono:1}),tin=at*STEP;U.push(t=>{e.textContent=Math.round(n*ease((t-tin)/.8)).toLocaleString('en-US')+(o.unit??'')})}
+};
+/* `to` is a component id, or `repo#id` for another page. A repo outside this build gets no link. */
+function follow(to){const[repo,id]=to.split('#');if(id)location.href=`${ROOT}/${repo}/index.html#${id}`;else open(to)}
+function link(g,to,label){if(to.includes('#')&&!REPOS.includes(to.split('#')[0]))return;g.dataset.to=to;g.classList.add('go');g.setAttribute('tabindex','0');g.setAttribute('role','button');g.setAttribute('aria-label','Open '+label);g.addEventListener('click',()=>follow(to));g.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();follow(to)}})}
+
+/* Content of the agenticenv-chat page. Read from the repository at a51d913. */
+const META={name:'agenticenv-chat',accent:'a chat panel for a local agent',snapshot:'2026-10-31',commit:'a51d913',
+ footer:'A client of the AgenticEnv bridge / no hosted backend',
+ mapSub:'One view of the extension, and the path of a single turn.',mapLabel:'System map / follow one turn'};
+const ZONES=[{x:20,w:260,label:'WEBVIEW'},{x:285,w:440,label:'EXTENSION HOST'},{x:730,w:350,label:'AGENTICENV'}];
+const VIEWS=[
+{id:'client',name:'Client',sub:'A twin repository: the extension does nothing alone.',rows:[
+ {id:'protocol',name:'Wire protocol',desc:'A manual mirror, guarded by a test',tag:'protocol.ts',facts:[['Source of truth','<code>protocol.py</code> in AgenticEnv'],['Mirror','<code>src/protocol.ts</code>'],['Guard','<code>test/discipline/protocol-drift.test.ts</code>, with AgenticEnv cloned alongside'],['Old bridge','A v1 rejection before <code>welcome</code> switches to degraded mode, silently']],flag:'The README says session resume is not shipped. The AgenticEnv bridge now has it, behind a setting that is off, so the feature stays inert.',
+  label:'Protocol / two files, one contract',steps:['The bridge owns the contract.','A drift test compares both files.'],draw(){
+  d.box(40,120,250,90,'protocol.py','AgenticEnv',{mono:1,to:'AgenticEnv#wire'});d.box(360,120,250,90,'protocol.ts','this repository',{mono:1,at:.3});d.box(165,300,320,76,'protocol-drift.test.ts',null,{mono:1,size:14,at:1,hl:1.2});d.line([[165,210],[165,338]],{at:1,c:LIME});d.line([[485,210],[485,338]],{at:1,c:LIME});d.pill('Drift fails the tests',1.5)}},
+ {id:'host',name:'Extension host',desc:'Bridge client, health and commands',tag:'extension.ts',facts:[['Commands','27 declared in <code>package.json</code>'],['Panel','Live status of the bridge, llama-server, Docker, the image and the GPU'],['Editor','Fix with agent, commit messages, terminal commands'],['Version','0.4.0']],
+  label:'Host / the trusted side',steps:['The webview only displays.','Decisions and file access stay in the host.'],draw(){
+  d.box(40,120,240,110,'Webview','untrusted display');d.box(370,120,240,110,'Host','node:fs, policy, bridge',{at:.3,hl:.5});d.line([[280,175],[370,175]],{at:.5,c:LIME});d.text(325,160,'messages',{size:12,fill:MUTE,at:.6});d.pill('A webview cannot authorize itself',1.5)}},
+ {id:'webview',name:'Webview',desc:'React, with sanitized markdown',tag:'src/webview',facts:[['State','A store with reducers, in <code>store/</code>'],['Markdown','Sanitized against an allowlist'],['Code blocks','Copy, Insert, New file and Run'],['Tools','Per-tool rendering']],
+  label:'Webview / events become items',steps:['Bridge events reach a reducer.','The reducer builds what is drawn.'],draw(){
+  ['Bridge event','reduceBridge','Items','React render'].forEach((s,i)=>{const y=70+i*92;d.box(165,y,320,64,s,null,{at:i*.25,mono:i===1,hl:i===1?1.1:null,size:16});if(i)d.line([[325,y-28],[325,y]],{at:i*.25,c:LIME})});d.pill('One direction',1.5)}}]},
+
+{id:'turn',name:'Turn',sub:'What goes with a message, what may run, and how to undo it.',rows:[
+ {id:'context',name:'Context',desc:'References, within a budget',tag:'src/context',chips:['files','selection','symbols','diagnostics','terminal','git'],facts:[['Budget','<code>context_window</code> minus a margin for the reply'],['Priority','Explicit chips come before automatic ones'],['Syntax','<code>#</code> references and <code>/</code> commands'],['Gauge','A context gauge, with <code>/compact</code>']],
+  label:'Context / explicit first',steps:['The budget comes from the context window.','Chips you chose are served first.'],draw(){
+  d.box(60,90,530,70,'context_window','minus the reply margin',{mono:1});d.grid(60,230,14,3,{u:30,v:26,gap:8,at:.5,fillAt:1,fill:n=>n<16});d.pill('A guaranteed share for your chips',1.6)}},
+ {id:'permissions',name:'Permissions',desc:'A pure policy, on the host',tag:'policy.ts',chips:['ask','autoEdit','autoAll','readOnly'],facts:[['Rule 1','<code>deny</code> always wins'],['Rule 2','A chained command is never auto-approved'],['Rule 3','An invalid regex is ignored, never read as allow'],['Rule 4','A sensitive path is never auto-approved, even in <code>autoAll</code>'],['Purity','No API: it runs on the host, and it is unit tested']],
+  label:'Policy / a chain is never automatic (example)',steps:['A prefix may match an allow rule.','A shell chain still needs a person.'],draw(){
+  d.box(60,80,530,64,'npm test',null,{mono:1,hl:.3});d.box(60,190,530,64,'npm test && curl x | sh',null,{mono:1,at:1,hl:1.2,c:WARN});d.text(325,300,'; && | ` $( > &',{size:16,mono:1,fill:WARN,at:1.2});d.pill('deny wins, chains ask',1.5,WARN)}},
+ {id:'edits',name:'Edits and undo',desc:'A checkpoint per turn',tag:'src/edits',facts:[['Granularity','The turn'],['How','<code>git stash create</code>: a dangling commit, invisible in log and branches'],['Untracked','Listed before the turn'],['Review','Per-file diffs, revert by hunk, gutter marks']],
+  label:'Checkpoint / nothing visible in git',steps:['A snapshot is taken as the turn starts.','Undo turn goes back to it.'],draw(){
+  ['turn 1','turn 2','turn 3'].forEach((s,i)=>{const x=120+i*200,g=d.g(i*.3);el('circle',{cx:x,cy:170,r:12,fill:LIME},g);txt(g,x,210,s,{size:14,mono:1,fill:SOFT})});d.line([[120,170],[520,170]],{c:LIME});d.box(165,290,320,76,'git stash create','no ref, no stash entry',{at:1,mono:1,hl:1.2});d.pill('Undo turn',1.5)}},
+ {id:'instructions',name:'Instructions',desc:'Repository files that steer the agent',tag:'src/instructions',facts:[['Files','<code>AGENTS.md</code> and <code>.agenticenv/</code>'],['Reload','Hot, applied on the next turn'],['Trust','In an untrusted folder, nothing is loaded']],
+  label:'Instructions / gated by Workspace Trust',steps:['These files drive an agent that runs commands.','An untrusted folder loads none of them.'],draw(){
+  d.box(205,80,240,80,'Workspace Trust',null,{hl:.5,c:WARN});d.box(60,260,240,90,'Trusted','hot reload',{at:1,hl:1.2});d.box(350,260,240,90,'Untrusted','nothing loaded',{at:1.1,c:WARN,hl:1.2});d.line([[325,160],[325,212],[180,212],[180,260]],{at:1,c:LIME});d.line([[325,212],[470,212],[470,260]],{at:1.1,c:WARN});d.pill('Instructions are an attack surface',1.5,WARN)}},
+ {id:'sessions',name:'Sessions',desc:'A durable archive per folder',tag:'src/sessions',facts:[['Writes','Atomic: a temp file, then <code>rename</code>'],['Index','Can be rebuilt from the files'],['Search','Full-text history'],['Export','Markdown or JSON'],['Edit','Edit and resend, with branch history']],
+  label:'Store / a crash cannot corrupt it',steps:['Each write goes to a temp file first.','The rename makes it visible in one step.'],draw(){
+  d.box(40,180,180,90,'Turn','in memory');d.box(270,180,160,90,'file.tmp',null,{at:.4,mono:1});d.box(480,180,140,90,'file',null,{at:1,mono:1,hl:1.2});d.line([[220,225],[270,225]],{at:.4,c:LIME});d.line([[430,225],[480,225]],{at:1,c:LIME});d.text(455,212,'rename',{size:12,mono:1,fill:MUTE,at:1});d.pill('Atomic, and rebuildable',1.5)}}]},
+
+{id:'verify',name:'Verification',sub:'Tests of behaviour, and tests of discipline.',rows:[
+ {id:'verification',name:'Tests',desc:'Unit, render and discipline',tag:'test/',facts:[['Files','58 test files'],['Folders','<code>unit</code>, <code>render</code>, <code>discipline</code>, <code>integration</code>'],['Discipline','Protocol drift, exhaustive routers, hygiene'],['Fake','A fake bridge for integration tests'],['Build','esbuild, then a <code>.vsix</code>']],
+  label:'Tests / four folders (example)',steps:['Most logic is pure, and unit tested.','Discipline tests guard the rules.'],draw(){
+  [['unit',38],['render',12],['discipline',6],['integration',3]].forEach(([s,n],i)=>{const y=80+i*88,g=d.g(i*.2);txt(g,40,y+30,s,{size:15,mono:1,anchor:'start',fill:SOFT});const r=el('rect',{x:200,y:y+8,height:34,rx:4,fill:LIME},g),t0=(.2+i*.2)*STEP;U.push(t=>r.setAttribute('width',n*9.5*ease((t-t0)/.6)))});d.pill('Pure logic first',1.6)}}]}
+];
+
+/* Map: one turn between the panel, the host and the bridge. */
+const N={ui:[40,100,220,64,'Composer','# and / chips','webview'],view:[40,220,220,64,'Reducers','events to items','webview'],card:[40,340,220,64,'Approval card','command, diff','permissions'],
+ ctx:[305,100,200,64,'Context','budget','context'],cli:[305,220,200,64,'Bridge client','WebSocket','protocol'],pol:[305,340,200,64,'Policy','pure','permissions'],chk:[515,100,190,64,'Checkpoint','per turn','edits'],arc:[515,220,190,64,'Archive','atomic','sessions'],ins:[515,340,190,64,'Instructions','trusted only','instructions'],
+ br:[750,220,310,64,'openhands-bridge','AgenticEnv','protocol'],sb:[750,340,310,64,'Sandbox','disposable','protocol']};
+const E={uc:[[260,132],[305,132]],cc:[[405,164],[405,220]],cb:[[505,244],[512,244],[512,206],[728,206],[728,244],[750,244]],bs:[[905,284],[905,340]],vc:[[305,252],[260,252]],cp:[[405,284],[405,340]],pc:[[305,372],[260,372]],ck:[[505,132],[515,132]],ca:[[505,252],[515,252]]};
+const TRACE=[
+ ['Click any box to open it, or step through one turn.',[],[]],
+ ['You write a message, with # references.',['ui','ctx'],['uc']],
+ ['The host fits the context into the budget, and takes a checkpoint.',['ctx','chk','cli'],['ck','cc']],
+ ['The message reaches the bridge, which drives the sandbox.',['cli','br','sb'],['cb','bs']],
+ ['Events stream back, and reducers turn them into items.',['cli','view'],['vc']],
+ ['An action needing approval goes through the pure policy.',['cli','pol'],['cp']],
+ ['If it asks, a card shows the exact command.',['pol','card'],['pc']],
+ ['The turn is archived atomically.',['cli','arc'],['ca']]];
+
+const COMPS=VIEWS.flatMap(v=>v.rows.map(r=>({...r,view:v.id}))),ORDER=['map',...COMPS.map(c=>c.id)];
+const S={view:'map',id:'map',t:0,tour:false,last:0,steps:TRACE.map(s=>s[0]),paused:false};
+
+function drawMap(){
+ svg.setAttribute('viewBox','0 0 1100 600');
+ ZONES.forEach(({x,w,label,dashed})=>{el('rect',{x,y:48,width:w-10,height:510,rx:14,fill:dashed?'#0c1511':'#090f0c',stroke:'#1f2a24','stroke-dasharray':dashed?'6 5':''});txt(svg,x+14,34,label,{size:13,mono:1,fill:MUTE,anchor:'start',ls:'.14em'})});
+ const paths={};for(const k in E)paths[k]=el('path',{d:'M'+E[k].map(q=>q.join(' ')).join('L'),fill:'none',stroke:'#34443a','stroke-width':1.5});
+ const hot={};for(const k in E)hot[k]=el('path',{d:paths[k].getAttribute('d'),fill:'none',stroke:LIME,'stroke-width':2.4});
+ const lit={};
+ for(const k in N){const[x,y,w,h,a,b,to]=N[k],g=el('g');el('rect',{x,y,width:w,height:h,rx:11,fill:'#0b120e',stroke:LINE},g);txt(g,x+w/2,y+(b?h/2-3:h/2+6),a,{size:w<110?14:17,w:500});if(b)txt(g,x+w/2,y+h/2+18,b,{size:13,fill:MUTE,mono:b[0]===':'||b[0]==='/'});
+  lit[k]=el('rect',{x,y,width:w,height:h,rx:11,fill:'#c6f13518',stroke:LIME,'stroke-width':2,'pointer-events':'none'},g);link(g,to,a)}
+ const dot=[0,1,2,3].map(()=>el('circle',{r:5,fill:LIME}));
+ U.push(t=>{const s=Math.floor(t/STEP),[,ns,es]=TRACE[Math.min(s,TRACE.length-1)],since=t-s*STEP,p=ease(since/.35);
+  for(const k in lit)lit[k].style.opacity=ns.includes(k)?p:0;
+  for(const k in hot){const on=es.includes(k);hot[k].style.opacity=on?1:0}
+  dot.forEach((c,i)=>{const k=es[i];if(!k){c.style.opacity=0;return}const q=paths[k],L=q.getTotalLength(),pt=q.getPointAtLength(L*((since/1.4)%1));c.setAttribute('cx',pt.x);c.setAttribute('cy',pt.y);c.style.opacity=1})})
+}
+
+const C=$('#chip').getContext('2d');
+function chip(t){C.clearRect(0,0,400,270);const a=.72+.3*Math.sin(t*.42),e=.62,sc=.94;
+ const rot=([x,y,z])=>{const X=x*Math.cos(a)-y*Math.sin(a),Y=x*Math.sin(a)+y*Math.cos(a);return[X,Y*Math.cos(e)-z*Math.sin(e),Y*Math.sin(e)+z*Math.cos(e)]};
+ const face=(pts,c)=>{C.beginPath();pts.map(rot).forEach((p,i)=>{const x=200+p[0]*sc,y=132+p[1]*sc;i?C.lineTo(x,y):C.moveTo(x,y)});C.closePath();C.fillStyle=`rgb(${c.join(',')})`;C.fill();C.strokeStyle='rgba(0,0,0,.45)';C.stroke()};
+ const shade=(c,s)=>c.map(v=>Math.round(v*s));
+ const cub=(x0,y0,z0,x1,y1,z1,c)=>{for(const[n,pts,s]of[[[1,0,0],[[x1,y0,z0],[x1,y1,z0],[x1,y1,z1],[x1,y0,z1]],.55],[[-1,0,0],[[x0,y0,z0],[x0,y1,z0],[x0,y1,z1],[x0,y0,z1]],.3],[[0,1,0],[[x0,y1,z0],[x1,y1,z0],[x1,y1,z1],[x0,y1,z1]],.4],[[0,-1,0],[[x0,y0,z0],[x1,y0,z0],[x1,y0,z1],[x0,y0,z1]],.3]])if(rot(n)[2]>0)face(pts,shade(c,s));face([[x0,y0,z1],[x1,y0,z1],[x1,y1,z1],[x0,y1,z1]],c)};
+ cub(-105,-80,-34,105,80,-12,[122,126,118]);face([[-94,-68,-12],[94,-68,-12],[94,68,-12],[-94,68,-12]],[26,30,27]);
+ [...Array(8)].map((_,i)=>-92+i*25).sort((u,v)=>(u-v)*Math.sin(a)).forEach(x=>cub(x,-66,-12,x+16,66,18,[182,184,170]))}
+
+function seek(t){
+ for(const a of A){const p=ease((t-a.tin)/.42),s=a.e.style;s.opacity=t>=a.tin?p:0;s.transform=`translateY(${a.dy*(1-p)}px)`;const b=a.blur*(1-p);s.filter=b>.05&&t>=a.tin?`blur(${b}px)`:'none'}
+ U.forEach(f=>f(t));
+ const s=Math.min(Math.floor(t/STEP),S.steps.length-1);
+ if(s!==S.shown){S.shown=s;const m=S.id==='map';$('#cap').innerHTML=`<b>${m?s:s+1}/${m?S.steps.length-1:S.steps.length}</b>`+S.steps[s];[...$('#dots').children].forEach((b,i)=>i===s?b.setAttribute('aria-current','true'):b.removeAttribute('aria-current'))}
+ const i=ORDER.indexOf(S.id);$('#prog').style.width=100*(i+(s+1)/S.steps.length)/ORDER.length+'%'}
+
+function renderList(v){
+ $('#list').replaceChildren(...v.rows.map((r,i)=>{const b=document.createElement('button');b.className='row';b.dataset.id=r.id;const on=r.id===S.id;b.setAttribute('aria-expanded',on);
+  b.innerHTML=`<i>${String(i+1).padStart(2,'0')}</i><h3>${r.name}</h3><p>${r.desc}</p><u${r.status?' style="color:var(--warn)"':''}>${r.status??r.tag}</u>`+(on?`<dl class="more">${(r.facts||[]).filter(([,w])=>w!=null).map(([k,w])=>`<dt>${k}</dt><dd>${w}</dd>`).join('')}${r.chips?`<div class="chips">${r.chips.map(c=>`<span>${c}</span>`).join('')}</div>`:''}${r.flag?`<div class="flag"><span>${r.flag}</span></div>`:''}</dl>`:'');
+  b.onclick=()=>open(r.id);return b}))}
+
+function open(id,keepTour){
+ const c=COMPS.find(x=>x.id===id),view=c?VIEWS.find(v=>v.id===c.view):null;
+ if(!keepTour)S.tour=false;S.id=id;S.view=c?c.view:'map';S.t=0;S.shown=-1;S.paused=false;S.hold=0;A=[];U=[];svg.replaceChildren();
+ $('#cols').classList.toggle('is-map',!c);
+ [...$('#tabs').children].forEach(b=>{const on=b.dataset.view===S.view;b.setAttribute('aria-selected',on);if(on)$('#tabs').scrollLeft=b.offsetLeft-16});
+ if(c){svg.setAttribute('viewBox','0 0 650 520');S.steps=c.steps;$('#sec').textContent=`${String(VIEWS.indexOf(view)+1).padStart(2,'0')} / ${view.name}`;$('#sub').textContent=view.sub;$('#plabel').textContent=c.label;renderList(view);c.draw()}
+ else{S.steps=TRACE.map(s=>s[0]);$('#sub').textContent=META.mapSub;$('#plabel').textContent=META.mapLabel;drawMap()}
+ const dots=$('#dots');dots.replaceChildren(...S.steps.map((_,i)=>{const b=document.createElement('button');b.className='dot';b.textContent=c?i+1:i;b.setAttribute('aria-label','Go to step '+(c?i+1:i));b.onclick=()=>{S.tour=false;S.paused=true;S.t=c?(i+1)*STEP-.02:i*STEP+.001;seek(S.t);syncPlay()};return b}));
+ try{history.replaceState(null,'','#'+id)}catch{}
+ if(!c)S.paused=!S.tour;
+ if(still)S.t=c?S.steps.length*STEP-.01:0;
+ seek(S.t);syncPlay()}
+
+function syncPlay(){$('#play').textContent=S.tour?'Pause tour':'Play tour'}
+function step(d){const i=(ORDER.indexOf(S.id)+d+ORDER.length)%ORDER.length;open(ORDER[i])}
+function frame(now){const dt=Math.min(.1,(now-S.last)/1000||0);S.last=now;if(META.hardware)chip(now/1000);
+ if(!S.paused){const end=S.steps.length*STEP-.01;
+  if(S.t<end){S.t=Math.min(end,S.t+dt);seek(S.t)}
+  else if(S.tour&&(!still||(S.hold+=dt)>4)){const i=ORDER.indexOf(S.id);i<ORDER.length-1?open(ORDER[i+1],true):(S.tour=false,syncPlay())}}
+ else if(S.id==='map'&&S.shown>0&&!still){const b=S.shown*STEP;S.t=b+((S.t-b+dt)%(STEP-.01));seek(S.t)}
+ requestAnimationFrame(frame)}
+
+$('#tabs').replaceChildren(...[{id:'map',name:META.mapTab??'System map'},...VIEWS].map((v,i)=>{const b=document.createElement('button');b.className='tab';b.dataset.view=v.id;b.setAttribute('role','tab');b.innerHTML=`<b>0${i}</b>${v.name}`;b.onclick=()=>open(v.id==='map'?'map':v.rows[0].id);return b}));
+$('#prev').onclick=()=>step(-1);$('#next').onclick=()=>step(1);
+$('#play').onclick=()=>{S.tour=!S.tour;if(S.tour)S.paused=false;else if(S.id==='map')S.paused=true;syncPlay()};
+addEventListener('keydown',e=>{if(e.target.closest('button,.go'))return;if(e.key==='ArrowRight')step(1);if(e.key==='ArrowLeft')step(-1)});
+addEventListener('hashchange',()=>{const id=location.hash.slice(1);if(id!==S.id&&ORDER.includes(id))open(id)});
+$('#home').href=`${ROOT}/index.html`;$('#brand').textContent='\u25C6\u00A0 '+META.name;$('#stamp').textContent=`Explorer / snapshot ${META.snapshot} / ${META.commit}`;$('#foot').textContent=META.footer;
+$('#title').innerHTML=`${META.name}<em>${META.accent}</em>`;
+if(META.hardware){$('#gpu').hidden=false;$('#hwname').textContent=META.hardware.name;$('#hwsub').textContent=META.hardware.sub;chip(0)}
+const h=location.hash.slice(1);open(ORDER.includes(h)?h:'map');requestAnimationFrame(frame);
+
+</script></body></html>

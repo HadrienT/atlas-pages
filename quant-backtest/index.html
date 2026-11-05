@@ -1,0 +1,280 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>quant-backtest Explorer</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&family=Space+Grotesk:wght@400;500&display=swap">
+<style>/* Layout: the video's three-column console. Stage rail, component list, animated diagram; the map spans the last two. */
+:root{color-scheme:dark;--bg:#060a0b;--panel:#080d0b;--card:#0a100d;--node:#0b120e;--ink:#eef2ee;--soft:#b9c1ba;--mute:#8d968f;--dim:#5b655e;--line:#1f2a24;--line2:#2c3a30;--lime:#c6f135;--olive:#1d2a12;--violet:#8c7dff;--warn:#f2b84b;
+--display:"Space Grotesk",ui-sans-serif,system-ui,sans-serif;--mono:"JetBrains Mono",ui-monospace,monospace}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{margin:0;background:radial-gradient(1100px 700px at 62% 62%,#0d1610 0%,transparent 70%),radial-gradient(800px 500px at 10% 100%,#0b130e 0%,transparent 70%),var(--bg);background-attachment:fixed;color:var(--ink);font-family:var(--display);font-size:15px}
+button{font:inherit;color:inherit;background:none;border:0;cursor:pointer;text-align:left}
+:focus-visible{outline:2px solid var(--lime);outline-offset:2px}
+.app{min-height:100%;display:flex;flex-direction:column;gap:22px;padding-block:22px 14px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));max-width:1720px;margin:0 auto}
+@media(min-width:900px){.app{padding-left:max(44px,env(safe-area-inset-left,0px));padding-right:max(44px,env(safe-area-inset-right,0px))}}
+.mono{font-family:var(--mono);text-transform:uppercase;letter-spacing:.2em;font-size:11px;color:var(--mute)}
+.top{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;align-items:center;padding-bottom:12px;border-bottom:1px solid var(--line)}
+.brand{color:var(--ink);font-weight:500;font-size:13px}
+.nav{display:flex;align-items:center;gap:18px;flex-wrap:wrap}
+.home{color:var(--lime);text-decoration:none;padding:4px 10px;margin-left:-10px;border-radius:8px;transition:background .2s}
+.home:hover{background:#1d2a12}
+.head h1{margin:0;font-size:clamp(32px,4vw,52px);font-weight:500;letter-spacing:-.02em;line-height:1.1;text-wrap:balance}
+.head h1 em{font-style:normal;color:var(--lime);margin-left:.35em;text-shadow:0 0 28px #c6f13555}
+.head p{margin:8px 0 0;font-size:clamp(15px,1.4vw,19px);color:var(--soft);min-height:1.4em}
+.cols{display:grid;grid-template-columns:230px minmax(0,1fr) minmax(0,1.08fr);gap:0 34px;flex:1;align-items:start}
+.side{padding-right:30px;border-right:1px solid var(--line);display:flex;flex-direction:column;gap:12px;align-self:stretch;min-width:0}
+.tabs{display:flex;flex-direction:column;gap:6px}
+.tab{display:flex;align-items:center;gap:14px;height:46px;padding:0 16px;border-radius:12px;border:1.5px solid transparent;color:var(--mute);font-size:16px;white-space:nowrap;transition:color .2s,background .2s,border-color .2s}
+.tab b{font:500 11px var(--mono);color:var(--lime);opacity:.85}
+.tab:hover{color:var(--ink);background:#0e1611}
+.tab[aria-selected=true]{color:var(--ink);border-color:var(--lime);background:linear-gradient(90deg,#26361499,#14200f66);box-shadow:0 0 22px #c6f13522}
+.gpu{margin-top:auto;text-align:center;padding-top:6px}
+.gpu canvas{width:100%;max-width:200px;height:auto;display:block;margin:0 auto}
+.gpu strong{display:block;color:var(--lime);font-weight:500;font-size:16px;margin-top:4px}
+.gpu span{color:var(--mute);font-size:13px}
+.mid,.right{min-width:0;display:flex;flex-direction:column;gap:12px}
+.list{display:flex;flex-direction:column;gap:8px}
+.row{position:relative;display:block;width:100%;border-radius:13px;border:1px solid var(--line2);background:var(--card);padding:11px 16px 11px 50px;transition:border-color .2s,background .2s,box-shadow .2s}
+.row:hover{border-color:#47604c}
+.row i{position:absolute;left:18px;top:15px;font:400 11px var(--mono);color:var(--mute)}
+.row h3{margin:0;font-size:17px;font-weight:500;padding-right:96px}
+.row p{margin:2px 0 0;font-size:14px;color:var(--mute)}
+.row u{position:absolute;right:14px;top:14px;font:400 10px var(--mono);color:var(--mute);text-decoration:none;letter-spacing:.06em;max-width:92px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.row[aria-expanded=true]{border:1.5px solid var(--lime);background:linear-gradient(90deg,#2a3b1680,#17230f40);box-shadow:0 0 24px #c6f13520}
+.row[aria-expanded=true] p{color:var(--soft)}
+.more{display:grid;grid-template-columns:minmax(84px,auto) minmax(0,1fr);gap:4px 14px;margin-top:10px;font-size:13px}
+.more dt{font:400 10px/1.9 var(--mono);text-transform:uppercase;letter-spacing:.1em;color:var(--mute)}
+.more dd{margin:0;color:var(--soft);overflow-wrap:anywhere}
+.more code{font:400 12px var(--mono);color:var(--ink)}
+.chips{display:flex;flex-wrap:wrap;gap:4px;grid-column:1/-1;margin-top:4px}
+.chips span{font:400 11px var(--mono);padding:2px 7px;border-radius:6px;background:#141c15;color:var(--soft)}
+.flag{grid-column:1/-1;margin-top:6px;display:flex;gap:8px;font-size:13px;color:var(--warn);line-height:1.4}
+.flag::before{content:"▲";font-size:9px;line-height:18px}
+.panel{position:relative;border:1px solid var(--line);border-radius:16px;background:var(--panel);overflow:hidden}
+.scroll{overflow-x:auto}
+#svg{display:block;width:100%;height:auto}
+.is-map .mid{display:none}.is-map .right{grid-column:2/4}
+.is-map #svg{min-width:760px;max-height:max(440px,calc(100vh - 310px))}
+.is-map .gpu canvas{max-width:190px}
+.cap{font-size:16px;color:var(--soft);min-height:2.7em;margin:0;line-height:1.35}
+.cap b{font:400 12px var(--mono);color:var(--lime);margin-right:8px}
+.dots{display:flex;flex-wrap:wrap;gap:6px}
+.dot{min-width:30px;height:28px;padding:0 8px;border-radius:7px;border:1px solid var(--line2);font:400 11px var(--mono);color:var(--mute);text-align:center}
+.dot:hover{color:var(--ink);border-color:#47604c}
+.dot[aria-current=true]{background:var(--olive);border-color:var(--lime);color:var(--lime)}
+footer{display:flex;flex-direction:column;gap:10px}
+.bar{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.ctl{display:flex;gap:6px}
+.ctl button{height:32px;padding:0 12px;border-radius:8px;border:1px solid var(--line2);font:400 11px var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--soft)}
+.ctl button:hover{color:var(--ink);border-color:#47604c}
+#play{border-color:var(--lime);color:var(--lime);background:var(--olive)}
+.track{height:3px;background:var(--line);position:relative}
+#prog{position:absolute;left:0;top:0;bottom:0;background:var(--lime);box-shadow:0 0 12px #c6f13588;width:0}
+svg text{font-family:var(--display);fill:var(--ink)}
+svg .m{font-family:var(--mono)}
+svg .go{cursor:pointer}
+svg .go:hover>rect:first-child{stroke:var(--lime)}
+svg .go:focus-visible{outline:none}svg .go:focus-visible>rect:first-child{stroke:var(--lime);stroke-width:2}
+@media(max-width:1180px){
+ .cols{grid-template-columns:minmax(0,1fr);gap:18px}
+ .side{border:0;padding:0}.tabs{flex-direction:row;overflow-x:auto;padding-bottom:4px}.tab{height:40px;flex:none}
+ .gpu{display:none}.is-map .right{grid-column:auto}
+ .right{order:2}.mid{order:3}
+}
+.head h1{overflow-wrap:anywhere}
+</style>
+<body>
+<div class="app">
+ <div class="top"><span class="nav"><a class="mono home" id="home">&larr; Atlas</a><span class="mono brand" id="brand"></span></span><span class="mono" id="stamp"></span></div>
+ <div class="head"><h1 id="title"></h1><p id="sub"></p></div>
+ <main class="cols" id="cols">
+  <nav class="side" aria-label="Stages">
+   <span class="mono">Views</span>
+   <div class="tabs" id="tabs" role="tablist"></div>
+   <div class="gpu" id="gpu" hidden><canvas id="chip" width="400" height="270" aria-hidden="true"></canvas><strong id="hwname"></strong><span id="hwsub"></span></div>
+  </nav>
+  <section class="mid"><span class="mono" id="sec" style="color:var(--lime)"></span><div class="list" id="list"></div></section>
+  <section class="right">
+   <span class="mono" id="plabel"></span>
+   <div class="panel scroll"><svg id="svg" role="img" aria-label="Animated diagram of the selected component"></svg></div>
+   <p class="cap" id="cap" aria-live="polite"></p>
+   <div class="dots" id="dots" aria-label="Steps"></div>
+  </section>
+ </main>
+ <footer>
+  <div class="bar"><span class="mono" id="foot" style="font-size:10px"></span>
+   <div class="ctl"><button id="prev" aria-label="Previous component">Prev</button><button id="play">Play tour</button><button id="next" aria-label="Next component">Next</button></div></div>
+  <div class="track"><div id="prog"></div></div>
+ </footer>
+</div>
+
+<script>
+const STATE={},REPOS=["AgenticEnv","DeutschAutoCorrect","JobTracker","Portfolio","RamTracker","VoiceClone","agenticenv-chat","data-ingest","genealogy","live-subs","quant-backtest","quant-dev","quant-microstructure","quant-modeling","quant-platform"],ROOT='..';
+/* Live values from repos/<name>/state.json. A public build has none, so L() returns the fallback. */
+const L=(key,fallback=null)=>STATE[key]??fallback;
+const B=1.97,STEP=B*2,NS='http://www.w3.org/2000/svg',$=s=>document.querySelector(s),svg=$('#svg');
+const LIME='#c6f135',MUTE='#8d968f',LINE='#2c3a30',VIOLET='#8c7dff',WARN='#f2b84b',INK='#eef2ee',SOFT='#b9c1ba';
+const still=matchMedia('(prefers-reduced-motion: reduce)').matches;
+const clamp=(v,a=0,b=1)=>Math.min(b,Math.max(a,v)),ease=p=>1-Math.pow(1-clamp(p),3);
+let A=[],U=[];
+
+function el(n,a={},p=svg){const e=document.createElementNS(NS,n);for(const k in a)e.setAttribute(k,a[k]);p.appendChild(e);return e}
+function txt(g,x,y,s,o={}){const e=el('text',{x,y,'font-size':o.size??16,'text-anchor':o.anchor??'middle','font-weight':o.w??400,class:o.mono?'m':''},g);e.textContent=s;e.style.fill=o.fill??INK;if(o.ls)e.style.letterSpacing=o.ls;return e}
+const reveal=(e,at,o={})=>(A.push({e,tin:at*STEP,dy:o.dy??10,blur:o.blur??7}),e);
+
+/* Drawing kit for the 650×520 panel. `at` is expressed in steps, so diagrams line up with the captions. */
+const d={
+ g(at=0,o){return reveal(el('g'),at,o)},
+ box(x,y,w,h,title,sub,o={}){const g=d.g(o.at??0);
+  el('rect',{x,y,width:w,height:h,rx:11,fill:'#0b120e',stroke:LINE},g);
+  if(title)txt(g,x+w/2,y+(sub?h/2-3:h/2+6),title,{size:o.size??17,w:500,mono:o.mono});
+  if(sub)txt(g,x+w/2,y+h/2+17,sub,{size:o.subsize??13,fill:MUTE,mono:o.submono});
+  if(o.hl!=null)reveal(el('rect',{x,y,width:w,height:h,rx:11,fill:(o.c??LIME)+'14',stroke:o.c??LIME,'stroke-width':2,'pointer-events':'none'},g),o.hl,{dy:0,blur:0});
+  if(o.to)link(g,o.to,title);return g},
+ line(pts,o={}){const at=(o.at??0)*STEP,p=el('path',{d:'M'+pts.map(q=>q.join(' ')).join('L'),fill:'none',stroke:o.c??MUTE,'stroke-width':o.w??1.5,pathLength:1});
+  U.push(t=>{p.style.strokeDasharray=`${ease((t-at)/(o.dur??.5))} 1`;p.style.opacity=t<at?0:1});return p},
+ text(x,y,s,o={}){const g=d.g(o.at??0);return txt(g,x,y,s,o)},
+ pill(s,at,c=LIME){const g=d.g(0,{dy:0});el('rect',{x:24,y:456,width:602,height:46,rx:11,fill:c===LIME?'#1d2a12':'#2b2110'},g);const t=d.g(at);txt(t,325,485,s,{size:17,w:500,fill:c})},
+ grid(x,y,cols,rows,o={}){const u=o.u??30,v=o.v??26,gap=o.gap??8;for(let r=0;r<rows;r++)for(let c=0;c<cols;c++){const X=x+c*(u+gap),Y=y+r*(v+gap),i=r*cols+c;
+  reveal(el('rect',{x:X,y:Y,width:u,height:v,rx:4,fill:'#2b3a30'}),(o.at??0)+(r+c)*.015,{dy:0,blur:3});
+  if(o.fill&&o.fill(i)){const f=el('rect',{x:X,y:Y,width:u,height:v,rx:4,fill:o.fill(i)===true?LIME:o.fill(i)}),tin=(o.fillAt??1)*STEP+i*.05;U.push(t=>f.style.opacity=ease((t-tin)/.2))}}},
+ count(x,y,n,at,o={}){const e=d.text(x,y,'0',{...o,at,mono:1}),tin=at*STEP;U.push(t=>{e.textContent=Math.round(n*ease((t-tin)/.8)).toLocaleString('en-US')+(o.unit??'')})}
+};
+/* `to` is a component id, or `repo#id` for another page. A repo outside this build gets no link. */
+function follow(to){const[repo,id]=to.split('#');if(id)location.href=`${ROOT}/${repo}/index.html#${id}`;else open(to)}
+function link(g,to,label){if(to.includes('#')&&!REPOS.includes(to.split('#')[0]))return;g.dataset.to=to;g.classList.add('go');g.setAttribute('tabindex','0');g.setAttribute('role','button');g.setAttribute('aria-label','Open '+label);g.addEventListener('click',()=>follow(to));g.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();follow(to)}})}
+
+/* Content of the quant-backtest page. Read from the repository at e37b5e4. */
+const META={name:'quant-backtest',accent:'with an uncertainty on every figure',snapshot:'2026-10-31',commit:'e37b5e4',
+ footer:'Arrays in, arrays out / all computation here, all I/O elsewhere',mapTab:'Layer map',
+ mapSub:'One view of the engine, and the path of a single backtest.',mapLabel:'Layer map / follow one strategy'};
+const ZONES=[{x:20,w:230,label:'CALLER'},{x:255,w:280,label:'SIMULATE'},{x:540,w:270,label:'MEASURE'},{x:815,w:265,label:'DOUBT'}];
+const VIEWS=[
+{id:'simulate',name:'Simulate',sub:'A book kept in shares and cash, on point-in-time data.',rows:[
+ {id:'accounting',name:'Accounting engine',desc:'Event-driven, shares and cash',tag:'engine/',facts:[['Book','Shares and cash, with dividends and splits applied from raw prices'],['Timeline','Next close by default, next open, or the same close with a cost model'],['Options','Short positions with a borrow rate, whole shares'],['A strategy','Is C++: the wheel refuses weights computed in Python']],flag:'The delisting return is not applied yet: the position stays at its last price, and the quality report flags it (issue #9).',
+  label:'Timeline / when a decision trades',steps:['A signal is computed after the close of day t.','The convention for when it executes is declared in the result.'],draw(){
+  d.line([[50,200],[600,200]],{});[['close t',170],['open t+1',370],['close t+1',560]].forEach(([s,x],i)=>{const g=d.g(.2+i*.2);el('circle',{cx:x,cy:200,r:7,fill:LIME},g);txt(g,x,236,s,{size:14,mono:1,fill:SOFT})});d.box(90,70,160,60,'Signal',null,{at:.2});d.box(450,300,170,70,'Default','next close',{at:1,hl:1.2});d.line([[560,207],[560,300]],{at:1,c:LIME});d.pill('The convention is in the result',1.5)}},
+ {id:'quality',name:'Data quality',desc:'Controls on the series received',tag:'quality/',facts:[['Owner','This repository, by contract'],['Report','<code>quality_report</code>'],['Example','A position left at its last price is flagged']],
+  label:'Quality / checked on arrival',steps:['Series arrive as arrays.','A problem appears in the report beside the result.'],draw(){
+  d.box(40,180,190,90,'Arrays','from the caller');d.box(290,180,120,90,'Checks',null,{at:.3,hl:.5});d.box(470,120,150,80,'Engine',null,{at:1,to:'accounting'});d.box(470,260,150,80,'Report',null,{at:1.1,hl:1.2});d.line([[230,225],[290,225]],{at:.3,c:LIME});d.line([[410,225],[440,225],[440,160],[470,160]],{at:1,c:LIME});d.line([[440,225],[440,300],[470,300]],{at:1.1,c:LIME});d.pill('Quality travels with the result',1.5)}},
+ {id:'costs',name:'Costs',desc:'Gross next to net',tag:'costs/',chips:['proportional','half spread','square-root impact'],facts:[['Report','Turnover, cost per year, break-even cost'],['Estimators','Corwin-Schultz and Abdi-Ranaldo']],flag:'On liquid assets, both spread estimators overestimate the spread by an order of magnitude.',
+  label:'Costs / what a trade really takes (example)',steps:['A gross run shows the idea.','Each cost layer gives what remains.'],draw(){
+  [['Gross',360,MUTE],['Proportional',310,LIME],['+ spread',260,LIME],['+ impact',210,LIME]].forEach(([s,w,c],i)=>{const y=90+i*84,g=d.g(i*.3);txt(g,40,y+30,s,{size:15,anchor:'start',fill:SOFT});const r=el('rect',{x:190,y:y+8,height:34,rx:4,fill:c},g),t0=(.2+i*.3)*STEP;U.push(t=>r.setAttribute('width',w*ease((t-t0)/.6)))});d.pill('Net is what counts',1.6)}},
+ {id:'construction',name:'Construction',desc:'Weights under constraints',tag:'construction/',chips:['equal weight','minimum variance','maximum Sharpe','risk parity'],facts:[['Covariance','Ledoit-Wolf'],['Constraints','Per-asset bounds and budget, nothing else'],['Comparison','Equal weight and buy-and-hold always come along']],
+  label:'Construction / never alone',steps:['A strategy gives weights inside its bounds.','Two simple portfolios run next to it.'],draw(){
+  d.box(205,80,240,80,'Ledoit-Wolf','covariance',{hl:.3});['Strategy','Equal weight','Buy and hold'].forEach((s,i)=>{const x=24+i*208;d.box(x,260,186,84,s,null,{at:1+i*.1,hl:i?null:1.2});d.line([[325,160],[325,210],[x+93,210],[x+93,260]],{at:1+i*.1,c:LIME})});d.pill('A comparison point is mandatory',1.6)}}]},
+
+{id:'measure',name:'Measure',sub:'A metric that cannot be bracketed is not returned.',rows:[
+ {id:'inference',name:'Inference',desc:'Each figure with its interval',tag:'inference/',chips:['Sharpe error','probabilistic Sharpe','stationary bootstrap','Sharpe difference','factor regression'],facts:[['Type','<code>Estimate</code>: value, standard error, bounds'],['Regression','Annualised alpha with Newey-West errors'],['Rule','No interval, no figure']],
+  label:'Estimate / a value is not enough (example)',steps:['A point estimate says little.','The interval says if it differs from zero.'],draw(){
+  d.line([[60,250],[590,250]],{});d.text(190,290,'0',{size:14,mono:1,fill:MUTE});d.line([[190,220],[190,280]],{c:MUTE});d.line([[260,250],[480,250]],{at:.8,c:LIME,w:5});const g=d.g(.3);el('circle',{cx:370,cy:250,r:9,fill:LIME},g);txt(g,370,216,'Sharpe',{size:14});d.pill('value, error, lower, upper',1.5)}},
+ {id:'overfitting',name:'Overfitting',desc:'Is it luck after N trials?',tag:'validation/',chips:['walk-forward','combinatorial purged CV','deflated Sharpe','backtest overfitting'],facts:[['Input','A table of returns, one column per configuration tried'],['Grid','<code>run_allocation_grid()</code>'],['Trial journal','Kept by quant-modeling, not here']],
+  label:'Overfitting / more trials, higher bar (example)',steps:['Every configuration tried counts.','The bar for a real result rises with them.'],draw(){
+  d.grid(60,90,10,6,{u:42,v:32,gap:8,at:0,fillAt:.8,fill:n=>n===27});d.line([[60,400],[580,400]],{at:1,c:WARN});d.pill('The best of many is not a discovery',1.6)}}]},
+
+{id:'desk',name:'Desk tests',sub:'The other meanings of the word backtest.',rows:[
+ {id:'hedging',name:'Hedging backtest',desc:'What remains after delta hedging',tag:'hedging/',status:'simulated only',facts:[['World','Black-Scholes or Heston, simulated'],['Deltas','Black-Scholes, skew-adjusted, Hull-White minimum variance, true model'],['P&amp;L','Explained by the greeks'],['Pricing','The only part that uses <code>quantModeling</code>']],flag:'It does not run on historical surfaces yet (issue #15), and it works around a Heston pricer defect far from the strike.',
+  label:'Hedge / the residual tells the truth',steps:['An option is bought and delta-hedged.','The P&L that remains measures the hedge.'],draw(){
+  d.box(40,110,250,90,'Option','priced by quantModeling',{to:'quant-modeling#analytic',subsize:12});d.box(360,110,250,90,'Delta hedge','four deltas',{at:.3});d.box(165,290,320,84,'Residual P&L','explained by the greeks',{at:1,hl:1.2});d.line([[165,200],[165,332]],{at:1,c:LIME});d.line([[485,200],[485,332]],{at:1,c:LIME});d.pill('Pinned to one commit of the pricer',1.5)}},
+ {id:'risk-models',name:'Risk models',desc:'Do realised losses match the announced ones?',tag:'risk_models/',chips:['Kupiec','Christoffersen','Basel traffic light','P&L attribution','desk limits'],facts:[['Tests','Number of exceptions, and their clustering'],['Rules','Basel zones and desk-level limits'],['API','<code>var_backtest()</code>, <code>pla_test()</code>, <code>desk_backtest()</code>']],
+  label:'VaR / count and clustering (example)',steps:['Kupiec counts the exceptions.','Christoffersen asks if they cluster.'],draw(){
+  for(let i=0;i<40;i++){const hit=[6,7,8,21,33].includes(i),x=46+i*14,h=30+((i*37)%70),g=d.g(i*.02);el('rect',{x,y:hit?240:240-h,width:9,height:hit?h:h,rx:2,fill:hit?WARN:'#3a4a40'},g)}d.line([[40,300],[610,300]],{at:.8,c:VIOLET});d.text(600,324,'VaR',{size:13,fill:VIOLET,anchor:'end',at:.9});d.pill('Too many, or too close together',1.5,WARN)}}]},
+
+{id:'contract',name:'Contract',sub:'All computation here, all input and output elsewhere.',rows:[
+ {id:'boundary',name:'Boundary',desc:'A wheel that opens no file',tag:'docs/contract.md',facts:[['Wheel','<code>quantbacktest</code>, pybind11'],['Never','A database, a file or an HTTP route'],['quant-modeling owns','SQL reads, routes, auth, audit and the page'],['Pin','One commit each way, changed by its own pull request']],
+  label:'Boundary / two pinned links',steps:['quant-modeling calls the wheel with arrays.','The hedging code calls the pricing library back.'],draw(){
+  d.box(40,170,240,110,'quant-modeling','API and data',{to:'quant-modeling#api'});d.box(370,170,240,110,'quant-backtest','engine',{at:.3,hl:.5});d.line([[280,200],[370,200]],{at:.4,c:LIME});d.text(325,188,'wheel',{size:12,mono:1,fill:MUTE,at:.5});d.line([[370,250],[280,250]],{at:1,c:VIOLET});d.text(325,272,'library',{size:12,mono:1,fill:MUTE,at:1.1});d.pill('A strategy cannot bypass point-in-time',1.5)}},
+ {id:'verification',name:'Verification',desc:'GoogleTest, wheel and benchmark',tag:'tests/',facts:[['Tests','22 files, 188 <code>TEST</code> macros'],['CI','<code>format-check</code>, <code>build-test</code>, <code>wheel</code>'],['Sanitizers','<code>scripts/make_asan.sh</code>'],['Bench','<code>benchmarks/bench_engine.cpp</code>']],
+  label:'CI / three jobs',steps:['The format is checked first.','The C++ tests and the wheel build next.'],draw(){
+  ['format-check','build-test','wheel'].forEach((s,i)=>{const y=90+i*110;d.box(165,y,320,80,s,null,{at:i*.3,mono:1,hl:1+i*.1});if(i)d.line([[325,y-30],[325,y]],{at:i*.3,c:LIME})});d.pill('On each push and pull request',1.5)}}]}
+];
+
+/* Map: the path of one run_allocation call, from arrays to intervals. */
+const N={qm:[40,100,190,64,'quant-modeling','SQL, route, audit','boundary'],wheel:[40,220,190,64,'Wheel','quantbacktest','boundary'],qual:[40,340,190,64,'Quality','checks on arrival','quality'],
+ cons:[275,100,240,64,'Construction','weights','construction'],eng:[275,220,240,64,'Accounting','shares and cash','accounting'],cost:[275,340,240,64,'Costs','gross and net','costs'],hedge:[275,460,240,64,'Hedging','simulated world','hedging'],
+ infer:[560,100,230,64,'Inference','each with its interval','inference'],risk:[560,340,230,64,'Risk models','VaR, attribution','risk-models'],
+ over:[835,100,225,64,'Overfitting','N trials','overfitting']};
+const E={qw:[[135,164],[135,220]],wq:[[135,284],[135,340]],qe:[[230,372],[252,372],[252,252],[275,252]],ce:[[395,164],[395,220]],ec:[[395,284],[395,340]],ci:[[515,372],[537,372],[537,132],[560,132]],io:[[790,132],[835,132]]};
+const TRACE=[
+ ['Click any box to open it, or step through one backtest.',[],[]],
+ ['quant-modeling reads the database, then calls the wheel with arrays.',['qm','wheel'],['qw']],
+ ['The series are checked on arrival.',['wheel','qual'],['wq']],
+ ['They reach the accounting engine, day by day.',['qual','eng'],['qe']],
+ ['The strategy gives weights, under its bounds.',['cons','eng'],['ce']],
+ ['Each trade pays its costs, with gross kept next to net.',['eng','cost'],['ec']],
+ ['Every figure comes back with its interval.',['cost','infer'],['ci']],
+ ['A grid of trials then asks if the result is luck.',['infer','over'],['io']]];
+
+const COMPS=VIEWS.flatMap(v=>v.rows.map(r=>({...r,view:v.id}))),ORDER=['map',...COMPS.map(c=>c.id)];
+const S={view:'map',id:'map',t:0,tour:false,last:0,steps:TRACE.map(s=>s[0]),paused:false};
+
+function drawMap(){
+ svg.setAttribute('viewBox','0 0 1100 600');
+ ZONES.forEach(({x,w,label,dashed})=>{el('rect',{x,y:48,width:w-10,height:510,rx:14,fill:dashed?'#0c1511':'#090f0c',stroke:'#1f2a24','stroke-dasharray':dashed?'6 5':''});txt(svg,x+14,34,label,{size:13,mono:1,fill:MUTE,anchor:'start',ls:'.14em'})});
+ const paths={};for(const k in E)paths[k]=el('path',{d:'M'+E[k].map(q=>q.join(' ')).join('L'),fill:'none',stroke:'#34443a','stroke-width':1.5});
+ const hot={};for(const k in E)hot[k]=el('path',{d:paths[k].getAttribute('d'),fill:'none',stroke:LIME,'stroke-width':2.4});
+ const lit={};
+ for(const k in N){const[x,y,w,h,a,b,to]=N[k],g=el('g');el('rect',{x,y,width:w,height:h,rx:11,fill:'#0b120e',stroke:LINE},g);txt(g,x+w/2,y+(b?h/2-3:h/2+6),a,{size:w<110?14:17,w:500});if(b)txt(g,x+w/2,y+h/2+18,b,{size:13,fill:MUTE,mono:b[0]===':'||b[0]==='/'});
+  lit[k]=el('rect',{x,y,width:w,height:h,rx:11,fill:'#c6f13518',stroke:LIME,'stroke-width':2,'pointer-events':'none'},g);link(g,to,a)}
+ const dot=[0,1,2,3].map(()=>el('circle',{r:5,fill:LIME}));
+ U.push(t=>{const s=Math.floor(t/STEP),[,ns,es]=TRACE[Math.min(s,TRACE.length-1)],since=t-s*STEP,p=ease(since/.35);
+  for(const k in lit)lit[k].style.opacity=ns.includes(k)?p:0;
+  for(const k in hot){const on=es.includes(k);hot[k].style.opacity=on?1:0}
+  dot.forEach((c,i)=>{const k=es[i];if(!k){c.style.opacity=0;return}const q=paths[k],L=q.getTotalLength(),pt=q.getPointAtLength(L*((since/1.4)%1));c.setAttribute('cx',pt.x);c.setAttribute('cy',pt.y);c.style.opacity=1})})
+}
+
+const C=$('#chip').getContext('2d');
+function chip(t){C.clearRect(0,0,400,270);const a=.72+.3*Math.sin(t*.42),e=.62,sc=.94;
+ const rot=([x,y,z])=>{const X=x*Math.cos(a)-y*Math.sin(a),Y=x*Math.sin(a)+y*Math.cos(a);return[X,Y*Math.cos(e)-z*Math.sin(e),Y*Math.sin(e)+z*Math.cos(e)]};
+ const face=(pts,c)=>{C.beginPath();pts.map(rot).forEach((p,i)=>{const x=200+p[0]*sc,y=132+p[1]*sc;i?C.lineTo(x,y):C.moveTo(x,y)});C.closePath();C.fillStyle=`rgb(${c.join(',')})`;C.fill();C.strokeStyle='rgba(0,0,0,.45)';C.stroke()};
+ const shade=(c,s)=>c.map(v=>Math.round(v*s));
+ const cub=(x0,y0,z0,x1,y1,z1,c)=>{for(const[n,pts,s]of[[[1,0,0],[[x1,y0,z0],[x1,y1,z0],[x1,y1,z1],[x1,y0,z1]],.55],[[-1,0,0],[[x0,y0,z0],[x0,y1,z0],[x0,y1,z1],[x0,y0,z1]],.3],[[0,1,0],[[x0,y1,z0],[x1,y1,z0],[x1,y1,z1],[x0,y1,z1]],.4],[[0,-1,0],[[x0,y0,z0],[x1,y0,z0],[x1,y0,z1],[x0,y0,z1]],.3]])if(rot(n)[2]>0)face(pts,shade(c,s));face([[x0,y0,z1],[x1,y0,z1],[x1,y1,z1],[x0,y1,z1]],c)};
+ cub(-105,-80,-34,105,80,-12,[122,126,118]);face([[-94,-68,-12],[94,-68,-12],[94,68,-12],[-94,68,-12]],[26,30,27]);
+ [...Array(8)].map((_,i)=>-92+i*25).sort((u,v)=>(u-v)*Math.sin(a)).forEach(x=>cub(x,-66,-12,x+16,66,18,[182,184,170]))}
+
+function seek(t){
+ for(const a of A){const p=ease((t-a.tin)/.42),s=a.e.style;s.opacity=t>=a.tin?p:0;s.transform=`translateY(${a.dy*(1-p)}px)`;const b=a.blur*(1-p);s.filter=b>.05&&t>=a.tin?`blur(${b}px)`:'none'}
+ U.forEach(f=>f(t));
+ const s=Math.min(Math.floor(t/STEP),S.steps.length-1);
+ if(s!==S.shown){S.shown=s;const m=S.id==='map';$('#cap').innerHTML=`<b>${m?s:s+1}/${m?S.steps.length-1:S.steps.length}</b>`+S.steps[s];[...$('#dots').children].forEach((b,i)=>i===s?b.setAttribute('aria-current','true'):b.removeAttribute('aria-current'))}
+ const i=ORDER.indexOf(S.id);$('#prog').style.width=100*(i+(s+1)/S.steps.length)/ORDER.length+'%'}
+
+function renderList(v){
+ $('#list').replaceChildren(...v.rows.map((r,i)=>{const b=document.createElement('button');b.className='row';b.dataset.id=r.id;const on=r.id===S.id;b.setAttribute('aria-expanded',on);
+  b.innerHTML=`<i>${String(i+1).padStart(2,'0')}</i><h3>${r.name}</h3><p>${r.desc}</p><u${r.status?' style="color:var(--warn)"':''}>${r.status??r.tag}</u>`+(on?`<dl class="more">${(r.facts||[]).filter(([,w])=>w!=null).map(([k,w])=>`<dt>${k}</dt><dd>${w}</dd>`).join('')}${r.chips?`<div class="chips">${r.chips.map(c=>`<span>${c}</span>`).join('')}</div>`:''}${r.flag?`<div class="flag"><span>${r.flag}</span></div>`:''}</dl>`:'');
+  b.onclick=()=>open(r.id);return b}))}
+
+function open(id,keepTour){
+ const c=COMPS.find(x=>x.id===id),view=c?VIEWS.find(v=>v.id===c.view):null;
+ if(!keepTour)S.tour=false;S.id=id;S.view=c?c.view:'map';S.t=0;S.shown=-1;S.paused=false;S.hold=0;A=[];U=[];svg.replaceChildren();
+ $('#cols').classList.toggle('is-map',!c);
+ [...$('#tabs').children].forEach(b=>{const on=b.dataset.view===S.view;b.setAttribute('aria-selected',on);if(on)$('#tabs').scrollLeft=b.offsetLeft-16});
+ if(c){svg.setAttribute('viewBox','0 0 650 520');S.steps=c.steps;$('#sec').textContent=`${String(VIEWS.indexOf(view)+1).padStart(2,'0')} / ${view.name}`;$('#sub').textContent=view.sub;$('#plabel').textContent=c.label;renderList(view);c.draw()}
+ else{S.steps=TRACE.map(s=>s[0]);$('#sub').textContent=META.mapSub;$('#plabel').textContent=META.mapLabel;drawMap()}
+ const dots=$('#dots');dots.replaceChildren(...S.steps.map((_,i)=>{const b=document.createElement('button');b.className='dot';b.textContent=c?i+1:i;b.setAttribute('aria-label','Go to step '+(c?i+1:i));b.onclick=()=>{S.tour=false;S.paused=true;S.t=c?(i+1)*STEP-.02:i*STEP+.001;seek(S.t);syncPlay()};return b}));
+ try{history.replaceState(null,'','#'+id)}catch{}
+ if(!c)S.paused=!S.tour;
+ if(still)S.t=c?S.steps.length*STEP-.01:0;
+ seek(S.t);syncPlay()}
+
+function syncPlay(){$('#play').textContent=S.tour?'Pause tour':'Play tour'}
+function step(d){const i=(ORDER.indexOf(S.id)+d+ORDER.length)%ORDER.length;open(ORDER[i])}
+function frame(now){const dt=Math.min(.1,(now-S.last)/1000||0);S.last=now;if(META.hardware)chip(now/1000);
+ if(!S.paused){const end=S.steps.length*STEP-.01;
+  if(S.t<end){S.t=Math.min(end,S.t+dt);seek(S.t)}
+  else if(S.tour&&(!still||(S.hold+=dt)>4)){const i=ORDER.indexOf(S.id);i<ORDER.length-1?open(ORDER[i+1],true):(S.tour=false,syncPlay())}}
+ else if(S.id==='map'&&S.shown>0&&!still){const b=S.shown*STEP;S.t=b+((S.t-b+dt)%(STEP-.01));seek(S.t)}
+ requestAnimationFrame(frame)}
+
+$('#tabs').replaceChildren(...[{id:'map',name:META.mapTab??'System map'},...VIEWS].map((v,i)=>{const b=document.createElement('button');b.className='tab';b.dataset.view=v.id;b.setAttribute('role','tab');b.innerHTML=`<b>0${i}</b>${v.name}`;b.onclick=()=>open(v.id==='map'?'map':v.rows[0].id);return b}));
+$('#prev').onclick=()=>step(-1);$('#next').onclick=()=>step(1);
+$('#play').onclick=()=>{S.tour=!S.tour;if(S.tour)S.paused=false;else if(S.id==='map')S.paused=true;syncPlay()};
+addEventListener('keydown',e=>{if(e.target.closest('button,.go'))return;if(e.key==='ArrowRight')step(1);if(e.key==='ArrowLeft')step(-1)});
+addEventListener('hashchange',()=>{const id=location.hash.slice(1);if(id!==S.id&&ORDER.includes(id))open(id)});
+$('#home').href=`${ROOT}/index.html`;$('#brand').textContent='\u25C6\u00A0 '+META.name;$('#stamp').textContent=`Explorer / snapshot ${META.snapshot} / ${META.commit}`;$('#foot').textContent=META.footer;
+$('#title').innerHTML=`${META.name}<em>${META.accent}</em>`;
+if(META.hardware){$('#gpu').hidden=false;$('#hwname').textContent=META.hardware.name;$('#hwsub').textContent=META.hardware.sub;chip(0)}
+const h=location.hash.slice(1);open(ORDER.includes(h)?h:'map');requestAnimationFrame(frame);
+
+</script></body></html>

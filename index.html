@@ -1,0 +1,192 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Atlas</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&family=Space+Grotesk:wght@400;500&display=swap">
+<style>/* Layout: the video's three-column console. Stage rail, component list, animated diagram; the map spans the last two. */
+:root{color-scheme:dark;--bg:#060a0b;--panel:#080d0b;--card:#0a100d;--node:#0b120e;--ink:#eef2ee;--soft:#b9c1ba;--mute:#8d968f;--dim:#5b655e;--line:#1f2a24;--line2:#2c3a30;--lime:#c6f135;--olive:#1d2a12;--violet:#8c7dff;--warn:#f2b84b;
+--display:"Space Grotesk",ui-sans-serif,system-ui,sans-serif;--mono:"JetBrains Mono",ui-monospace,monospace}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{margin:0;background:radial-gradient(1100px 700px at 62% 62%,#0d1610 0%,transparent 70%),radial-gradient(800px 500px at 10% 100%,#0b130e 0%,transparent 70%),var(--bg);background-attachment:fixed;color:var(--ink);font-family:var(--display);font-size:15px}
+button{font:inherit;color:inherit;background:none;border:0;cursor:pointer;text-align:left}
+:focus-visible{outline:2px solid var(--lime);outline-offset:2px}
+.app{min-height:100%;display:flex;flex-direction:column;gap:22px;padding-block:22px 14px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));max-width:1720px;margin:0 auto}
+@media(min-width:900px){.app{padding-left:max(44px,env(safe-area-inset-left,0px));padding-right:max(44px,env(safe-area-inset-right,0px))}}
+.mono{font-family:var(--mono);text-transform:uppercase;letter-spacing:.2em;font-size:11px;color:var(--mute)}
+.top{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;align-items:center;padding-bottom:12px;border-bottom:1px solid var(--line)}
+.brand{color:var(--ink);font-weight:500;font-size:13px}
+.nav{display:flex;align-items:center;gap:18px;flex-wrap:wrap}
+.home{color:var(--lime);text-decoration:none;padding:4px 10px;margin-left:-10px;border-radius:8px;transition:background .2s}
+.home:hover{background:#1d2a12}
+.head h1{margin:0;font-size:clamp(32px,4vw,52px);font-weight:500;letter-spacing:-.02em;line-height:1.1;text-wrap:balance}
+.head h1 em{font-style:normal;color:var(--lime);margin-left:.35em;text-shadow:0 0 28px #c6f13555}
+.head p{margin:8px 0 0;font-size:clamp(15px,1.4vw,19px);color:var(--soft);min-height:1.4em}
+.cols{display:grid;grid-template-columns:230px minmax(0,1fr) minmax(0,1.08fr);gap:0 34px;flex:1;align-items:start}
+.side{padding-right:30px;border-right:1px solid var(--line);display:flex;flex-direction:column;gap:12px;align-self:stretch;min-width:0}
+.tabs{display:flex;flex-direction:column;gap:6px}
+.tab{display:flex;align-items:center;gap:14px;height:46px;padding:0 16px;border-radius:12px;border:1.5px solid transparent;color:var(--mute);font-size:16px;white-space:nowrap;transition:color .2s,background .2s,border-color .2s}
+.tab b{font:500 11px var(--mono);color:var(--lime);opacity:.85}
+.tab:hover{color:var(--ink);background:#0e1611}
+.tab[aria-selected=true]{color:var(--ink);border-color:var(--lime);background:linear-gradient(90deg,#26361499,#14200f66);box-shadow:0 0 22px #c6f13522}
+.gpu{margin-top:auto;text-align:center;padding-top:6px}
+.gpu canvas{width:100%;max-width:200px;height:auto;display:block;margin:0 auto}
+.gpu strong{display:block;color:var(--lime);font-weight:500;font-size:16px;margin-top:4px}
+.gpu span{color:var(--mute);font-size:13px}
+.mid,.right{min-width:0;display:flex;flex-direction:column;gap:12px}
+.list{display:flex;flex-direction:column;gap:8px}
+.row{position:relative;display:block;width:100%;border-radius:13px;border:1px solid var(--line2);background:var(--card);padding:11px 16px 11px 50px;transition:border-color .2s,background .2s,box-shadow .2s}
+.row:hover{border-color:#47604c}
+.row i{position:absolute;left:18px;top:15px;font:400 11px var(--mono);color:var(--mute)}
+.row h3{margin:0;font-size:17px;font-weight:500;padding-right:96px}
+.row p{margin:2px 0 0;font-size:14px;color:var(--mute)}
+.row u{position:absolute;right:14px;top:14px;font:400 10px var(--mono);color:var(--mute);text-decoration:none;letter-spacing:.06em;max-width:92px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.row[aria-expanded=true]{border:1.5px solid var(--lime);background:linear-gradient(90deg,#2a3b1680,#17230f40);box-shadow:0 0 24px #c6f13520}
+.row[aria-expanded=true] p{color:var(--soft)}
+.more{display:grid;grid-template-columns:minmax(84px,auto) minmax(0,1fr);gap:4px 14px;margin-top:10px;font-size:13px}
+.more dt{font:400 10px/1.9 var(--mono);text-transform:uppercase;letter-spacing:.1em;color:var(--mute)}
+.more dd{margin:0;color:var(--soft);overflow-wrap:anywhere}
+.more code{font:400 12px var(--mono);color:var(--ink)}
+.chips{display:flex;flex-wrap:wrap;gap:4px;grid-column:1/-1;margin-top:4px}
+.chips span{font:400 11px var(--mono);padding:2px 7px;border-radius:6px;background:#141c15;color:var(--soft)}
+.flag{grid-column:1/-1;margin-top:6px;display:flex;gap:8px;font-size:13px;color:var(--warn);line-height:1.4}
+.flag::before{content:"▲";font-size:9px;line-height:18px}
+.panel{position:relative;border:1px solid var(--line);border-radius:16px;background:var(--panel);overflow:hidden}
+.scroll{overflow-x:auto}
+#svg{display:block;width:100%;height:auto}
+.is-map .mid{display:none}.is-map .right{grid-column:2/4}
+.is-map #svg{min-width:760px;max-height:max(440px,calc(100vh - 310px))}
+.is-map .gpu canvas{max-width:190px}
+.cap{font-size:16px;color:var(--soft);min-height:2.7em;margin:0;line-height:1.35}
+.cap b{font:400 12px var(--mono);color:var(--lime);margin-right:8px}
+.dots{display:flex;flex-wrap:wrap;gap:6px}
+.dot{min-width:30px;height:28px;padding:0 8px;border-radius:7px;border:1px solid var(--line2);font:400 11px var(--mono);color:var(--mute);text-align:center}
+.dot:hover{color:var(--ink);border-color:#47604c}
+.dot[aria-current=true]{background:var(--olive);border-color:var(--lime);color:var(--lime)}
+footer{display:flex;flex-direction:column;gap:10px}
+.bar{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.ctl{display:flex;gap:6px}
+.ctl button{height:32px;padding:0 12px;border-radius:8px;border:1px solid var(--line2);font:400 11px var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--soft)}
+.ctl button:hover{color:var(--ink);border-color:#47604c}
+#play{border-color:var(--lime);color:var(--lime);background:var(--olive)}
+.track{height:3px;background:var(--line);position:relative}
+#prog{position:absolute;left:0;top:0;bottom:0;background:var(--lime);box-shadow:0 0 12px #c6f13588;width:0}
+svg text{font-family:var(--display);fill:var(--ink)}
+svg .m{font-family:var(--mono)}
+svg .go{cursor:pointer}
+svg .go:hover>rect:first-child{stroke:var(--lime)}
+svg .go:focus-visible{outline:none}svg .go:focus-visible>rect:first-child{stroke:var(--lime);stroke-width:2}
+@media(max-width:1180px){
+ .cols{grid-template-columns:minmax(0,1fr);gap:18px}
+ .side{border:0;padding:0}.tabs{flex-direction:row;overflow-x:auto;padding-bottom:4px}.tab{height:40px;flex:none}
+ .gpu{display:none}.is-map .right{grid-column:auto}
+ .right{order:2}.mid{order:3}
+}
+.head h1{overflow-wrap:anywhere}
+</style>
+<body>
+<style>/* The landing page. Tokens and base styles come from style.css. */
+.atlas{min-height:100%;max-width:1560px;margin:0 auto;padding:clamp(28px,5vw,64px) max(16px,env(safe-area-inset-right,0px)) 40px max(16px,env(safe-area-inset-left,0px));display:flex;flex-direction:column;gap:clamp(28px,4vw,52px)}
+@media(min-width:900px){.atlas{padding-inline:44px}}
+.hero{display:flex;justify-content:space-between;align-items:flex-end;gap:32px;flex-wrap:wrap}
+.hero h1{margin:0;font-size:clamp(52px,8vw,104px);font-weight:500;letter-spacing:-.04em;line-height:.95}
+.hero h1 span{color:var(--lime);text-shadow:0 0 44px #c6f13544}
+.hero p{margin:18px 0 0;max-width:34em;font-size:clamp(17px,1.6vw,21px);line-height:1.4;color:var(--soft);text-wrap:pretty}
+.tally{display:flex;gap:clamp(24px,3vw,44px);margin:0}
+.tally div{display:flex;flex-direction:column-reverse;gap:2px}
+.tally dd{margin:0;font-size:clamp(30px,3.4vw,44px);font-weight:500;letter-spacing:-.02em;line-height:1}
+.tally dt{font:400 10px var(--mono);letter-spacing:.18em;text-transform:uppercase;color:var(--mute)}
+.stage{position:relative;display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,270px),1fr));gap:clamp(28px,3.4vw,56px);align-items:start}
+.wires{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;overflow:visible}
+.wires path{fill:none;stroke:#34443a;stroke-width:1.25;transition:stroke .18s,opacity .18s}
+.stage.focus .wires path{opacity:.12}
+.stage.focus .wires path.on{opacity:1;stroke:var(--lime);stroke-width:1.75;stroke-dasharray:6 8;animation:flow 1.1s linear infinite}
+@keyframes flow{to{stroke-dashoffset:-14}}
+.family{position:relative;min-width:0;display:flex;flex-direction:column;gap:10px}
+.family h2{margin:0 0 6px;display:flex;justify-content:space-between;gap:12px;padding-bottom:10px;border-bottom:1px solid var(--line2);font:400 11px var(--mono);letter-spacing:.18em;text-transform:uppercase;color:var(--mute)}
+.family h2 b{font-weight:400;color:var(--lime)}
+.card>*{transition:opacity .18s}
+.card{position:relative;display:block;padding:15px 16px 13px;border-radius:13px;border:1px solid var(--line2);background:var(--card);color:inherit;text-decoration:none;transition:border-color .18s,background .18s,box-shadow .18s,opacity .18s,transform .18s}
+.card h3{margin:0;font-size:18px;font-weight:500;letter-spacing:-.01em;overflow-wrap:anywhere}
+.card p{margin:5px 0 0;font-size:14px;line-height:1.38;color:var(--mute);text-wrap:pretty}
+.card:hover,.card:focus-visible,.card.on{border-color:var(--lime);background:linear-gradient(120deg,#26361466,#0a100d 70%);box-shadow:0 0 26px #c6f13520}
+.card:hover{transform:translateY(-2px)}
+.card.near{border-color:#6d8a35}
+.stage.focus .card:not(.on,.near){border-color:var(--line)}
+.stage.focus .card:not(.on,.near)>*{opacity:.34}
+.uses{display:none;flex-wrap:wrap;gap:4px;margin-top:9px;padding:0;list-style:none}
+.uses li{font:400 11px var(--mono);padding:2px 7px;border-radius:6px;background:#141c15;color:var(--soft)}
+.reading{position:sticky;bottom:0;z-index:2;min-height:128px;margin:0;padding:13px 18px;border:1px solid var(--line2);border-radius:13px;background:#090f0ce6;backdrop-filter:blur(8px);font-size:15px;line-height:1.45;color:var(--soft)}
+.reading strong{display:block;font:400 11px/1.7 var(--mono);letter-spacing:.14em;text-transform:uppercase;color:var(--lime)}
+.reading ul{margin:0;padding:0;list-style:none;columns:2;column-gap:36px;font-size:14px}
+.reading li{break-inside:avoid;margin-bottom:2px}
+.notes{display:flex;flex-direction:column;gap:10px;border-top:1px solid var(--line);padding-top:16px}
+.notes h2{margin:0;font:400 11px var(--mono);letter-spacing:.18em;text-transform:uppercase;color:var(--mute)}
+#notelist{display:flex;flex-wrap:wrap;gap:10px}
+.note{display:flex;flex-direction:column;gap:3px;max-width:420px;padding:11px 14px;border:1px dashed var(--line2);border-radius:11px;color:inherit;text-decoration:none}
+.note:hover{border-color:#6d8a35}
+.note span{font:400 10px var(--mono);letter-spacing:.14em;text-transform:uppercase;color:var(--mute)}
+.note h3{margin:0;font-size:15px;font-weight:500}
+.note p{margin:0;font-size:13px;color:var(--soft)}
+@media(max-width:899px){.wires,.reading{display:none}.uses{display:flex}}
+@media(hover:none){.wires,.reading{display:none}.uses{display:flex}}
+@media(prefers-reduced-motion:no-preference){.card{animation:rise .5s cubic-bezier(.2,.7,.2,1) backwards;animation-delay:calc(var(--i)*28ms)}}
+@media(prefers-reduced-motion:reduce){.stage.focus .wires path.on{animation:none;stroke-dasharray:none}.card:hover{transform:none}}
+@keyframes rise{from{opacity:0;transform:translateY(10px)}}
+</style>
+<div class="atlas">
+ <header class="hero">
+  <div><h1>Atlas<span>.</span></h1><p>Interactive maps of how each project works, and of how they depend on each other.</p></div>
+  <dl class="tally"><div><dt>Repositories</dt><dd id="repos"></dd></div><div><dt>Links</dt><dd id="links"></dd></div></dl>
+ </header>
+ <main class="stage" id="stage"><svg class="wires" id="wires" aria-hidden="true"></svg></main>
+ <p class="reading" id="reading" aria-live="polite"></p>
+ <section class="notes" id="notes" hidden><h2>Notes</h2><div id="notelist"></div></section>
+</div>
+<script>
+const ATLAS={"families":[{"name":"Pricing and research","repos":[{"name":"quant-modeling","summary":"C++20 derivatives pricing library, carried through to an API and a front end","links":[{"target":"AgenticEnv","nature":"The scripting assistant of quant-modeling talks to the llama-server of AgenticEnv."},{"target":"data-ingest","nature":"quant-modeling reads its market data from the data-ingest Postgres."},{"target":"quant-platform","nature":"quant-modeling sends audit events and telemetry to quant-platform."},{"target":"quant-backtest","nature":"quant-modeling runs the quantbacktest wheel at a pinned commit."}]},{"name":"quant-backtest","summary":"C++20 backtesting engine for strategies, hedges, risk models and exposures","links":[{"target":"quant-modeling","nature":"quant-backtest prices its hedging backtest with quantModeling, at a pinned commit."}]},{"name":"quant-microstructure","summary":"C++20 study of market microstructure: order books, impact, execution and market making","links":[]},{"name":"quant-dev","summary":"Streamlit portfolio and implied volatility app, what remains of the first quant project","links":[{"target":"data-ingest","nature":"quant-dev reads its prices from the data-ingest database."}]}]},{"name":"Data and platform","repos":[{"name":"data-ingest","summary":"Scheduled ingestion of financial and economic data into a self-hosted Postgres","links":[{"target":"quant-microstructure","nature":"data-ingest records the order book in the event file format of quant-microstructure."}]},{"name":"quant-platform","summary":"Self-hosted event bus, append-only audit trail and observability stack","links":[]}]},{"name":"Local AI","repos":[{"name":"AgenticEnv","summary":"Self-hosted agentic workshop for C++ quant libraries","links":[{"target":"quant-modeling","nature":"AgenticEnv checks its work against quant-modeling, through the quantmodeling wheel."}]},{"name":"agenticenv-chat","summary":"VS Code chat panel for a local coding agent","links":[{"target":"AgenticEnv","nature":"agenticenv-chat is the VS Code client of the AgenticEnv bridge."}]},{"name":"live-subs","summary":"Near-live Japanese and English subtitles for YouTube streams, on a local GPU","links":[{"target":"AgenticEnv","nature":"live-subs translates through the llama-server of AgenticEnv."}]},{"name":"VoiceClone","summary":"Local voice cloning studio on open-source models","links":[]}]},{"name":"Applications","repos":[{"name":"JobTracker","summary":"Quant job market monitor: collect, normalize, score, store and serve","links":[{"target":"AgenticEnv","nature":"JobTracker uses the llama-server of AgenticEnv for its optional LLM stages."}]},{"name":"RamTracker","summary":"Finds underpriced DDR4 ECC memory on second-hand markets","links":[]},{"name":"DeutschAutoCorrect","summary":"Automatic grading of spoken German exams, for teachers","links":[]},{"name":"genealogy","summary":"Interactive family tree viewer with a birth map","links":[]},{"name":"Portfolio","summary":"Personal site, with a case study of quant-modeling","links":[]}]}],"notes":[{"name":"derivatives-lineage","title":"Derivatives lineage","summary":"Every derivative quant-modeling prices, traced to its model, engine, parameters, calibrations, tables and data sources.","about":"quant-modeling"},{"name":"econometrics","title":"Studying a linear model","summary":"A decision tree and cheat sheet for linear regressions on cross-section, panel and time-series data: assumptions, diagnostic tests, tests on the parameters, robust standard errors, ARMA, unit roots, cointegration and GARCH.","about":"study guide"},{"name":"market-plumbing","title":"Market plumbing","summary":"The life of a trade, step by step: colocation, order messages, matching, desks and limits, models, clearing, settlement, risk and P&L.","about":"study guide"}]};
+/* The landing page: repositories by family, and their links on hover or focus. */
+const IDLE='Hover a repository to follow its links, or open it to see how it works.';
+const stage=document.querySelector('#stage'),reading=document.querySelector('#reading'),wires=document.querySelector('#wires');
+const REPOS=ATLAS.families.flatMap(f=>f.repos),LINKS=REPOS.flatMap(r=>r.links.map(l=>({from:r.name,...l})));
+const tag=(name,props={},...kids)=>{const e=document.createElement(name);Object.assign(e,props);e.append(...kids);return e};
+const cards={};
+
+document.querySelector('#repos').textContent=REPOS.length;
+document.querySelector('#links').textContent=LINKS.length;
+let index=0;
+ATLAS.families.forEach(f=>{
+ const family=tag('section',{className:'family'},tag('h2',{},f.name,tag('b',{textContent:f.repos.length})));
+ f.repos.forEach(r=>{
+  const card=tag('a',{className:'card',href:`${r.name}/index.html`},tag('h3',{textContent:r.name}),tag('p',{textContent:r.summary}));
+  card.style.setProperty('--i',index++);
+  const out=r.links.map(l=>l.target),into=LINKS.filter(l=>l.target===r.name).map(l=>l.from);
+  const uses=[...out.map(n=>`${into.includes(n)?'↔':'→'} ${n}`),...into.filter(n=>!out.includes(n)).map(n=>`← ${n}`)];
+  if(uses.length)card.append(tag('ul',{className:'uses'},...uses.map(s=>tag('li',{textContent:s}))));
+  card.addEventListener('pointerenter',()=>focus(r.name));card.addEventListener('pointerleave',()=>focus(null));
+  card.addEventListener('focus',()=>focus(r.name));card.addEventListener('blur',()=>focus(null));
+  cards[r.name]=card;family.append(card)});
+ stage.append(family)});
+
+function focus(name){
+ const mine=name?LINKS.filter(l=>l.from===name||l.target===name):[];
+ stage.classList.toggle('focus',!!name);
+ for(const k in cards){cards[k].classList.toggle('on',k===name);cards[k].classList.toggle('near',mine.some(l=>l.from===k||l.target===k))}
+ wires.querySelectorAll('path').forEach(p=>p.classList.toggle('on',!!name&&(p.dataset.from===name||p.dataset.to===name)));
+ reading.replaceChildren(...(!name?[IDLE]:mine.length?[tag('strong',{textContent:name}),tag('ul',{},...mine.map(l=>tag('li',{textContent:l.nature})))]:[tag('strong',{textContent:name}),'No link to another repository.']))}
+
+function draw(){
+ const box=stage.getBoundingClientRect(),paths=LINKS.map(({from,target})=>{
+  const a=cards[from].getBoundingClientRect(),b=cards[target].getBoundingClientRect(),right=b.left>=a.right,left=b.right<=a.left,side=right?1:left?-1:0;
+  const x1=(side<0?a.left:a.right)-box.left,y1=a.top+a.height/2-box.top,x2=(side>0?b.left:b.right)-box.left,y2=b.top+b.height/2-box.top,bend=side?Math.max(40,Math.abs(x2-x1)/2)*side:44;
+  const p=document.createElementNS('http://www.w3.org/2000/svg','path');
+  p.setAttribute('d',`M${x1} ${y1}C${x1+bend} ${y1} ${x2-(side?bend:-bend)} ${y2} ${x2} ${y2}`);p.dataset.from=from;p.dataset.to=target;return p});
+ wires.replaceChildren(...paths)}
+
+/* Notes are reference pages, listed apart from the repositories. */
+if(ATLAS.notes.length){document.querySelector('#notes').hidden=false;document.querySelector('#notelist').append(...ATLAS.notes.map(n=>tag('a',{className:'note',href:`notes/${n.name}/index.html`},tag('span',{textContent:n.about}),tag('h3',{textContent:n.title}),tag('p',{textContent:n.summary}))))}
+
+reading.textContent=IDLE;draw();
+addEventListener('resize',draw);document.fonts?.ready.then(draw);
+
+</script></body></html>

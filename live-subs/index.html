@@ -1,0 +1,271 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>live-subs Explorer</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&family=Space+Grotesk:wght@400;500&display=swap">
+<style>/* Layout: the video's three-column console. Stage rail, component list, animated diagram; the map spans the last two. */
+:root{color-scheme:dark;--bg:#060a0b;--panel:#080d0b;--card:#0a100d;--node:#0b120e;--ink:#eef2ee;--soft:#b9c1ba;--mute:#8d968f;--dim:#5b655e;--line:#1f2a24;--line2:#2c3a30;--lime:#c6f135;--olive:#1d2a12;--violet:#8c7dff;--warn:#f2b84b;
+--display:"Space Grotesk",ui-sans-serif,system-ui,sans-serif;--mono:"JetBrains Mono",ui-monospace,monospace}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{margin:0;background:radial-gradient(1100px 700px at 62% 62%,#0d1610 0%,transparent 70%),radial-gradient(800px 500px at 10% 100%,#0b130e 0%,transparent 70%),var(--bg);background-attachment:fixed;color:var(--ink);font-family:var(--display);font-size:15px}
+button{font:inherit;color:inherit;background:none;border:0;cursor:pointer;text-align:left}
+:focus-visible{outline:2px solid var(--lime);outline-offset:2px}
+.app{min-height:100%;display:flex;flex-direction:column;gap:22px;padding-block:22px 14px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));max-width:1720px;margin:0 auto}
+@media(min-width:900px){.app{padding-left:max(44px,env(safe-area-inset-left,0px));padding-right:max(44px,env(safe-area-inset-right,0px))}}
+.mono{font-family:var(--mono);text-transform:uppercase;letter-spacing:.2em;font-size:11px;color:var(--mute)}
+.top{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;align-items:center;padding-bottom:12px;border-bottom:1px solid var(--line)}
+.brand{color:var(--ink);font-weight:500;font-size:13px}
+.nav{display:flex;align-items:center;gap:18px;flex-wrap:wrap}
+.home{color:var(--lime);text-decoration:none;padding:4px 10px;margin-left:-10px;border-radius:8px;transition:background .2s}
+.home:hover{background:#1d2a12}
+.head h1{margin:0;font-size:clamp(32px,4vw,52px);font-weight:500;letter-spacing:-.02em;line-height:1.1;text-wrap:balance}
+.head h1 em{font-style:normal;color:var(--lime);margin-left:.35em;text-shadow:0 0 28px #c6f13555}
+.head p{margin:8px 0 0;font-size:clamp(15px,1.4vw,19px);color:var(--soft);min-height:1.4em}
+.cols{display:grid;grid-template-columns:230px minmax(0,1fr) minmax(0,1.08fr);gap:0 34px;flex:1;align-items:start}
+.side{padding-right:30px;border-right:1px solid var(--line);display:flex;flex-direction:column;gap:12px;align-self:stretch;min-width:0}
+.tabs{display:flex;flex-direction:column;gap:6px}
+.tab{display:flex;align-items:center;gap:14px;height:46px;padding:0 16px;border-radius:12px;border:1.5px solid transparent;color:var(--mute);font-size:16px;white-space:nowrap;transition:color .2s,background .2s,border-color .2s}
+.tab b{font:500 11px var(--mono);color:var(--lime);opacity:.85}
+.tab:hover{color:var(--ink);background:#0e1611}
+.tab[aria-selected=true]{color:var(--ink);border-color:var(--lime);background:linear-gradient(90deg,#26361499,#14200f66);box-shadow:0 0 22px #c6f13522}
+.gpu{margin-top:auto;text-align:center;padding-top:6px}
+.gpu canvas{width:100%;max-width:200px;height:auto;display:block;margin:0 auto}
+.gpu strong{display:block;color:var(--lime);font-weight:500;font-size:16px;margin-top:4px}
+.gpu span{color:var(--mute);font-size:13px}
+.mid,.right{min-width:0;display:flex;flex-direction:column;gap:12px}
+.list{display:flex;flex-direction:column;gap:8px}
+.row{position:relative;display:block;width:100%;border-radius:13px;border:1px solid var(--line2);background:var(--card);padding:11px 16px 11px 50px;transition:border-color .2s,background .2s,box-shadow .2s}
+.row:hover{border-color:#47604c}
+.row i{position:absolute;left:18px;top:15px;font:400 11px var(--mono);color:var(--mute)}
+.row h3{margin:0;font-size:17px;font-weight:500;padding-right:96px}
+.row p{margin:2px 0 0;font-size:14px;color:var(--mute)}
+.row u{position:absolute;right:14px;top:14px;font:400 10px var(--mono);color:var(--mute);text-decoration:none;letter-spacing:.06em;max-width:92px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.row[aria-expanded=true]{border:1.5px solid var(--lime);background:linear-gradient(90deg,#2a3b1680,#17230f40);box-shadow:0 0 24px #c6f13520}
+.row[aria-expanded=true] p{color:var(--soft)}
+.more{display:grid;grid-template-columns:minmax(84px,auto) minmax(0,1fr);gap:4px 14px;margin-top:10px;font-size:13px}
+.more dt{font:400 10px/1.9 var(--mono);text-transform:uppercase;letter-spacing:.1em;color:var(--mute)}
+.more dd{margin:0;color:var(--soft);overflow-wrap:anywhere}
+.more code{font:400 12px var(--mono);color:var(--ink)}
+.chips{display:flex;flex-wrap:wrap;gap:4px;grid-column:1/-1;margin-top:4px}
+.chips span{font:400 11px var(--mono);padding:2px 7px;border-radius:6px;background:#141c15;color:var(--soft)}
+.flag{grid-column:1/-1;margin-top:6px;display:flex;gap:8px;font-size:13px;color:var(--warn);line-height:1.4}
+.flag::before{content:"▲";font-size:9px;line-height:18px}
+.panel{position:relative;border:1px solid var(--line);border-radius:16px;background:var(--panel);overflow:hidden}
+.scroll{overflow-x:auto}
+#svg{display:block;width:100%;height:auto}
+.is-map .mid{display:none}.is-map .right{grid-column:2/4}
+.is-map #svg{min-width:760px;max-height:max(440px,calc(100vh - 310px))}
+.is-map .gpu canvas{max-width:190px}
+.cap{font-size:16px;color:var(--soft);min-height:2.7em;margin:0;line-height:1.35}
+.cap b{font:400 12px var(--mono);color:var(--lime);margin-right:8px}
+.dots{display:flex;flex-wrap:wrap;gap:6px}
+.dot{min-width:30px;height:28px;padding:0 8px;border-radius:7px;border:1px solid var(--line2);font:400 11px var(--mono);color:var(--mute);text-align:center}
+.dot:hover{color:var(--ink);border-color:#47604c}
+.dot[aria-current=true]{background:var(--olive);border-color:var(--lime);color:var(--lime)}
+footer{display:flex;flex-direction:column;gap:10px}
+.bar{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.ctl{display:flex;gap:6px}
+.ctl button{height:32px;padding:0 12px;border-radius:8px;border:1px solid var(--line2);font:400 11px var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--soft)}
+.ctl button:hover{color:var(--ink);border-color:#47604c}
+#play{border-color:var(--lime);color:var(--lime);background:var(--olive)}
+.track{height:3px;background:var(--line);position:relative}
+#prog{position:absolute;left:0;top:0;bottom:0;background:var(--lime);box-shadow:0 0 12px #c6f13588;width:0}
+svg text{font-family:var(--display);fill:var(--ink)}
+svg .m{font-family:var(--mono)}
+svg .go{cursor:pointer}
+svg .go:hover>rect:first-child{stroke:var(--lime)}
+svg .go:focus-visible{outline:none}svg .go:focus-visible>rect:first-child{stroke:var(--lime);stroke-width:2}
+@media(max-width:1180px){
+ .cols{grid-template-columns:minmax(0,1fr);gap:18px}
+ .side{border:0;padding:0}.tabs{flex-direction:row;overflow-x:auto;padding-bottom:4px}.tab{height:40px;flex:none}
+ .gpu{display:none}.is-map .right{grid-column:auto}
+ .right{order:2}.mid{order:3}
+}
+.head h1{overflow-wrap:anywhere}
+</style>
+<body>
+<div class="app">
+ <div class="top"><span class="nav"><a class="mono home" id="home">&larr; Atlas</a><span class="mono brand" id="brand"></span></span><span class="mono" id="stamp"></span></div>
+ <div class="head"><h1 id="title"></h1><p id="sub"></p></div>
+ <main class="cols" id="cols">
+  <nav class="side" aria-label="Stages">
+   <span class="mono">Views</span>
+   <div class="tabs" id="tabs" role="tablist"></div>
+   <div class="gpu" id="gpu" hidden><canvas id="chip" width="400" height="270" aria-hidden="true"></canvas><strong id="hwname"></strong><span id="hwsub"></span></div>
+  </nav>
+  <section class="mid"><span class="mono" id="sec" style="color:var(--lime)"></span><div class="list" id="list"></div></section>
+  <section class="right">
+   <span class="mono" id="plabel"></span>
+   <div class="panel scroll"><svg id="svg" role="img" aria-label="Animated diagram of the selected component"></svg></div>
+   <p class="cap" id="cap" aria-live="polite"></p>
+   <div class="dots" id="dots" aria-label="Steps"></div>
+  </section>
+ </main>
+ <footer>
+  <div class="bar"><span class="mono" id="foot" style="font-size:10px"></span>
+   <div class="ctl"><button id="prev" aria-label="Previous component">Prev</button><button id="play">Play tour</button><button id="next" aria-label="Next component">Next</button></div></div>
+  <div class="track"><div id="prog"></div></div>
+ </footer>
+</div>
+
+<script>
+const STATE={},REPOS=["AgenticEnv","DeutschAutoCorrect","JobTracker","Portfolio","RamTracker","VoiceClone","agenticenv-chat","data-ingest","genealogy","live-subs","quant-backtest","quant-dev","quant-microstructure","quant-modeling","quant-platform"],ROOT='..';
+/* Live values from repos/<name>/state.json. A public build has none, so L() returns the fallback. */
+const L=(key,fallback=null)=>STATE[key]??fallback;
+const B=1.97,STEP=B*2,NS='http://www.w3.org/2000/svg',$=s=>document.querySelector(s),svg=$('#svg');
+const LIME='#c6f135',MUTE='#8d968f',LINE='#2c3a30',VIOLET='#8c7dff',WARN='#f2b84b',INK='#eef2ee',SOFT='#b9c1ba';
+const still=matchMedia('(prefers-reduced-motion: reduce)').matches;
+const clamp=(v,a=0,b=1)=>Math.min(b,Math.max(a,v)),ease=p=>1-Math.pow(1-clamp(p),3);
+let A=[],U=[];
+
+function el(n,a={},p=svg){const e=document.createElementNS(NS,n);for(const k in a)e.setAttribute(k,a[k]);p.appendChild(e);return e}
+function txt(g,x,y,s,o={}){const e=el('text',{x,y,'font-size':o.size??16,'text-anchor':o.anchor??'middle','font-weight':o.w??400,class:o.mono?'m':''},g);e.textContent=s;e.style.fill=o.fill??INK;if(o.ls)e.style.letterSpacing=o.ls;return e}
+const reveal=(e,at,o={})=>(A.push({e,tin:at*STEP,dy:o.dy??10,blur:o.blur??7}),e);
+
+/* Drawing kit for the 650×520 panel. `at` is expressed in steps, so diagrams line up with the captions. */
+const d={
+ g(at=0,o){return reveal(el('g'),at,o)},
+ box(x,y,w,h,title,sub,o={}){const g=d.g(o.at??0);
+  el('rect',{x,y,width:w,height:h,rx:11,fill:'#0b120e',stroke:LINE},g);
+  if(title)txt(g,x+w/2,y+(sub?h/2-3:h/2+6),title,{size:o.size??17,w:500,mono:o.mono});
+  if(sub)txt(g,x+w/2,y+h/2+17,sub,{size:o.subsize??13,fill:MUTE,mono:o.submono});
+  if(o.hl!=null)reveal(el('rect',{x,y,width:w,height:h,rx:11,fill:(o.c??LIME)+'14',stroke:o.c??LIME,'stroke-width':2,'pointer-events':'none'},g),o.hl,{dy:0,blur:0});
+  if(o.to)link(g,o.to,title);return g},
+ line(pts,o={}){const at=(o.at??0)*STEP,p=el('path',{d:'M'+pts.map(q=>q.join(' ')).join('L'),fill:'none',stroke:o.c??MUTE,'stroke-width':o.w??1.5,pathLength:1});
+  U.push(t=>{p.style.strokeDasharray=`${ease((t-at)/(o.dur??.5))} 1`;p.style.opacity=t<at?0:1});return p},
+ text(x,y,s,o={}){const g=d.g(o.at??0);return txt(g,x,y,s,o)},
+ pill(s,at,c=LIME){const g=d.g(0,{dy:0});el('rect',{x:24,y:456,width:602,height:46,rx:11,fill:c===LIME?'#1d2a12':'#2b2110'},g);const t=d.g(at);txt(t,325,485,s,{size:17,w:500,fill:c})},
+ grid(x,y,cols,rows,o={}){const u=o.u??30,v=o.v??26,gap=o.gap??8;for(let r=0;r<rows;r++)for(let c=0;c<cols;c++){const X=x+c*(u+gap),Y=y+r*(v+gap),i=r*cols+c;
+  reveal(el('rect',{x:X,y:Y,width:u,height:v,rx:4,fill:'#2b3a30'}),(o.at??0)+(r+c)*.015,{dy:0,blur:3});
+  if(o.fill&&o.fill(i)){const f=el('rect',{x:X,y:Y,width:u,height:v,rx:4,fill:o.fill(i)===true?LIME:o.fill(i)}),tin=(o.fillAt??1)*STEP+i*.05;U.push(t=>f.style.opacity=ease((t-tin)/.2))}}},
+ count(x,y,n,at,o={}){const e=d.text(x,y,'0',{...o,at,mono:1}),tin=at*STEP;U.push(t=>{e.textContent=Math.round(n*ease((t-tin)/.8)).toLocaleString('en-US')+(o.unit??'')})}
+};
+/* `to` is a component id, or `repo#id` for another page. A repo outside this build gets no link. */
+function follow(to){const[repo,id]=to.split('#');if(id)location.href=`${ROOT}/${repo}/index.html#${id}`;else open(to)}
+function link(g,to,label){if(to.includes('#')&&!REPOS.includes(to.split('#')[0]))return;g.dataset.to=to;g.classList.add('go');g.setAttribute('tabindex','0');g.setAttribute('role','button');g.setAttribute('aria-label','Open '+label);g.addEventListener('click',()=>follow(to));g.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();follow(to)}})}
+
+/* Content of the live-subs page. Read from the repository at 689e773. It holds no address or port. */
+const META={name:'live-subs',accent:'subtitles as the sentence ends',snapshot:'2026-10-31',commit:'689e773',
+ footer:'Firefox extension / local GPU server / nothing leaves the LAN',
+ mapSub:'One view of both halves, and the path of a single sentence.',mapLabel:'System map / follow one sentence'};
+const ZONES=[{x:20,w:310,label:'FIREFOX'},{x:335,w:390,label:'SERVER'},{x:730,w:350,label:'MODELS'}];
+const VIEWS=[
+{id:'browser',name:'Browser',sub:'Audio out of the player, subtitles back onto it.',rows:[
+ {id:'capture',name:'Audio capture',desc:'From the video element to 16 kHz',tag:'extension/src',facts:[['Source','<code>mozCaptureStream()</code> on the video element'],['Worklet','Downsamples to 16 kHz int16'],['Path','Content script, background, WebSocket']],
+  label:'Capture / from a video to a socket',steps:['The player gives its audio stream.','A worklet brings it down to 16 kHz.'],draw(){
+  ['video','AudioWorklet','background','WebSocket'].forEach((s,i)=>{const y=70+i*92;d.box(165,y,320,64,s,null,{at:i*.25,mono:i%2===0,hl:i===1?1.1:null,size:16});if(i)d.line([[325,y-28],[325,y]],{at:i*.25,c:LIME})});d.pill('48 kHz in, 16 kHz out',1.5)}},
+ {id:'overlay',name:'Overlay',desc:'Two lines on the player',tag:'overlay.ts',facts:[['Display','Japanese stabilizes, and English streams in'],['Transcript','A panel with click-to-seek, SRT and VTT export'],['HUD','p50 and p95 latencies for both languages'],['Without a translator','Japanese still works, and the overlay says why English is missing']],
+  label:'Overlay / white is final, grey may change (example)',steps:['Stable text never changes.','Unstable text may still be revised.'],draw(){
+  d.box(40,120,570,160,null,null);const g=d.g(.3);txt(g,325,190,'今日はとても',{size:26,fill:INK});const u=d.g(.7);txt(u,325,232,'いい天気です',{size:22,fill:MUTE});const e=d.g(1.2);txt(e,325,330,'The weather is very nice today',{size:20,fill:LIME});d.pill('Committed text is never retracted',1.5)}},
+ {id:'wire',name:'Wire protocol',desc:'One source, one mirror',tag:'protocol.py',facts:[['Version','<code>PROTOCOL_VERSION</code> is 2'],['Source of truth','<code>server/src/livesubs/protocol.py</code>'],['Mirror','<code>extension/src/protocol.ts</code>, with a drift test'],['Schema','<code>protocol.schema.json</code>']],
+  label:'Protocol / the same pattern as AgenticEnv',steps:['Any change touches both files in one commit.','The version number moves with it.'],draw(){
+  d.box(40,130,250,90,'protocol.py','truth',{mono:1});d.box(360,130,250,90,'protocol.ts','mirror',{mono:1,at:.3});d.line([[290,175],[360,175]],{at:.4,c:LIME});d.box(165,300,320,70,'drift test',null,{at:1,hl:1.2});d.pill('One commit, both files',1.5)}}]},
+
+{id:'pipeline',name:'Pipeline',sub:'Voice activity, transcription, translation.',rows:[
+ {id:'segments',name:'Segmentation',desc:'Silero VAD finds the speech',tag:'vad.py',facts:[['VAD','Silero, ONNX, kept in the repository'],['Session','One per connection'],['Output','Open segments, then closed ones']],
+  label:'VAD / where a sentence starts and ends (example)',steps:['Frames arrive continuously.','Speech opens a segment, and silence closes it.'],draw(){
+  for(let i=0;i<46;i++){const on=(i>6&&i<19)||(i>26&&i<40),h=on?40+((i*29)%90):6+(i%3)*4,x=40+i*12.5,g=d.g(i*.02);el('rect',{x,y:210-h/2,width:8,height:h,rx:2,fill:on?LIME:'#3a4a40'},g)}d.box(120,320,160,60,'segment 1',null,{at:1,size:15});d.box(380,320,170,60,'segment 2',null,{at:1.1,size:15});d.pill('Silence closes a segment',1.5)}},
+ {id:'asr',name:'Transcription',desc:'kotoba-whisper, on the GPU',tag:'asr/',facts:[['Model','<code>kotoba-whisper-v2.0</code>, through faster-whisper and CTranslate2'],['Precision','fp16: the V100 has no bf16'],['Stability','LocalAgreement-2, at character level'],['Budget','At most 4 GiB on GPU 0'],['Rule','No model change without rerunning the benchmark']],
+  label:'LocalAgreement / two decodings must agree (example)',steps:['Each new decoding of the open segment is compared with the last.','Their common prefix is committed.'],draw(){
+  ['今日はとても寒','今日はとてもいい天'].forEach((s,i)=>{const g=d.g(i*.4);txt(g,70,130+i*70,'decoding '+(i+1),{size:13,mono:1,anchor:'start',fill:MUTE});txt(g,210,130+i*70,s,{size:22,anchor:'start'})});d.box(120,290,410,80,'今日はとても','committed',{at:1,hl:1.2,size:20});d.pill('Stable text is never retracted',1.5)}},
+ {id:'translation',name:'Translation',desc:'A local LLM, by name',tag:'mt/',facts:[['Server','The llama-server of AgenticEnv'],['Profile','<code>translate</code>, chosen by benchmark'],['Guard','It reports the <code>code</code> profile if loaded, and never translates with it'],['Glossaries','Per channel: they prime the transcription and force spellings'],['Scope','This repository does not drive llama-server']],
+  label:'Translation / the wrong model is reported',steps:['The request names its model.','If another one is loaded, it says so.'],draw(){
+  d.box(40,110,230,90,'JA segment',null);d.box(380,110,230,90,'llama-server','AgenticEnv',{at:.4,to:'AgenticEnv#profiles-llm'});d.line([[270,155],[380,155]],{at:.4,c:LIME});d.box(60,300,240,76,'translate','EN streams',{at:1,mono:1,hl:1.2});d.box(350,300,240,76,'code','reported',{at:1.2,mono:1,c:WARN,hl:1.3});d.pill('Never silently the wrong model',1.5)}},
+ {id:'ahead',name:'Ahead mode',desc:'Subtitles with the sentence',tag:'ahead/',facts:[['Idea','The server pulls the stream, and the player stays about 6 s behind'],['Outer session','The capture only aligns the two timelines'],['Inner session','The usual pipeline, on the pulled audio'],['Fallback','<code>ahead_status{failed}</code>, then normal capture']],
+  label:'Ahead / the server hears it first',steps:['The server reads the live edge.','The player, a few seconds behind, shows each line at its time.'],draw(){
+  d.line([[50,160],[600,160]],{});d.line([[50,300],[600,300]],{});d.text(50,140,'live edge, server',{size:13,fill:MUTE,anchor:'start'});d.text(50,280,'player',{size:13,fill:MUTE,anchor:'start'});const g=d.g(.3);el('circle',{cx:300,cy:160,r:9,fill:LIME},g);const h=d.g(1);el('circle',{cx:480,cy:300,r:9,fill:LIME},h);d.line([[300,160],[480,300]],{at:1,c:LIME});d.text(420,214,'about 6 s',{size:13,fill:LIME,at:1.1});d.pill('Falls back on its own',1.5)}}]},
+
+{id:'verify',name:'Verification',sub:'Latency is the product, so it is measured.',rows:[
+ {id:'verification',name:'Benchmarks and tests',desc:'Latency, ASR and translation',tag:'benchmarks/',facts:[['Published','0.32 s for Japanese, 0.56 s for English, p50, on a V100, per the README'],['Replay','<code>just replay</code> plays a file like the extension would'],['Fake server','<code>just fake-server</code>, with no GPU'],['Tests','30 server files, 7 extension files'],['CI','<code>server</code> and <code>extension</code> jobs']],
+  label:'Latency / after the end of a sentence',steps:['Japanese appears first.','English follows.'],draw(){
+  [['Japanese',32],['English',56]].forEach(([s,v],i)=>{const y=130+i*120,g=d.g(i*.3);txt(g,40,y+28,s,{size:16,anchor:'start'});const r=el('rect',{x:180,y:y+6,height:34,rx:4,fill:i?VIOLET:LIME},g),t0=(.3+i*.3)*STEP;U.push(t=>r.setAttribute('width',v*6*ease((t-t0)/.6)));const n=d.g(1);txt(n,620,y+30,'0.'+v+' s',{size:15,mono:1,anchor:'end'})});d.pill('p50, from the README',1.5)}}]}
+];
+
+/* Map: both halves of the repository, and the models they reach. */
+const N={vid:[40,100,270,64,'Video element','mozCaptureStream','capture'],wk:[40,220,270,64,'AudioWorklet','16 kHz','capture'],bg:[40,340,270,64,'Background','WebSocket','capture'],ov:[40,460,270,64,'Overlay','two lines','overlay'],
+ ses:[355,220,170,64,'Session','protocol v2','wire'],vad:[535,100,170,64,'VAD','Silero','segments'],seg:[535,220,170,64,'Segments','open, closed','segments'],ah:[355,340,170,64,'Ahead','about 6 s','ahead'],
+ asr:[750,100,310,64,'kotoba-whisper','GPU 0, fp16','asr'],llm:[750,220,310,64,'llama-server','AgenticEnv','translation'],glo:[750,340,310,64,'Glossaries','per channel','translation']};
+const E={vw:[[175,164],[175,220]],wb:[[175,284],[175,340]],bs:[[310,372],[332,372],[332,252],[355,252]],sv:[[525,240],[530,240],[530,132],[535,132]],vs:[[620,164],[620,220]],sa:[[705,120],[750,120]],sl:[[705,252],[750,252]],bo:[[440,284],[440,444],[175,444],[175,460]],gl:[[905,340],[905,284]]};
+const TRACE=[
+ ['Click any box to open it, or step through one sentence.',[],[]],
+ ['The player gives its audio to the capture stream.',['vid','wk'],['vw']],
+ ['Frames at 16 kHz cross the background script.',['wk','bg'],['wb']],
+ ['They reach the session on the server.',['bg','ses'],['bs']],
+ ['Silero VAD finds where the speech is.',['ses','vad'],['sv']],
+ ['An open segment goes to Whisper again and again.',['vad','asr'],['sa']],
+ ['A closed segment is translated, with the glossary.',['seg','llm','glo'],['sl','gl']],
+ ['Partial, final and translated lines return to the overlay.',['ses','ov'],['bo']]];
+
+const COMPS=VIEWS.flatMap(v=>v.rows.map(r=>({...r,view:v.id}))),ORDER=['map',...COMPS.map(c=>c.id)];
+const S={view:'map',id:'map',t:0,tour:false,last:0,steps:TRACE.map(s=>s[0]),paused:false};
+
+function drawMap(){
+ svg.setAttribute('viewBox','0 0 1100 600');
+ ZONES.forEach(({x,w,label,dashed})=>{el('rect',{x,y:48,width:w-10,height:510,rx:14,fill:dashed?'#0c1511':'#090f0c',stroke:'#1f2a24','stroke-dasharray':dashed?'6 5':''});txt(svg,x+14,34,label,{size:13,mono:1,fill:MUTE,anchor:'start',ls:'.14em'})});
+ const paths={};for(const k in E)paths[k]=el('path',{d:'M'+E[k].map(q=>q.join(' ')).join('L'),fill:'none',stroke:'#34443a','stroke-width':1.5});
+ const hot={};for(const k in E)hot[k]=el('path',{d:paths[k].getAttribute('d'),fill:'none',stroke:LIME,'stroke-width':2.4});
+ const lit={};
+ for(const k in N){const[x,y,w,h,a,b,to]=N[k],g=el('g');el('rect',{x,y,width:w,height:h,rx:11,fill:'#0b120e',stroke:LINE},g);txt(g,x+w/2,y+(b?h/2-3:h/2+6),a,{size:w<110?14:17,w:500});if(b)txt(g,x+w/2,y+h/2+18,b,{size:13,fill:MUTE,mono:b[0]===':'||b[0]==='/'});
+  lit[k]=el('rect',{x,y,width:w,height:h,rx:11,fill:'#c6f13518',stroke:LIME,'stroke-width':2,'pointer-events':'none'},g);link(g,to,a)}
+ const dot=[0,1,2,3].map(()=>el('circle',{r:5,fill:LIME}));
+ U.push(t=>{const s=Math.floor(t/STEP),[,ns,es]=TRACE[Math.min(s,TRACE.length-1)],since=t-s*STEP,p=ease(since/.35);
+  for(const k in lit)lit[k].style.opacity=ns.includes(k)?p:0;
+  for(const k in hot){const on=es.includes(k);hot[k].style.opacity=on?1:0}
+  dot.forEach((c,i)=>{const k=es[i];if(!k){c.style.opacity=0;return}const q=paths[k],L=q.getTotalLength(),pt=q.getPointAtLength(L*((since/1.4)%1));c.setAttribute('cx',pt.x);c.setAttribute('cy',pt.y);c.style.opacity=1})})
+}
+
+const C=$('#chip').getContext('2d');
+function chip(t){C.clearRect(0,0,400,270);const a=.72+.3*Math.sin(t*.42),e=.62,sc=.94;
+ const rot=([x,y,z])=>{const X=x*Math.cos(a)-y*Math.sin(a),Y=x*Math.sin(a)+y*Math.cos(a);return[X,Y*Math.cos(e)-z*Math.sin(e),Y*Math.sin(e)+z*Math.cos(e)]};
+ const face=(pts,c)=>{C.beginPath();pts.map(rot).forEach((p,i)=>{const x=200+p[0]*sc,y=132+p[1]*sc;i?C.lineTo(x,y):C.moveTo(x,y)});C.closePath();C.fillStyle=`rgb(${c.join(',')})`;C.fill();C.strokeStyle='rgba(0,0,0,.45)';C.stroke()};
+ const shade=(c,s)=>c.map(v=>Math.round(v*s));
+ const cub=(x0,y0,z0,x1,y1,z1,c)=>{for(const[n,pts,s]of[[[1,0,0],[[x1,y0,z0],[x1,y1,z0],[x1,y1,z1],[x1,y0,z1]],.55],[[-1,0,0],[[x0,y0,z0],[x0,y1,z0],[x0,y1,z1],[x0,y0,z1]],.3],[[0,1,0],[[x0,y1,z0],[x1,y1,z0],[x1,y1,z1],[x0,y1,z1]],.4],[[0,-1,0],[[x0,y0,z0],[x1,y0,z0],[x1,y0,z1],[x0,y0,z1]],.3]])if(rot(n)[2]>0)face(pts,shade(c,s));face([[x0,y0,z1],[x1,y0,z1],[x1,y1,z1],[x0,y1,z1]],c)};
+ cub(-105,-80,-34,105,80,-12,[122,126,118]);face([[-94,-68,-12],[94,-68,-12],[94,68,-12],[-94,68,-12]],[26,30,27]);
+ [...Array(8)].map((_,i)=>-92+i*25).sort((u,v)=>(u-v)*Math.sin(a)).forEach(x=>cub(x,-66,-12,x+16,66,18,[182,184,170]))}
+
+function seek(t){
+ for(const a of A){const p=ease((t-a.tin)/.42),s=a.e.style;s.opacity=t>=a.tin?p:0;s.transform=`translateY(${a.dy*(1-p)}px)`;const b=a.blur*(1-p);s.filter=b>.05&&t>=a.tin?`blur(${b}px)`:'none'}
+ U.forEach(f=>f(t));
+ const s=Math.min(Math.floor(t/STEP),S.steps.length-1);
+ if(s!==S.shown){S.shown=s;const m=S.id==='map';$('#cap').innerHTML=`<b>${m?s:s+1}/${m?S.steps.length-1:S.steps.length}</b>`+S.steps[s];[...$('#dots').children].forEach((b,i)=>i===s?b.setAttribute('aria-current','true'):b.removeAttribute('aria-current'))}
+ const i=ORDER.indexOf(S.id);$('#prog').style.width=100*(i+(s+1)/S.steps.length)/ORDER.length+'%'}
+
+function renderList(v){
+ $('#list').replaceChildren(...v.rows.map((r,i)=>{const b=document.createElement('button');b.className='row';b.dataset.id=r.id;const on=r.id===S.id;b.setAttribute('aria-expanded',on);
+  b.innerHTML=`<i>${String(i+1).padStart(2,'0')}</i><h3>${r.name}</h3><p>${r.desc}</p><u${r.status?' style="color:var(--warn)"':''}>${r.status??r.tag}</u>`+(on?`<dl class="more">${(r.facts||[]).filter(([,w])=>w!=null).map(([k,w])=>`<dt>${k}</dt><dd>${w}</dd>`).join('')}${r.chips?`<div class="chips">${r.chips.map(c=>`<span>${c}</span>`).join('')}</div>`:''}${r.flag?`<div class="flag"><span>${r.flag}</span></div>`:''}</dl>`:'');
+  b.onclick=()=>open(r.id);return b}))}
+
+function open(id,keepTour){
+ const c=COMPS.find(x=>x.id===id),view=c?VIEWS.find(v=>v.id===c.view):null;
+ if(!keepTour)S.tour=false;S.id=id;S.view=c?c.view:'map';S.t=0;S.shown=-1;S.paused=false;S.hold=0;A=[];U=[];svg.replaceChildren();
+ $('#cols').classList.toggle('is-map',!c);
+ [...$('#tabs').children].forEach(b=>{const on=b.dataset.view===S.view;b.setAttribute('aria-selected',on);if(on)$('#tabs').scrollLeft=b.offsetLeft-16});
+ if(c){svg.setAttribute('viewBox','0 0 650 520');S.steps=c.steps;$('#sec').textContent=`${String(VIEWS.indexOf(view)+1).padStart(2,'0')} / ${view.name}`;$('#sub').textContent=view.sub;$('#plabel').textContent=c.label;renderList(view);c.draw()}
+ else{S.steps=TRACE.map(s=>s[0]);$('#sub').textContent=META.mapSub;$('#plabel').textContent=META.mapLabel;drawMap()}
+ const dots=$('#dots');dots.replaceChildren(...S.steps.map((_,i)=>{const b=document.createElement('button');b.className='dot';b.textContent=c?i+1:i;b.setAttribute('aria-label','Go to step '+(c?i+1:i));b.onclick=()=>{S.tour=false;S.paused=true;S.t=c?(i+1)*STEP-.02:i*STEP+.001;seek(S.t);syncPlay()};return b}));
+ try{history.replaceState(null,'','#'+id)}catch{}
+ if(!c)S.paused=!S.tour;
+ if(still)S.t=c?S.steps.length*STEP-.01:0;
+ seek(S.t);syncPlay()}
+
+function syncPlay(){$('#play').textContent=S.tour?'Pause tour':'Play tour'}
+function step(d){const i=(ORDER.indexOf(S.id)+d+ORDER.length)%ORDER.length;open(ORDER[i])}
+function frame(now){const dt=Math.min(.1,(now-S.last)/1000||0);S.last=now;if(META.hardware)chip(now/1000);
+ if(!S.paused){const end=S.steps.length*STEP-.01;
+  if(S.t<end){S.t=Math.min(end,S.t+dt);seek(S.t)}
+  else if(S.tour&&(!still||(S.hold+=dt)>4)){const i=ORDER.indexOf(S.id);i<ORDER.length-1?open(ORDER[i+1],true):(S.tour=false,syncPlay())}}
+ else if(S.id==='map'&&S.shown>0&&!still){const b=S.shown*STEP;S.t=b+((S.t-b+dt)%(STEP-.01));seek(S.t)}
+ requestAnimationFrame(frame)}
+
+$('#tabs').replaceChildren(...[{id:'map',name:META.mapTab??'System map'},...VIEWS].map((v,i)=>{const b=document.createElement('button');b.className='tab';b.dataset.view=v.id;b.setAttribute('role','tab');b.innerHTML=`<b>0${i}</b>${v.name}`;b.onclick=()=>open(v.id==='map'?'map':v.rows[0].id);return b}));
+$('#prev').onclick=()=>step(-1);$('#next').onclick=()=>step(1);
+$('#play').onclick=()=>{S.tour=!S.tour;if(S.tour)S.paused=false;else if(S.id==='map')S.paused=true;syncPlay()};
+addEventListener('keydown',e=>{if(e.target.closest('button,.go'))return;if(e.key==='ArrowRight')step(1);if(e.key==='ArrowLeft')step(-1)});
+addEventListener('hashchange',()=>{const id=location.hash.slice(1);if(id!==S.id&&ORDER.includes(id))open(id)});
+$('#home').href=`${ROOT}/index.html`;$('#brand').textContent='\u25C6\u00A0 '+META.name;$('#stamp').textContent=`Explorer / snapshot ${META.snapshot} / ${META.commit}`;$('#foot').textContent=META.footer;
+$('#title').innerHTML=`${META.name}<em>${META.accent}</em>`;
+if(META.hardware){$('#gpu').hidden=false;$('#hwname').textContent=META.hardware.name;$('#hwsub').textContent=META.hardware.sub;chip(0)}
+const h=location.hash.slice(1);open(ORDER.includes(h)?h:'map');requestAnimationFrame(frame);
+
+</script></body></html>

@@ -1,0 +1,281 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>data-ingest Explorer</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&family=Space+Grotesk:wght@400;500&display=swap">
+<style>/* Layout: the video's three-column console. Stage rail, component list, animated diagram; the map spans the last two. */
+:root{color-scheme:dark;--bg:#060a0b;--panel:#080d0b;--card:#0a100d;--node:#0b120e;--ink:#eef2ee;--soft:#b9c1ba;--mute:#8d968f;--dim:#5b655e;--line:#1f2a24;--line2:#2c3a30;--lime:#c6f135;--olive:#1d2a12;--violet:#8c7dff;--warn:#f2b84b;
+--display:"Space Grotesk",ui-sans-serif,system-ui,sans-serif;--mono:"JetBrains Mono",ui-monospace,monospace}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{margin:0;background:radial-gradient(1100px 700px at 62% 62%,#0d1610 0%,transparent 70%),radial-gradient(800px 500px at 10% 100%,#0b130e 0%,transparent 70%),var(--bg);background-attachment:fixed;color:var(--ink);font-family:var(--display);font-size:15px}
+button{font:inherit;color:inherit;background:none;border:0;cursor:pointer;text-align:left}
+:focus-visible{outline:2px solid var(--lime);outline-offset:2px}
+.app{min-height:100%;display:flex;flex-direction:column;gap:22px;padding-block:22px 14px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));max-width:1720px;margin:0 auto}
+@media(min-width:900px){.app{padding-left:max(44px,env(safe-area-inset-left,0px));padding-right:max(44px,env(safe-area-inset-right,0px))}}
+.mono{font-family:var(--mono);text-transform:uppercase;letter-spacing:.2em;font-size:11px;color:var(--mute)}
+.top{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;align-items:center;padding-bottom:12px;border-bottom:1px solid var(--line)}
+.brand{color:var(--ink);font-weight:500;font-size:13px}
+.nav{display:flex;align-items:center;gap:18px;flex-wrap:wrap}
+.home{color:var(--lime);text-decoration:none;padding:4px 10px;margin-left:-10px;border-radius:8px;transition:background .2s}
+.home:hover{background:#1d2a12}
+.head h1{margin:0;font-size:clamp(32px,4vw,52px);font-weight:500;letter-spacing:-.02em;line-height:1.1;text-wrap:balance}
+.head h1 em{font-style:normal;color:var(--lime);margin-left:.35em;text-shadow:0 0 28px #c6f13555}
+.head p{margin:8px 0 0;font-size:clamp(15px,1.4vw,19px);color:var(--soft);min-height:1.4em}
+.cols{display:grid;grid-template-columns:230px minmax(0,1fr) minmax(0,1.08fr);gap:0 34px;flex:1;align-items:start}
+.side{padding-right:30px;border-right:1px solid var(--line);display:flex;flex-direction:column;gap:12px;align-self:stretch;min-width:0}
+.tabs{display:flex;flex-direction:column;gap:6px}
+.tab{display:flex;align-items:center;gap:14px;height:46px;padding:0 16px;border-radius:12px;border:1.5px solid transparent;color:var(--mute);font-size:16px;white-space:nowrap;transition:color .2s,background .2s,border-color .2s}
+.tab b{font:500 11px var(--mono);color:var(--lime);opacity:.85}
+.tab:hover{color:var(--ink);background:#0e1611}
+.tab[aria-selected=true]{color:var(--ink);border-color:var(--lime);background:linear-gradient(90deg,#26361499,#14200f66);box-shadow:0 0 22px #c6f13522}
+.gpu{margin-top:auto;text-align:center;padding-top:6px}
+.gpu canvas{width:100%;max-width:200px;height:auto;display:block;margin:0 auto}
+.gpu strong{display:block;color:var(--lime);font-weight:500;font-size:16px;margin-top:4px}
+.gpu span{color:var(--mute);font-size:13px}
+.mid,.right{min-width:0;display:flex;flex-direction:column;gap:12px}
+.list{display:flex;flex-direction:column;gap:8px}
+.row{position:relative;display:block;width:100%;border-radius:13px;border:1px solid var(--line2);background:var(--card);padding:11px 16px 11px 50px;transition:border-color .2s,background .2s,box-shadow .2s}
+.row:hover{border-color:#47604c}
+.row i{position:absolute;left:18px;top:15px;font:400 11px var(--mono);color:var(--mute)}
+.row h3{margin:0;font-size:17px;font-weight:500;padding-right:96px}
+.row p{margin:2px 0 0;font-size:14px;color:var(--mute)}
+.row u{position:absolute;right:14px;top:14px;font:400 10px var(--mono);color:var(--mute);text-decoration:none;letter-spacing:.06em;max-width:92px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.row[aria-expanded=true]{border:1.5px solid var(--lime);background:linear-gradient(90deg,#2a3b1680,#17230f40);box-shadow:0 0 24px #c6f13520}
+.row[aria-expanded=true] p{color:var(--soft)}
+.more{display:grid;grid-template-columns:minmax(84px,auto) minmax(0,1fr);gap:4px 14px;margin-top:10px;font-size:13px}
+.more dt{font:400 10px/1.9 var(--mono);text-transform:uppercase;letter-spacing:.1em;color:var(--mute)}
+.more dd{margin:0;color:var(--soft);overflow-wrap:anywhere}
+.more code{font:400 12px var(--mono);color:var(--ink)}
+.chips{display:flex;flex-wrap:wrap;gap:4px;grid-column:1/-1;margin-top:4px}
+.chips span{font:400 11px var(--mono);padding:2px 7px;border-radius:6px;background:#141c15;color:var(--soft)}
+.flag{grid-column:1/-1;margin-top:6px;display:flex;gap:8px;font-size:13px;color:var(--warn);line-height:1.4}
+.flag::before{content:"▲";font-size:9px;line-height:18px}
+.panel{position:relative;border:1px solid var(--line);border-radius:16px;background:var(--panel);overflow:hidden}
+.scroll{overflow-x:auto}
+#svg{display:block;width:100%;height:auto}
+.is-map .mid{display:none}.is-map .right{grid-column:2/4}
+.is-map #svg{min-width:760px;max-height:max(440px,calc(100vh - 310px))}
+.is-map .gpu canvas{max-width:190px}
+.cap{font-size:16px;color:var(--soft);min-height:2.7em;margin:0;line-height:1.35}
+.cap b{font:400 12px var(--mono);color:var(--lime);margin-right:8px}
+.dots{display:flex;flex-wrap:wrap;gap:6px}
+.dot{min-width:30px;height:28px;padding:0 8px;border-radius:7px;border:1px solid var(--line2);font:400 11px var(--mono);color:var(--mute);text-align:center}
+.dot:hover{color:var(--ink);border-color:#47604c}
+.dot[aria-current=true]{background:var(--olive);border-color:var(--lime);color:var(--lime)}
+footer{display:flex;flex-direction:column;gap:10px}
+.bar{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.ctl{display:flex;gap:6px}
+.ctl button{height:32px;padding:0 12px;border-radius:8px;border:1px solid var(--line2);font:400 11px var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--soft)}
+.ctl button:hover{color:var(--ink);border-color:#47604c}
+#play{border-color:var(--lime);color:var(--lime);background:var(--olive)}
+.track{height:3px;background:var(--line);position:relative}
+#prog{position:absolute;left:0;top:0;bottom:0;background:var(--lime);box-shadow:0 0 12px #c6f13588;width:0}
+svg text{font-family:var(--display);fill:var(--ink)}
+svg .m{font-family:var(--mono)}
+svg .go{cursor:pointer}
+svg .go:hover>rect:first-child{stroke:var(--lime)}
+svg .go:focus-visible{outline:none}svg .go:focus-visible>rect:first-child{stroke:var(--lime);stroke-width:2}
+@media(max-width:1180px){
+ .cols{grid-template-columns:minmax(0,1fr);gap:18px}
+ .side{border:0;padding:0}.tabs{flex-direction:row;overflow-x:auto;padding-bottom:4px}.tab{height:40px;flex:none}
+ .gpu{display:none}.is-map .right{grid-column:auto}
+ .right{order:2}.mid{order:3}
+}
+.head h1{overflow-wrap:anywhere}
+</style>
+<body>
+<div class="app">
+ <div class="top"><span class="nav"><a class="mono home" id="home">&larr; Atlas</a><span class="mono brand" id="brand"></span></span><span class="mono" id="stamp"></span></div>
+ <div class="head"><h1 id="title"></h1><p id="sub"></p></div>
+ <main class="cols" id="cols">
+  <nav class="side" aria-label="Stages">
+   <span class="mono">Views</span>
+   <div class="tabs" id="tabs" role="tablist"></div>
+   <div class="gpu" id="gpu" hidden><canvas id="chip" width="400" height="270" aria-hidden="true"></canvas><strong id="hwname"></strong><span id="hwsub"></span></div>
+  </nav>
+  <section class="mid"><span class="mono" id="sec" style="color:var(--lime)"></span><div class="list" id="list"></div></section>
+  <section class="right">
+   <span class="mono" id="plabel"></span>
+   <div class="panel scroll"><svg id="svg" role="img" aria-label="Animated diagram of the selected component"></svg></div>
+   <p class="cap" id="cap" aria-live="polite"></p>
+   <div class="dots" id="dots" aria-label="Steps"></div>
+  </section>
+ </main>
+ <footer>
+  <div class="bar"><span class="mono" id="foot" style="font-size:10px"></span>
+   <div class="ctl"><button id="prev" aria-label="Previous component">Prev</button><button id="play">Play tour</button><button id="next" aria-label="Next component">Next</button></div></div>
+  <div class="track"><div id="prog"></div></div>
+ </footer>
+</div>
+
+<script>
+const STATE={},REPOS=["AgenticEnv","DeutschAutoCorrect","JobTracker","Portfolio","RamTracker","VoiceClone","agenticenv-chat","data-ingest","genealogy","live-subs","quant-backtest","quant-dev","quant-microstructure","quant-modeling","quant-platform"],ROOT='..';
+/* Live values from repos/<name>/state.json. A public build has none, so L() returns the fallback. */
+const L=(key,fallback=null)=>STATE[key]??fallback;
+const B=1.97,STEP=B*2,NS='http://www.w3.org/2000/svg',$=s=>document.querySelector(s),svg=$('#svg');
+const LIME='#c6f135',MUTE='#8d968f',LINE='#2c3a30',VIOLET='#8c7dff',WARN='#f2b84b',INK='#eef2ee',SOFT='#b9c1ba';
+const still=matchMedia('(prefers-reduced-motion: reduce)').matches;
+const clamp=(v,a=0,b=1)=>Math.min(b,Math.max(a,v)),ease=p=>1-Math.pow(1-clamp(p),3);
+let A=[],U=[];
+
+function el(n,a={},p=svg){const e=document.createElementNS(NS,n);for(const k in a)e.setAttribute(k,a[k]);p.appendChild(e);return e}
+function txt(g,x,y,s,o={}){const e=el('text',{x,y,'font-size':o.size??16,'text-anchor':o.anchor??'middle','font-weight':o.w??400,class:o.mono?'m':''},g);e.textContent=s;e.style.fill=o.fill??INK;if(o.ls)e.style.letterSpacing=o.ls;return e}
+const reveal=(e,at,o={})=>(A.push({e,tin:at*STEP,dy:o.dy??10,blur:o.blur??7}),e);
+
+/* Drawing kit for the 650×520 panel. `at` is expressed in steps, so diagrams line up with the captions. */
+const d={
+ g(at=0,o){return reveal(el('g'),at,o)},
+ box(x,y,w,h,title,sub,o={}){const g=d.g(o.at??0);
+  el('rect',{x,y,width:w,height:h,rx:11,fill:'#0b120e',stroke:LINE},g);
+  if(title)txt(g,x+w/2,y+(sub?h/2-3:h/2+6),title,{size:o.size??17,w:500,mono:o.mono});
+  if(sub)txt(g,x+w/2,y+h/2+17,sub,{size:o.subsize??13,fill:MUTE,mono:o.submono});
+  if(o.hl!=null)reveal(el('rect',{x,y,width:w,height:h,rx:11,fill:(o.c??LIME)+'14',stroke:o.c??LIME,'stroke-width':2,'pointer-events':'none'},g),o.hl,{dy:0,blur:0});
+  if(o.to)link(g,o.to,title);return g},
+ line(pts,o={}){const at=(o.at??0)*STEP,p=el('path',{d:'M'+pts.map(q=>q.join(' ')).join('L'),fill:'none',stroke:o.c??MUTE,'stroke-width':o.w??1.5,pathLength:1});
+  U.push(t=>{p.style.strokeDasharray=`${ease((t-at)/(o.dur??.5))} 1`;p.style.opacity=t<at?0:1});return p},
+ text(x,y,s,o={}){const g=d.g(o.at??0);return txt(g,x,y,s,o)},
+ pill(s,at,c=LIME){const g=d.g(0,{dy:0});el('rect',{x:24,y:456,width:602,height:46,rx:11,fill:c===LIME?'#1d2a12':'#2b2110'},g);const t=d.g(at);txt(t,325,485,s,{size:17,w:500,fill:c})},
+ grid(x,y,cols,rows,o={}){const u=o.u??30,v=o.v??26,gap=o.gap??8;for(let r=0;r<rows;r++)for(let c=0;c<cols;c++){const X=x+c*(u+gap),Y=y+r*(v+gap),i=r*cols+c;
+  reveal(el('rect',{x:X,y:Y,width:u,height:v,rx:4,fill:'#2b3a30'}),(o.at??0)+(r+c)*.015,{dy:0,blur:3});
+  if(o.fill&&o.fill(i)){const f=el('rect',{x:X,y:Y,width:u,height:v,rx:4,fill:o.fill(i)===true?LIME:o.fill(i)}),tin=(o.fillAt??1)*STEP+i*.05;U.push(t=>f.style.opacity=ease((t-tin)/.2))}}},
+ count(x,y,n,at,o={}){const e=d.text(x,y,'0',{...o,at,mono:1}),tin=at*STEP;U.push(t=>{e.textContent=Math.round(n*ease((t-tin)/.8)).toLocaleString('en-US')+(o.unit??'')})}
+};
+/* `to` is a component id, or `repo#id` for another page. A repo outside this build gets no link. */
+function follow(to){const[repo,id]=to.split('#');if(id)location.href=`${ROOT}/${repo}/index.html#${id}`;else open(to)}
+function link(g,to,label){if(to.includes('#')&&!REPOS.includes(to.split('#')[0]))return;g.dataset.to=to;g.classList.add('go');g.setAttribute('tabindex','0');g.setAttribute('role','button');g.setAttribute('aria-label','Open '+label);g.addEventListener('click',()=>follow(to));g.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();follow(to)}})}
+
+/* Content of the data-ingest page. Read from the repository at 485d6dd. It holds no live counts. */
+const META={name:'data-ingest',accent:'one source at a time',snapshot:'2026-10-31',commit:'485d6dd',
+ footer:'Airflow / Postgres / one long-running capture',
+ mapSub:'One view of the engine, and the path of a single run.',mapLabel:'System map / follow one run'};
+const ZONES=[{x:20,w:230,label:'UPSTREAM'},{x:255,w:290,label:'ENGINE'},{x:550,w:270,label:'STORE'},{x:825,w:255,label:'CONSUMERS'}];
+const VIEWS=[
+{id:'engine',name:'Engine',sub:'A source declares what it is, and the engine does the rest.',rows:[
+ {id:'contract',name:'Source contract',desc:'A small class, and a table spec',tag:'core/source.py',facts:[['Declares','<code>name</code>, <code>table</code>, <code>write_mode</code>, <code>schedule</code>, <code>lookback_days</code>'],['Implements','<code>fetch(window)</code>, returning a frame'],['Backfill','<code>Window.everything()</code>, not a flag per source']],
+  label:'Contract / a declaration and one method',steps:['The class describes the dataset.','The engine handles the DDL, staging and writing.'],draw(){
+  d.box(40,90,250,270,null,null);['name','table','write_mode','schedule','fetch()'].forEach((s,i)=>{const g=d.g(i*.1);txt(g,70,130+i*44,s,{size:16,mono:1,anchor:'start',fill:i===4?LIME:SOFT})});['DDL','Staging','Writing','Scheduling'].forEach((s,i)=>{const y=90+i*72;d.box(390,y,220,56,s,null,{at:1+i*.1,hl:1.2+i*.1,size:16})});d.line([[290,225],[390,225]],{at:1,c:LIME});d.pill('A new dataset is a new file',1.6)}},
+ {id:'discovery',name:'Discovery',desc:'No list to keep in sync',tag:'registry.py',facts:[['How','Imports each module of <code>sources/</code> and collects the classes'],['Skips','Modules that start with an underscore'],['Sources','23, listed in <code>docs/sources.md</code>'],['CLI','<code>ingest list</code>, <code>run</code>, <code>status</code>, <code>capture</code>']],
+  label:'Discovery / the folder is the registry',steps:['A file dropped in sources/ is found by import.','The CLI and Airflow read the same registry.'],draw(){
+  d.box(205,70,240,80,'sources/',null,{mono:1});d.box(205,210,240,76,'registry',null,{mono:1,at:.4,hl:.6});d.line([[325,150],[325,210]],{at:.4,c:LIME});d.box(60,350,240,76,'ingest CLI',null,{at:1,mono:1,size:15});d.box(350,350,240,76,'Airflow DAGs',null,{at:1.1,to:'airflow'});d.line([[325,286],[325,318],[180,318],[180,350]],{at:1,c:LIME});d.line([[325,318],[470,318],[470,350]],{at:1.1,c:LIME});d.pill('A list you must update goes stale',1.5)}},
+ {id:'writing',name:'Write modes',desc:'Data changes in different ways',tag:'core/database.py',chips:['upsert','versioned','append'],facts:[['Path','<code>COPY</code> into a temp staging table, then <code>INSERT</code>'],['upsert','A key has one truth'],['versioned','<code>observed_at</code> joins the key, with a <code>_latest</code> view'],['Why','What was knowable on a given day stays answerable']],
+  label:'Versioned / a row only when a value changes (example)',steps:['Each run compares with the stored vintage.','Only a changed value adds a row.'],draw(){
+  [['January','3.9',LIME],['February','3.9',MUTE],['March','4.1',LIME]].forEach(([a,b,c],i)=>{const y=80+i*104;d.box(40,y,200,76,a,'run',{at:i*.3});d.line([[240,y+38],[360,y+38]],{at:.3+i*.3,c});const stored=c===LIME;d.box(360,y,250,76,stored?b:'no new row',stored?'new vintage':null,{at:.4+i*.3,hl:stored?.6+i*.3:null,size:17,mono:stored})});d.pill('A backtest sees what was known',1.6)}},
+ {id:'window',name:'Run window',desc:'A lookback that can stretch back',tag:'core/runner.py',facts:[['Routine','The source\'s lookback'],['After an outage','Stretched to the last stored date, with <code>catch_up_on</code>'],['Exceptions','Not caught: each caller decides'],['Single path','The CLI and the DAGs call <code>run_source</code>']],
+  label:'Window / a two-week outage leaves no hole (example)',steps:['A routine run fetches its lookback.','After an outage, it starts at the last stored date.'],draw(){
+  d.line([[40,240],[610,240]],{});d.box(40,120,190,76,'stored',null,{at:.1});d.box(430,120,180,76,'lookback',null,{at:.4,hl:.6});d.box(230,290,380,70,'window after the outage',null,{at:1,hl:1.2});d.pill('catchup is off, catch_up_on is not',1.6)}}]},
+
+{id:'catalogue',name:'Catalogue',sub:'Twenty-three datasets, and one schedule each.',rows:[
+ {id:'catalogue',name:'Sources',desc:'From prices to default rates',tag:'sources/',chips:['Yahoo Finance','FRED','ECB','SEC EDGAR','DTCC','ESMA','Kenneth French','Bitstamp capture'],facts:[['Domains','Equities, options, rates, derivatives, FX, fundamentals, credit, factors, microstructure'],['Versioned','<code>fred-macro</code> and <code>french-factors</code>'],['Consumers','quant-modeling, quant-backtest, quant-microstructure']],
+  label:'Catalogue / the tables by schema',steps:['Each dataset lands in a schema by domain.','Consumers read the tables, and never fetch.'],draw(){
+  ['prices','macro','fx','options','rates','fundamentals','credit','factors','microstructure'].forEach((s,i)=>{d.box(30+(i%3)*200,70+(i-i%3)/3*116,190,92,s,null,{at:i*.1,mono:1,size:15,hl:1+i*.03})});d.pill('Nine schemas, one Postgres',1.6)}}]},
+
+{id:'capture',name:'Capture',sub:'The one long-running service: every order on one exchange.',rows:[
+ {id:'capture',name:'Order book capture',desc:'Bitstamp BTC/USD, order by order',tag:'capture/',facts:[['Feed','Public, order by order, with no account'],['Pair','BTC/USD, and <code>CAPTURE_PAIRS</code> can take several'],['Why BTC/USD','Spread pinned to one tick, so queue position matters'],['Writes','Files, not rows']],
+  label:'Capture / three checks while recording',steps:['A message names the one before it.','Every ten minutes, the book is compared with the exchange.','A failure leaves a hole, then a Clear and a fresh book.'],draw(){
+  d.box(30,110,170,90,'Bitstamp','WebSocket');d.box(245,110,170,90,'Book','order by order',{at:.3,hl:.5});d.box(460,110,160,90,'Day file','.qmev',{at:.6,mono:1,size:15,to:'files'});d.line([[200,155],[245,155]],{at:.3,c:LIME});d.line([[415,155],[460,155]],{at:.6,c:LIME});
+  ['Sequence','Snapshot','Silence 30 s'].forEach((s,i)=>d.box(30+i*208,270,186,70,s,null,{at:1+i*.2,hl:1.1+i*.2,size:15}));d.pill('A hole is recorded, never hidden',2.2,WARN)}},
+ {id:'files',name:'Day files',desc:'One format with quant-microstructure',tag:'capture/files.py',facts:[['Record','50 bytes, little-endian, after an 8-byte header'],['Fields','Exchange and receive time, sequence, order id, price, quantity, type, side'],['Day','One file per pair and UTC day, replayable on its own'],['Over','Compressed with xz, and the oldest go first to fit a budget'],['Stays','The sidecar and the bars in Postgres']],
+  label:'Files / open, then compressed',steps:['The open day is a plain file.','A finished day is compressed, and never changes again.'],draw(){
+  d.box(40,110,250,90,'.qmev','the open day',{mono:1,hl:.3});d.box(360,110,250,90,'.qmev.xz','a finished day',{mono:1,at:1,hl:1.2});d.line([[290,155],[360,155]],{at:1,c:LIME});d.box(40,280,250,76,'.json','sidecar',{mono:1,at:1.2});d.box(360,280,250,76,'.checkpoints.gz','snapshots',{mono:1,at:1.3,size:15});d.pill('Reads back with xz -d, byte for byte',1.6)}},
+ {id:'verify',name:'Verification',desc:'Replay a day against the exchange',tag:'capture/verify.py',facts:[['Command','<code>ingest capture-verify</code>'],['Book','Strict, as the C++ reader applies it'],['Checks','Valid events, holes, crossed books, checkpoints'],['Tolerance','Orders touched in that millisecond are left out']],flag:'XRP/USD was put aside: its recorded book differed once from the exchange\'s in twenty minutes.',
+  label:'Verify / read it as the consumer will',steps:['The file replays through a strict book.','At each checkpoint, the book must match the exchange.'],draw(){
+  d.box(40,180,180,90,'Day file',null);d.box(270,180,160,90,'Strict book',null,{at:.3,hl:.5});d.box(470,180,150,90,'Checkpoint','exchange',{at:1});d.line([[220,225],[270,225]],{at:.3,c:LIME});d.line([[430,225],[470,225]],{at:1,c:LIME});d.pill('Same id, side, price and quantity',1.5)}}]},
+
+{id:'operate',name:'Operate',sub:'Airflow schedules, and merging deploys.',rows:[
+ {id:'airflow',name:'Airflow',desc:'One DAG per source, generated',tag:'data_ingest_dags.py',facts:[['Generated','<code>ingest_&lt;source&gt;</code>, from the registry'],['Executor','LocalExecutor, with no Celery'],['Retries','3, two minutes apart, 30-minute timeout'],['Metadata','Its own Postgres, apart from the data'],['Backfill','A checkbox on Trigger DAG']],
+  label:'Airflow / the DAG calls the code directly',steps:['Each DAG has one task.','It calls run_source in-process, with no subprocess.'],draw(){
+  d.box(205,70,240,76,'Registry',null,{to:'discovery'});[0,1,2].forEach(i=>{const x=30+i*208;d.box(x,200,186,70,['ingest_a','ingest_b','ingest_c'][i],null,{at:.4+i*.1,mono:1,size:15});d.line([[325,146],[325,172],[x+93,172],[x+93,200]],{at:.4+i*.1,c:LIME});d.line([[x+93,270],[x+93,330]],{at:1})});d.box(90,330,480,70,'run_source',null,{at:1.1,mono:1,hl:1.3});d.pill('One place knows what a run is',1.5)}},
+ {id:'delivery',name:'Delivery',desc:'A merge deploys itself',tag:'deploy/',facts:[['Timer','<code>autodeploy@</code>, every 2 minutes'],['Gate','Waits for green CI, and rolls back a failed deploy'],['Condition','Acts only on a clean <code>main</code>'],['CI','pytest without network tests, then flake8'],['Tests','19 files']],flag:'The rollback covers code and images. A table or rows that a new source wrote stay.',
+  label:'Delivery / pulled by the host',steps:['The timer polls main.','A green commit deploys, and a failed one goes back.'],draw(){
+  d.box(205,70,240,70,'origin/main',null,{mono:1});d.box(205,190,240,70,'CI green?',null,{at:.3,hl:.5});d.line([[325,140],[325,190]],{at:.3,c:LIME});d.box(60,330,240,76,'deploy.sh',null,{at:1,mono:1,hl:1.2});d.box(350,330,240,76,'Previous commit','on failure',{at:1.2,c:WARN});d.line([[325,260],[325,296],[180,296],[180,330]],{at:1,c:LIME});d.line([[325,296],[470,296],[470,330]],{at:1.2,c:WARN});d.pill('A failed commit is not retried',1.6)}}]}
+];
+
+/* Map: from upstream providers to the repositories that read the tables. */
+const N={yahoo:[40,100,190,64,'Yahoo Finance','prices, options','catalogue'],gov:[40,220,190,64,'Public data','FRED, ECB, SEC, DTCC','catalogue'],stamp:[40,340,190,64,'Bitstamp','order feed','capture'],
+ dag:[275,100,250,64,'Airflow','one DAG per source','airflow'],src:[275,220,250,64,'Source','fetch(window)','contract'],run:[275,340,250,64,'run_source','window, then write','window'],cap:[275,460,250,64,'Capture service','long-running','capture'],
+ stage:[570,100,230,64,'Staging','COPY','writing'],pg:[570,220,230,64,'Postgres','nine schemas','catalogue'],view:[570,340,230,64,'_latest views','current vintage','writing'],fil:[570,460,230,64,'Day files','.qmev','files'],
+ qm:[845,100,215,64,'quant-modeling','pricing','catalogue'],bt:[845,220,215,64,'quant-backtest','backtests','catalogue'],mi:[845,460,215,64,'quant-microstructure','replays','files']};
+const E={ys:[[230,132],[252,132],[252,240],[275,240]],gs:[[230,252],[275,252]],bc:[[230,372],[244,372],[244,492],[275,492]],da:[[400,164],[400,220]],sr:[[400,284],[400,340]],rs:[[525,372],[547,372],[547,132],[570,132]],sp:[[685,164],[685,220]],pv:[[685,284],[685,340]],cf:[[525,492],[570,492]],pq:[[800,240],[822,240],[822,132],[845,132]],pb:[[800,252],[845,252]],fm:[[800,492],[845,492]]};
+const TRACE=[
+ ['Click any box to open it, or step through one run.',[],[]],
+ ['Airflow reaches a source\'s schedule, and starts its single task.',['dag','src'],['da']],
+ ['The source fetches its window from the upstream provider.',['yahoo','src'],['ys']],
+ ['run_source takes the frame, stretching the window after an outage.',['src','run'],['sr']],
+ ['Rows reach a temp staging table through COPY.',['run','stage'],['rs']],
+ ['An insert applies the write mode to the real table.',['stage','pg'],['sp']],
+ ['A versioned table also serves its current vintage through a view.',['pg','view'],['pv']],
+ ['Consumers read the tables. They never fetch by themselves.',['pg','qm','bt'],['pq','pb']]];
+
+const COMPS=VIEWS.flatMap(v=>v.rows.map(r=>({...r,view:v.id}))),ORDER=['map',...COMPS.map(c=>c.id)];
+const S={view:'map',id:'map',t:0,tour:false,last:0,steps:TRACE.map(s=>s[0]),paused:false};
+
+function drawMap(){
+ svg.setAttribute('viewBox','0 0 1100 600');
+ ZONES.forEach(({x,w,label,dashed})=>{el('rect',{x,y:48,width:w-10,height:510,rx:14,fill:dashed?'#0c1511':'#090f0c',stroke:'#1f2a24','stroke-dasharray':dashed?'6 5':''});txt(svg,x+14,34,label,{size:13,mono:1,fill:MUTE,anchor:'start',ls:'.14em'})});
+ const paths={};for(const k in E)paths[k]=el('path',{d:'M'+E[k].map(q=>q.join(' ')).join('L'),fill:'none',stroke:'#34443a','stroke-width':1.5});
+ const hot={};for(const k in E)hot[k]=el('path',{d:paths[k].getAttribute('d'),fill:'none',stroke:LIME,'stroke-width':2.4});
+ const lit={};
+ for(const k in N){const[x,y,w,h,a,b,to]=N[k],g=el('g');el('rect',{x,y,width:w,height:h,rx:11,fill:'#0b120e',stroke:LINE},g);txt(g,x+w/2,y+(b?h/2-3:h/2+6),a,{size:w<110?14:17,w:500});if(b)txt(g,x+w/2,y+h/2+18,b,{size:13,fill:MUTE,mono:b[0]===':'||b[0]==='/'});
+  lit[k]=el('rect',{x,y,width:w,height:h,rx:11,fill:'#c6f13518',stroke:LIME,'stroke-width':2,'pointer-events':'none'},g);link(g,to,a)}
+ const dot=[0,1,2,3].map(()=>el('circle',{r:5,fill:LIME}));
+ U.push(t=>{const s=Math.floor(t/STEP),[,ns,es]=TRACE[Math.min(s,TRACE.length-1)],since=t-s*STEP,p=ease(since/.35);
+  for(const k in lit)lit[k].style.opacity=ns.includes(k)?p:0;
+  for(const k in hot){const on=es.includes(k);hot[k].style.opacity=on?1:0}
+  dot.forEach((c,i)=>{const k=es[i];if(!k){c.style.opacity=0;return}const q=paths[k],L=q.getTotalLength(),pt=q.getPointAtLength(L*((since/1.4)%1));c.setAttribute('cx',pt.x);c.setAttribute('cy',pt.y);c.style.opacity=1})})
+}
+
+const C=$('#chip').getContext('2d');
+function chip(t){C.clearRect(0,0,400,270);const a=.72+.3*Math.sin(t*.42),e=.62,sc=.94;
+ const rot=([x,y,z])=>{const X=x*Math.cos(a)-y*Math.sin(a),Y=x*Math.sin(a)+y*Math.cos(a);return[X,Y*Math.cos(e)-z*Math.sin(e),Y*Math.sin(e)+z*Math.cos(e)]};
+ const face=(pts,c)=>{C.beginPath();pts.map(rot).forEach((p,i)=>{const x=200+p[0]*sc,y=132+p[1]*sc;i?C.lineTo(x,y):C.moveTo(x,y)});C.closePath();C.fillStyle=`rgb(${c.join(',')})`;C.fill();C.strokeStyle='rgba(0,0,0,.45)';C.stroke()};
+ const shade=(c,s)=>c.map(v=>Math.round(v*s));
+ const cub=(x0,y0,z0,x1,y1,z1,c)=>{for(const[n,pts,s]of[[[1,0,0],[[x1,y0,z0],[x1,y1,z0],[x1,y1,z1],[x1,y0,z1]],.55],[[-1,0,0],[[x0,y0,z0],[x0,y1,z0],[x0,y1,z1],[x0,y0,z1]],.3],[[0,1,0],[[x0,y1,z0],[x1,y1,z0],[x1,y1,z1],[x0,y1,z1]],.4],[[0,-1,0],[[x0,y0,z0],[x1,y0,z0],[x1,y0,z1],[x0,y0,z1]],.3]])if(rot(n)[2]>0)face(pts,shade(c,s));face([[x0,y0,z1],[x1,y0,z1],[x1,y1,z1],[x0,y1,z1]],c)};
+ cub(-105,-80,-34,105,80,-12,[122,126,118]);face([[-94,-68,-12],[94,-68,-12],[94,68,-12],[-94,68,-12]],[26,30,27]);
+ [...Array(8)].map((_,i)=>-92+i*25).sort((u,v)=>(u-v)*Math.sin(a)).forEach(x=>cub(x,-66,-12,x+16,66,18,[182,184,170]))}
+
+function seek(t){
+ for(const a of A){const p=ease((t-a.tin)/.42),s=a.e.style;s.opacity=t>=a.tin?p:0;s.transform=`translateY(${a.dy*(1-p)}px)`;const b=a.blur*(1-p);s.filter=b>.05&&t>=a.tin?`blur(${b}px)`:'none'}
+ U.forEach(f=>f(t));
+ const s=Math.min(Math.floor(t/STEP),S.steps.length-1);
+ if(s!==S.shown){S.shown=s;const m=S.id==='map';$('#cap').innerHTML=`<b>${m?s:s+1}/${m?S.steps.length-1:S.steps.length}</b>`+S.steps[s];[...$('#dots').children].forEach((b,i)=>i===s?b.setAttribute('aria-current','true'):b.removeAttribute('aria-current'))}
+ const i=ORDER.indexOf(S.id);$('#prog').style.width=100*(i+(s+1)/S.steps.length)/ORDER.length+'%'}
+
+function renderList(v){
+ $('#list').replaceChildren(...v.rows.map((r,i)=>{const b=document.createElement('button');b.className='row';b.dataset.id=r.id;const on=r.id===S.id;b.setAttribute('aria-expanded',on);
+  b.innerHTML=`<i>${String(i+1).padStart(2,'0')}</i><h3>${r.name}</h3><p>${r.desc}</p><u${r.status?' style="color:var(--warn)"':''}>${r.status??r.tag}</u>`+(on?`<dl class="more">${(r.facts||[]).filter(([,w])=>w!=null).map(([k,w])=>`<dt>${k}</dt><dd>${w}</dd>`).join('')}${r.chips?`<div class="chips">${r.chips.map(c=>`<span>${c}</span>`).join('')}</div>`:''}${r.flag?`<div class="flag"><span>${r.flag}</span></div>`:''}</dl>`:'');
+  b.onclick=()=>open(r.id);return b}))}
+
+function open(id,keepTour){
+ const c=COMPS.find(x=>x.id===id),view=c?VIEWS.find(v=>v.id===c.view):null;
+ if(!keepTour)S.tour=false;S.id=id;S.view=c?c.view:'map';S.t=0;S.shown=-1;S.paused=false;S.hold=0;A=[];U=[];svg.replaceChildren();
+ $('#cols').classList.toggle('is-map',!c);
+ [...$('#tabs').children].forEach(b=>{const on=b.dataset.view===S.view;b.setAttribute('aria-selected',on);if(on)$('#tabs').scrollLeft=b.offsetLeft-16});
+ if(c){svg.setAttribute('viewBox','0 0 650 520');S.steps=c.steps;$('#sec').textContent=`${String(VIEWS.indexOf(view)+1).padStart(2,'0')} / ${view.name}`;$('#sub').textContent=view.sub;$('#plabel').textContent=c.label;renderList(view);c.draw()}
+ else{S.steps=TRACE.map(s=>s[0]);$('#sub').textContent=META.mapSub;$('#plabel').textContent=META.mapLabel;drawMap()}
+ const dots=$('#dots');dots.replaceChildren(...S.steps.map((_,i)=>{const b=document.createElement('button');b.className='dot';b.textContent=c?i+1:i;b.setAttribute('aria-label','Go to step '+(c?i+1:i));b.onclick=()=>{S.tour=false;S.paused=true;S.t=c?(i+1)*STEP-.02:i*STEP+.001;seek(S.t);syncPlay()};return b}));
+ try{history.replaceState(null,'','#'+id)}catch{}
+ if(!c)S.paused=!S.tour;
+ if(still)S.t=c?S.steps.length*STEP-.01:0;
+ seek(S.t);syncPlay()}
+
+function syncPlay(){$('#play').textContent=S.tour?'Pause tour':'Play tour'}
+function step(d){const i=(ORDER.indexOf(S.id)+d+ORDER.length)%ORDER.length;open(ORDER[i])}
+function frame(now){const dt=Math.min(.1,(now-S.last)/1000||0);S.last=now;if(META.hardware)chip(now/1000);
+ if(!S.paused){const end=S.steps.length*STEP-.01;
+  if(S.t<end){S.t=Math.min(end,S.t+dt);seek(S.t)}
+  else if(S.tour&&(!still||(S.hold+=dt)>4)){const i=ORDER.indexOf(S.id);i<ORDER.length-1?open(ORDER[i+1],true):(S.tour=false,syncPlay())}}
+ else if(S.id==='map'&&S.shown>0&&!still){const b=S.shown*STEP;S.t=b+((S.t-b+dt)%(STEP-.01));seek(S.t)}
+ requestAnimationFrame(frame)}
+
+$('#tabs').replaceChildren(...[{id:'map',name:META.mapTab??'System map'},...VIEWS].map((v,i)=>{const b=document.createElement('button');b.className='tab';b.dataset.view=v.id;b.setAttribute('role','tab');b.innerHTML=`<b>0${i}</b>${v.name}`;b.onclick=()=>open(v.id==='map'?'map':v.rows[0].id);return b}));
+$('#prev').onclick=()=>step(-1);$('#next').onclick=()=>step(1);
+$('#play').onclick=()=>{S.tour=!S.tour;if(S.tour)S.paused=false;else if(S.id==='map')S.paused=true;syncPlay()};
+addEventListener('keydown',e=>{if(e.target.closest('button,.go'))return;if(e.key==='ArrowRight')step(1);if(e.key==='ArrowLeft')step(-1)});
+addEventListener('hashchange',()=>{const id=location.hash.slice(1);if(id!==S.id&&ORDER.includes(id))open(id)});
+$('#home').href=`${ROOT}/index.html`;$('#brand').textContent='\u25C6\u00A0 '+META.name;$('#stamp').textContent=`Explorer / snapshot ${META.snapshot} / ${META.commit}`;$('#foot').textContent=META.footer;
+$('#title').innerHTML=`${META.name}<em>${META.accent}</em>`;
+if(META.hardware){$('#gpu').hidden=false;$('#hwname').textContent=META.hardware.name;$('#hwsub').textContent=META.hardware.sub;chip(0)}
+const h=location.hash.slice(1);open(ORDER.includes(h)?h:'map');requestAnimationFrame(frame);
+
+</script></body></html>

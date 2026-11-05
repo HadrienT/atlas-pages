@@ -1,0 +1,277 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>quant-platform Explorer</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&family=Space+Grotesk:wght@400;500&display=swap">
+<style>/* Layout: the video's three-column console. Stage rail, component list, animated diagram; the map spans the last two. */
+:root{color-scheme:dark;--bg:#060a0b;--panel:#080d0b;--card:#0a100d;--node:#0b120e;--ink:#eef2ee;--soft:#b9c1ba;--mute:#8d968f;--dim:#5b655e;--line:#1f2a24;--line2:#2c3a30;--lime:#c6f135;--olive:#1d2a12;--violet:#8c7dff;--warn:#f2b84b;
+--display:"Space Grotesk",ui-sans-serif,system-ui,sans-serif;--mono:"JetBrains Mono",ui-monospace,monospace}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{margin:0;background:radial-gradient(1100px 700px at 62% 62%,#0d1610 0%,transparent 70%),radial-gradient(800px 500px at 10% 100%,#0b130e 0%,transparent 70%),var(--bg);background-attachment:fixed;color:var(--ink);font-family:var(--display);font-size:15px}
+button{font:inherit;color:inherit;background:none;border:0;cursor:pointer;text-align:left}
+:focus-visible{outline:2px solid var(--lime);outline-offset:2px}
+.app{min-height:100%;display:flex;flex-direction:column;gap:22px;padding-block:22px 14px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));max-width:1720px;margin:0 auto}
+@media(min-width:900px){.app{padding-left:max(44px,env(safe-area-inset-left,0px));padding-right:max(44px,env(safe-area-inset-right,0px))}}
+.mono{font-family:var(--mono);text-transform:uppercase;letter-spacing:.2em;font-size:11px;color:var(--mute)}
+.top{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;align-items:center;padding-bottom:12px;border-bottom:1px solid var(--line)}
+.brand{color:var(--ink);font-weight:500;font-size:13px}
+.nav{display:flex;align-items:center;gap:18px;flex-wrap:wrap}
+.home{color:var(--lime);text-decoration:none;padding:4px 10px;margin-left:-10px;border-radius:8px;transition:background .2s}
+.home:hover{background:#1d2a12}
+.head h1{margin:0;font-size:clamp(32px,4vw,52px);font-weight:500;letter-spacing:-.02em;line-height:1.1;text-wrap:balance}
+.head h1 em{font-style:normal;color:var(--lime);margin-left:.35em;text-shadow:0 0 28px #c6f13555}
+.head p{margin:8px 0 0;font-size:clamp(15px,1.4vw,19px);color:var(--soft);min-height:1.4em}
+.cols{display:grid;grid-template-columns:230px minmax(0,1fr) minmax(0,1.08fr);gap:0 34px;flex:1;align-items:start}
+.side{padding-right:30px;border-right:1px solid var(--line);display:flex;flex-direction:column;gap:12px;align-self:stretch;min-width:0}
+.tabs{display:flex;flex-direction:column;gap:6px}
+.tab{display:flex;align-items:center;gap:14px;height:46px;padding:0 16px;border-radius:12px;border:1.5px solid transparent;color:var(--mute);font-size:16px;white-space:nowrap;transition:color .2s,background .2s,border-color .2s}
+.tab b{font:500 11px var(--mono);color:var(--lime);opacity:.85}
+.tab:hover{color:var(--ink);background:#0e1611}
+.tab[aria-selected=true]{color:var(--ink);border-color:var(--lime);background:linear-gradient(90deg,#26361499,#14200f66);box-shadow:0 0 22px #c6f13522}
+.gpu{margin-top:auto;text-align:center;padding-top:6px}
+.gpu canvas{width:100%;max-width:200px;height:auto;display:block;margin:0 auto}
+.gpu strong{display:block;color:var(--lime);font-weight:500;font-size:16px;margin-top:4px}
+.gpu span{color:var(--mute);font-size:13px}
+.mid,.right{min-width:0;display:flex;flex-direction:column;gap:12px}
+.list{display:flex;flex-direction:column;gap:8px}
+.row{position:relative;display:block;width:100%;border-radius:13px;border:1px solid var(--line2);background:var(--card);padding:11px 16px 11px 50px;transition:border-color .2s,background .2s,box-shadow .2s}
+.row:hover{border-color:#47604c}
+.row i{position:absolute;left:18px;top:15px;font:400 11px var(--mono);color:var(--mute)}
+.row h3{margin:0;font-size:17px;font-weight:500;padding-right:96px}
+.row p{margin:2px 0 0;font-size:14px;color:var(--mute)}
+.row u{position:absolute;right:14px;top:14px;font:400 10px var(--mono);color:var(--mute);text-decoration:none;letter-spacing:.06em;max-width:92px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.row[aria-expanded=true]{border:1.5px solid var(--lime);background:linear-gradient(90deg,#2a3b1680,#17230f40);box-shadow:0 0 24px #c6f13520}
+.row[aria-expanded=true] p{color:var(--soft)}
+.more{display:grid;grid-template-columns:minmax(84px,auto) minmax(0,1fr);gap:4px 14px;margin-top:10px;font-size:13px}
+.more dt{font:400 10px/1.9 var(--mono);text-transform:uppercase;letter-spacing:.1em;color:var(--mute)}
+.more dd{margin:0;color:var(--soft);overflow-wrap:anywhere}
+.more code{font:400 12px var(--mono);color:var(--ink)}
+.chips{display:flex;flex-wrap:wrap;gap:4px;grid-column:1/-1;margin-top:4px}
+.chips span{font:400 11px var(--mono);padding:2px 7px;border-radius:6px;background:#141c15;color:var(--soft)}
+.flag{grid-column:1/-1;margin-top:6px;display:flex;gap:8px;font-size:13px;color:var(--warn);line-height:1.4}
+.flag::before{content:"▲";font-size:9px;line-height:18px}
+.panel{position:relative;border:1px solid var(--line);border-radius:16px;background:var(--panel);overflow:hidden}
+.scroll{overflow-x:auto}
+#svg{display:block;width:100%;height:auto}
+.is-map .mid{display:none}.is-map .right{grid-column:2/4}
+.is-map #svg{min-width:760px;max-height:max(440px,calc(100vh - 310px))}
+.is-map .gpu canvas{max-width:190px}
+.cap{font-size:16px;color:var(--soft);min-height:2.7em;margin:0;line-height:1.35}
+.cap b{font:400 12px var(--mono);color:var(--lime);margin-right:8px}
+.dots{display:flex;flex-wrap:wrap;gap:6px}
+.dot{min-width:30px;height:28px;padding:0 8px;border-radius:7px;border:1px solid var(--line2);font:400 11px var(--mono);color:var(--mute);text-align:center}
+.dot:hover{color:var(--ink);border-color:#47604c}
+.dot[aria-current=true]{background:var(--olive);border-color:var(--lime);color:var(--lime)}
+footer{display:flex;flex-direction:column;gap:10px}
+.bar{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.ctl{display:flex;gap:6px}
+.ctl button{height:32px;padding:0 12px;border-radius:8px;border:1px solid var(--line2);font:400 11px var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--soft)}
+.ctl button:hover{color:var(--ink);border-color:#47604c}
+#play{border-color:var(--lime);color:var(--lime);background:var(--olive)}
+.track{height:3px;background:var(--line);position:relative}
+#prog{position:absolute;left:0;top:0;bottom:0;background:var(--lime);box-shadow:0 0 12px #c6f13588;width:0}
+svg text{font-family:var(--display);fill:var(--ink)}
+svg .m{font-family:var(--mono)}
+svg .go{cursor:pointer}
+svg .go:hover>rect:first-child{stroke:var(--lime)}
+svg .go:focus-visible{outline:none}svg .go:focus-visible>rect:first-child{stroke:var(--lime);stroke-width:2}
+@media(max-width:1180px){
+ .cols{grid-template-columns:minmax(0,1fr);gap:18px}
+ .side{border:0;padding:0}.tabs{flex-direction:row;overflow-x:auto;padding-bottom:4px}.tab{height:40px;flex:none}
+ .gpu{display:none}.is-map .right{grid-column:auto}
+ .right{order:2}.mid{order:3}
+}
+.head h1{overflow-wrap:anywhere}
+</style>
+<body>
+<div class="app">
+ <div class="top"><span class="nav"><a class="mono home" id="home">&larr; Atlas</a><span class="mono brand" id="brand"></span></span><span class="mono" id="stamp"></span></div>
+ <div class="head"><h1 id="title"></h1><p id="sub"></p></div>
+ <main class="cols" id="cols">
+  <nav class="side" aria-label="Stages">
+   <span class="mono">Views</span>
+   <div class="tabs" id="tabs" role="tablist"></div>
+   <div class="gpu" id="gpu" hidden><canvas id="chip" width="400" height="270" aria-hidden="true"></canvas><strong id="hwname"></strong><span id="hwsub"></span></div>
+  </nav>
+  <section class="mid"><span class="mono" id="sec" style="color:var(--lime)"></span><div class="list" id="list"></div></section>
+  <section class="right">
+   <span class="mono" id="plabel"></span>
+   <div class="panel scroll"><svg id="svg" role="img" aria-label="Animated diagram of the selected component"></svg></div>
+   <p class="cap" id="cap" aria-live="polite"></p>
+   <div class="dots" id="dots" aria-label="Steps"></div>
+  </section>
+ </main>
+ <footer>
+  <div class="bar"><span class="mono" id="foot" style="font-size:10px"></span>
+   <div class="ctl"><button id="prev" aria-label="Previous component">Prev</button><button id="play">Play tour</button><button id="next" aria-label="Next component">Next</button></div></div>
+  <div class="track"><div id="prog"></div></div>
+ </footer>
+</div>
+
+<script>
+const STATE={},REPOS=["AgenticEnv","DeutschAutoCorrect","JobTracker","Portfolio","RamTracker","VoiceClone","agenticenv-chat","data-ingest","genealogy","live-subs","quant-backtest","quant-dev","quant-microstructure","quant-modeling","quant-platform"],ROOT='..';
+/* Live values from repos/<name>/state.json. A public build has none, so L() returns the fallback. */
+const L=(key,fallback=null)=>STATE[key]??fallback;
+const B=1.97,STEP=B*2,NS='http://www.w3.org/2000/svg',$=s=>document.querySelector(s),svg=$('#svg');
+const LIME='#c6f135',MUTE='#8d968f',LINE='#2c3a30',VIOLET='#8c7dff',WARN='#f2b84b',INK='#eef2ee',SOFT='#b9c1ba';
+const still=matchMedia('(prefers-reduced-motion: reduce)').matches;
+const clamp=(v,a=0,b=1)=>Math.min(b,Math.max(a,v)),ease=p=>1-Math.pow(1-clamp(p),3);
+let A=[],U=[];
+
+function el(n,a={},p=svg){const e=document.createElementNS(NS,n);for(const k in a)e.setAttribute(k,a[k]);p.appendChild(e);return e}
+function txt(g,x,y,s,o={}){const e=el('text',{x,y,'font-size':o.size??16,'text-anchor':o.anchor??'middle','font-weight':o.w??400,class:o.mono?'m':''},g);e.textContent=s;e.style.fill=o.fill??INK;if(o.ls)e.style.letterSpacing=o.ls;return e}
+const reveal=(e,at,o={})=>(A.push({e,tin:at*STEP,dy:o.dy??10,blur:o.blur??7}),e);
+
+/* Drawing kit for the 650×520 panel. `at` is expressed in steps, so diagrams line up with the captions. */
+const d={
+ g(at=0,o){return reveal(el('g'),at,o)},
+ box(x,y,w,h,title,sub,o={}){const g=d.g(o.at??0);
+  el('rect',{x,y,width:w,height:h,rx:11,fill:'#0b120e',stroke:LINE},g);
+  if(title)txt(g,x+w/2,y+(sub?h/2-3:h/2+6),title,{size:o.size??17,w:500,mono:o.mono});
+  if(sub)txt(g,x+w/2,y+h/2+17,sub,{size:o.subsize??13,fill:MUTE,mono:o.submono});
+  if(o.hl!=null)reveal(el('rect',{x,y,width:w,height:h,rx:11,fill:(o.c??LIME)+'14',stroke:o.c??LIME,'stroke-width':2,'pointer-events':'none'},g),o.hl,{dy:0,blur:0});
+  if(o.to)link(g,o.to,title);return g},
+ line(pts,o={}){const at=(o.at??0)*STEP,p=el('path',{d:'M'+pts.map(q=>q.join(' ')).join('L'),fill:'none',stroke:o.c??MUTE,'stroke-width':o.w??1.5,pathLength:1});
+  U.push(t=>{p.style.strokeDasharray=`${ease((t-at)/(o.dur??.5))} 1`;p.style.opacity=t<at?0:1});return p},
+ text(x,y,s,o={}){const g=d.g(o.at??0);return txt(g,x,y,s,o)},
+ pill(s,at,c=LIME){const g=d.g(0,{dy:0});el('rect',{x:24,y:456,width:602,height:46,rx:11,fill:c===LIME?'#1d2a12':'#2b2110'},g);const t=d.g(at);txt(t,325,485,s,{size:17,w:500,fill:c})},
+ grid(x,y,cols,rows,o={}){const u=o.u??30,v=o.v??26,gap=o.gap??8;for(let r=0;r<rows;r++)for(let c=0;c<cols;c++){const X=x+c*(u+gap),Y=y+r*(v+gap),i=r*cols+c;
+  reveal(el('rect',{x:X,y:Y,width:u,height:v,rx:4,fill:'#2b3a30'}),(o.at??0)+(r+c)*.015,{dy:0,blur:3});
+  if(o.fill&&o.fill(i)){const f=el('rect',{x:X,y:Y,width:u,height:v,rx:4,fill:o.fill(i)===true?LIME:o.fill(i)}),tin=(o.fillAt??1)*STEP+i*.05;U.push(t=>f.style.opacity=ease((t-tin)/.2))}}},
+ count(x,y,n,at,o={}){const e=d.text(x,y,'0',{...o,at,mono:1}),tin=at*STEP;U.push(t=>{e.textContent=Math.round(n*ease((t-tin)/.8)).toLocaleString('en-US')+(o.unit??'')})}
+};
+/* `to` is a component id, or `repo#id` for another page. A repo outside this build gets no link. */
+function follow(to){const[repo,id]=to.split('#');if(id)location.href=`${ROOT}/${repo}/index.html#${id}`;else open(to)}
+function link(g,to,label){if(to.includes('#')&&!REPOS.includes(to.split('#')[0]))return;g.dataset.to=to;g.classList.add('go');g.setAttribute('tabindex','0');g.setAttribute('role','button');g.setAttribute('aria-label','Open '+label);g.addEventListener('click',()=>follow(to));g.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();follow(to)}})}
+
+/* Content of the quant-platform page. Read from the repository at 3417826. It says nothing about what is deployed. */
+const META={name:'quant-platform',accent:'what did this price depend on?',snapshot:'2026-10-31',commit:'3417826',
+ footer:'Kafka / append-only Postgres / OpenTelemetry',
+ mapSub:'One view of both paths, and the journey of a single event.',mapLabel:'System map / follow one event'};
+const ZONES=[{x:20,w:210,label:'PRODUCERS'},{x:235,w:270,label:'EVENTS'},{x:510,w:270,label:'AUDIT'},{x:785,w:295,label:'TELEMETRY'}];
+const VIEWS=[
+{id:'events',name:'Events',sub:'Two paths: what must be accounted for, and what may be sampled.',rows:[
+ {id:'paths',name:'Two paths',desc:'Events through Kafka, telemetry beside it',tag:'docker-compose.yml',facts:[['Kafka','Valuations, authentication, fallbacks, assistant'],['OpenTelemetry','Metrics, logs, traces'],['Why','Telemetry tolerates a lost sample, and the audit trail does not'],['Apart','Redeploying an API must not restart Kafka'],['Everything is code','<code>down -v &amp;&amp; up -d</code> must rebuild it all']],flag:'The notification channel and Grafana exposure are left to the maintainer, and work packages 18a to 18e on the quant-modeling side are still cross-tests.',
+  label:'Paths / one producer, two routes',steps:['Business events must not be lost.','Telemetry can tolerate it, so it never goes through Kafka.'],draw(){
+  d.box(30,180,180,100,'Producer',null,{to:'quant-modeling#api'});d.box(380,90,240,90,'Kafka','business events',{at:.3,hl:.5});d.box(380,280,240,90,'OTel Collector','metrics, logs, traces',{at:1,hl:1.2});d.line([[210,210],[290,210],[290,135],[380,135]],{at:.3,c:LIME});d.line([[210,250],[290,250],[290,325],[380,325]],{at:1,c:VIOLET});d.pill('Never one through the other',1.5)}},
+ {id:'bus',name:'Bus and envelope',desc:'A contract that runs',tag:'topics/, common/',facts:[['Broker','Apache Kafka in KRaft mode'],['Topics','Defined in <code>topics/topics.yml</code>'],['Envelope','An executable JSON Schema'],['Identity','A UUID v7 <code>event_id</code>'],['Dead letters','<code>qm.dlq.v1</code>, with <code>dlq.*</code> headers'],['Addresses','An HMAC, never a raw IP']],
+  label:'Envelope / checked before it counts',steps:['Each message is parsed against the envelope.','A bad one goes to the dead-letter topic.'],draw(){
+  d.box(205,70,240,80,'Message',null);d.box(205,200,240,80,'Envelope schema',null,{at:.3,hl:.5,size:15});d.line([[325,150],[325,200]],{at:.3,c:LIME});d.box(60,340,240,76,'Valid','to the sink',{at:1,to:'sink'});d.box(350,340,240,76,'qm.dlq.v1','rejected',{at:1.1,mono:1,size:15,c:WARN,hl:1.2});d.line([[325,280],[325,312],[180,312],[180,340]],{at:1,c:LIME});d.line([[325,312],[470,312],[470,340]],{at:1.1,c:WARN});d.pill('Permanent errors never block a batch',1.5)}},
+ {id:'registry',name:'Schema registry',desc:'Avro contracts, optional',tag:'schemas/',status:'optional',facts:[['Tool','Apicurio Registry'],['Examples','A compatible and a breaking v2 of the valuation'],['Tests','<code>scripts/registry_test.py</code>']],
+  label:'Registry / a change is compatible or refused',steps:['A new schema is compared with the current one.','A breaking change is refused.'],draw(){
+  d.box(205,80,240,80,'valuation.v1',null,{mono:1});d.box(60,270,240,90,'v2-compatible','accepted',{at:1,mono:1,size:15,hl:1.2});d.box(350,270,240,90,'v2-breaking','refused',{at:1.1,mono:1,size:15,hl:1.2,c:WARN});d.line([[325,160],[325,214],[180,214],[180,270]],{at:1,c:LIME});d.line([[325,214],[470,214],[470,270]],{at:1.1,c:WARN});d.pill('The contract moves on purpose',1.5)}}]},
+
+{id:'audit',name:'Audit',sub:'History that a compromised API cannot rewrite.',rows:[
+ {id:'sink',name:'audit-sink',desc:'Effectively once from at-least-once',tag:'sink/',facts:[['Loop','Classify, insert, dead-letter, then commit offsets'],['Idempotency','The key is <code>event_id</code>'],['Crash','The batch is re-read, and nothing duplicates'],['Transient failure','Retried with backoff, never dead-lettered'],['Rehearsed','<code>scripts/crash_test.sh</code>']],
+  label:'Sink / commit comes last',steps:['A crash before the commit means a re-read.','The idempotent insert absorbs it.'],draw(){
+  ['Classify','Insert','Dead-letter','Commit offsets'].forEach((s,i)=>{const y=70+i*92;d.box(165,y,320,64,s,null,{at:i*.25,size:16,hl:i===3?1.1:null});if(i)d.line([[325,y-28],[325,y]],{at:i*.25,c:LIME})});d.pill('Offsets move only after the database',1.5)}},
+ {id:'audit-db',name:'Audit database',desc:'Append-only, partitioned, chained',tag:'migrations/',facts:[['Rule','Nobody has <code>UPDATE</code> or <code>DELETE</code>'],['Trigger','<code>audit.forbid_mutation()</code>'],['Partitions','Monthly: retention drops a whole partition'],['Writer','Only <code>audit-sink</code>'],['Chain','Migration 0005, with <code>scripts/verify_chain.py</code>'],['Migrations','6 SQL files']],
+  label:'Audit / the API has no credentials here',steps:['The API can only add events through Kafka.','Only the sink writes, and nobody rewrites.'],draw(){
+  d.box(40,110,190,90,'API','Kafka only',{to:'quant-modeling#api'});d.box(285,110,120,90,'Sink',null,{at:.3,to:'sink'});d.box(460,110,160,90,'Postgres','append-only',{at:.6,hl:.8});d.line([[230,155],[285,155]],{at:.3,c:LIME});d.line([[405,155],[460,155]],{at:.6,c:LIME});d.line([[135,200],[135,300],[540,300],[540,200]],{at:1,c:WARN});d.text(330,330,'no credentials',{size:13,fill:WARN,at:1.2});d.pill('Kafka is not the archive',1.6)}},
+ {id:'data-quality',name:'Data quality',desc:'An independent consumer group',tag:'data_quality/',facts:[['Watches','Fallbacks, degraded valuations, silent producers'],['Independence','Its own consumer group, tested by <code>dq_independence_test.sh</code>'],['Output','Metrics, through OpenTelemetry']],
+  label:'Quality / a second reader',steps:['Two consumer groups read the same topics.','One stopping leaves the other alone.'],draw(){
+  d.box(205,80,240,80,'Kafka',null);d.box(60,270,240,90,'audit-sink','group 1',{at:.3,to:'sink'});d.box(350,270,240,90,'data-quality','group 2',{at:.5,hl:1});d.line([[325,160],[325,214],[180,214],[180,270]],{at:.3,c:LIME});d.line([[325,214],[470,214],[470,270]],{at:.5,c:LIME});d.pill('Independent by test',1.5)}}]},
+
+{id:'telemetry',name:'Telemetry',sub:'Metrics, logs, traces and alerts, all from files.',rows:[
+ {id:'telemetry',name:'Observability',desc:'Collector, three stores, one viewer',tag:'otel/, grafana/',chips:['Prometheus','Loki','Tempo','Grafana'],facts:[['Dashboards','api, kafka, pricing, security'],['Provisioned','From files, never by hand'],['Cardinality','Never a ticker, a user, a request id or an IP as a label'],['Checks','<code>check_labels.sh</code>, <code>check_dashboards.py</code>']],
+  label:'Telemetry / one collector',steps:['Producers send OTLP to the collector.','It feeds one store per kind of signal.'],draw(){
+  d.box(205,70,240,76,'OTel Collector',null);[['Prometheus','metrics'],['Loki','logs'],['Tempo','traces']].forEach(([a,b],i)=>{const x=24+i*208;d.box(x,200,186,76,a,b,{at:.3+i*.15});d.line([[325,146],[325,172],[x+93,172],[x+93,200]],{at:.3+i*.15,c:LIME});d.line([[x+93,276],[x+93,310],[325,310],[325,340]],{at:1})});d.box(205,340,240,70,'Grafana',null,{at:1,hl:1.2});d.pill('Labels stay low-cardinality',1.5)}},
+ {id:'alerts',name:'Alerts',desc:'Rules in files, a webhook out',tag:'alerts/',chips:['live fallback','login failure burst','server errors','audit sink lag','dropped audit events','silent audit producer','DLQ messages'],facts:[['Contact point','A webhook: ntfy or any relay that accepts a POST'],['Tests','<code>scripts/alert_e2e.sh</code>']],flag:'The notification channel is left to the maintainer (ADR-013).',
+  label:'Alerts / rules as code',steps:['Rules read metrics and the audit database.','A firing rule posts to a webhook.'],draw(){
+  ['Live fallback','Login burst','Server errors','Sink lag'].forEach((s,i)=>{d.box(40,70+i*88,290,66,s,null,{at:i*.15,size:16});d.line([[330,103+i*88],[410,103+i*88],[410,232],[440,232]],{at:.6,c:LIME})});d.box(440,180,170,104,'Webhook',null,{at:1,hl:1.2});d.pill('Provisioned, never clicked',1.5)}}]},
+
+{id:'rehearse',name:'Rehearse',sub:'Failure practised in a disposable lab.',rows:[
+ {id:'lab',name:'Exercise lab',desc:'Disk loss, rebalancing, replay, SASL',tag:'lab/',chips:['lab_disk_loss','lab_rebalance','lab_replay','lab_sasl'],facts:[['Where','<code>docker-compose.lab.yml</code>, a disposable cluster'],['Record','<code>docs/exercices.md</code> keeps real outputs'],['CI','One job: <code>scripts/make.sh</code>'],['Note','The repository says that Kafka is oversized for the volume']],
+  label:'Lab / failures on purpose',steps:['A disposable cluster takes the failure.','The observed output is kept with the exercise.'],draw(){
+  ['Disk loss','Rebalance','Replay','SASL'].forEach((s,i)=>{d.box(30+(i%2)*305,90+(i>>1)*150,285,120,s,null,{at:i*.2,hl:1+i*.1,c:WARN})});d.pill('A learning project, and it says so',1.6)}}]}
+];
+
+/* Map: both paths, from a producer to storage. */
+const N={qm:[40,100,170,64,'quant-modeling','first producer','paths'],spool:[40,220,170,64,'Local spool','if the bus is down','paths'],
+ kafka:[255,100,230,64,'Kafka','KRaft','bus'],dlq:[255,220,230,64,'Dead letters','qm.dlq.v1','bus'],dq:[255,340,230,64,'Data quality','own group','data-quality'],
+ sink:[530,100,230,64,'audit-sink','idempotent','sink'],db:[530,220,230,64,'Audit Postgres','append-only','audit-db'],
+ otel:[805,100,255,64,'OTel Collector','OTLP','telemetry'],stores:[805,220,255,64,'Stores','Prometheus, Loki, Tempo','telemetry'],graf:[805,340,255,64,'Grafana','dashboards, alerts','alerts']};
+const E={qk:[[210,132],[255,132]],qs:[[125,164],[125,220]],kd:[[370,164],[370,220]],kq:[[255,150],[238,150],[238,372],[255,372]],ks:[[485,132],[530,132]],sd:[[645,164],[645,220]],oo:[[932,164],[932,220]],og:[[932,284],[932,340]],qo:[[210,150],[220,150],[220,86],[790,86],[790,132],[805,132]],dq:[[485,372],[790,372],[790,150],[805,150]]};
+const TRACE=[
+ ['Click any box to open it, or step through one event.',[],[]],
+ ['A pricing emits a valuation event, with a UUID v7 id.',['qm','kafka'],['qk']],
+ ['If the platform is down, the event waits in a local spool.',['qm','spool'],['qs']],
+ ['The sink reads a batch, and classifies each message.',['kafka','sink'],['ks']],
+ ['A rejected message goes to the dead-letter topic.',['kafka','dlq'],['kd']],
+ ['Valid events are inserted, and offsets are committed last.',['sink','db'],['sd']],
+ ['Data quality reads the same events on its own.',['kafka','dq'],['kq']],
+ ['Telemetry takes the other path, and never touches Kafka.',['qm','otel','stores','graf'],['qo','oo','og']]];
+
+const COMPS=VIEWS.flatMap(v=>v.rows.map(r=>({...r,view:v.id}))),ORDER=['map',...COMPS.map(c=>c.id)];
+const S={view:'map',id:'map',t:0,tour:false,last:0,steps:TRACE.map(s=>s[0]),paused:false};
+
+function drawMap(){
+ svg.setAttribute('viewBox','0 0 1100 600');
+ ZONES.forEach(({x,w,label,dashed})=>{el('rect',{x,y:48,width:w-10,height:510,rx:14,fill:dashed?'#0c1511':'#090f0c',stroke:'#1f2a24','stroke-dasharray':dashed?'6 5':''});txt(svg,x+14,34,label,{size:13,mono:1,fill:MUTE,anchor:'start',ls:'.14em'})});
+ const paths={};for(const k in E)paths[k]=el('path',{d:'M'+E[k].map(q=>q.join(' ')).join('L'),fill:'none',stroke:'#34443a','stroke-width':1.5});
+ const hot={};for(const k in E)hot[k]=el('path',{d:paths[k].getAttribute('d'),fill:'none',stroke:LIME,'stroke-width':2.4});
+ const lit={};
+ for(const k in N){const[x,y,w,h,a,b,to]=N[k],g=el('g');el('rect',{x,y,width:w,height:h,rx:11,fill:'#0b120e',stroke:LINE},g);txt(g,x+w/2,y+(b?h/2-3:h/2+6),a,{size:w<110?14:17,w:500});if(b)txt(g,x+w/2,y+h/2+18,b,{size:13,fill:MUTE,mono:b[0]===':'||b[0]==='/'});
+  lit[k]=el('rect',{x,y,width:w,height:h,rx:11,fill:'#c6f13518',stroke:LIME,'stroke-width':2,'pointer-events':'none'},g);link(g,to,a)}
+ const dot=[0,1,2,3].map(()=>el('circle',{r:5,fill:LIME}));
+ U.push(t=>{const s=Math.floor(t/STEP),[,ns,es]=TRACE[Math.min(s,TRACE.length-1)],since=t-s*STEP,p=ease(since/.35);
+  for(const k in lit)lit[k].style.opacity=ns.includes(k)?p:0;
+  for(const k in hot){const on=es.includes(k);hot[k].style.opacity=on?1:0}
+  dot.forEach((c,i)=>{const k=es[i];if(!k){c.style.opacity=0;return}const q=paths[k],L=q.getTotalLength(),pt=q.getPointAtLength(L*((since/1.4)%1));c.setAttribute('cx',pt.x);c.setAttribute('cy',pt.y);c.style.opacity=1})})
+}
+
+const C=$('#chip').getContext('2d');
+function chip(t){C.clearRect(0,0,400,270);const a=.72+.3*Math.sin(t*.42),e=.62,sc=.94;
+ const rot=([x,y,z])=>{const X=x*Math.cos(a)-y*Math.sin(a),Y=x*Math.sin(a)+y*Math.cos(a);return[X,Y*Math.cos(e)-z*Math.sin(e),Y*Math.sin(e)+z*Math.cos(e)]};
+ const face=(pts,c)=>{C.beginPath();pts.map(rot).forEach((p,i)=>{const x=200+p[0]*sc,y=132+p[1]*sc;i?C.lineTo(x,y):C.moveTo(x,y)});C.closePath();C.fillStyle=`rgb(${c.join(',')})`;C.fill();C.strokeStyle='rgba(0,0,0,.45)';C.stroke()};
+ const shade=(c,s)=>c.map(v=>Math.round(v*s));
+ const cub=(x0,y0,z0,x1,y1,z1,c)=>{for(const[n,pts,s]of[[[1,0,0],[[x1,y0,z0],[x1,y1,z0],[x1,y1,z1],[x1,y0,z1]],.55],[[-1,0,0],[[x0,y0,z0],[x0,y1,z0],[x0,y1,z1],[x0,y0,z1]],.3],[[0,1,0],[[x0,y1,z0],[x1,y1,z0],[x1,y1,z1],[x0,y1,z1]],.4],[[0,-1,0],[[x0,y0,z0],[x1,y0,z0],[x1,y0,z1],[x0,y0,z1]],.3]])if(rot(n)[2]>0)face(pts,shade(c,s));face([[x0,y0,z1],[x1,y0,z1],[x1,y1,z1],[x0,y1,z1]],c)};
+ cub(-105,-80,-34,105,80,-12,[122,126,118]);face([[-94,-68,-12],[94,-68,-12],[94,68,-12],[-94,68,-12]],[26,30,27]);
+ [...Array(8)].map((_,i)=>-92+i*25).sort((u,v)=>(u-v)*Math.sin(a)).forEach(x=>cub(x,-66,-12,x+16,66,18,[182,184,170]))}
+
+function seek(t){
+ for(const a of A){const p=ease((t-a.tin)/.42),s=a.e.style;s.opacity=t>=a.tin?p:0;s.transform=`translateY(${a.dy*(1-p)}px)`;const b=a.blur*(1-p);s.filter=b>.05&&t>=a.tin?`blur(${b}px)`:'none'}
+ U.forEach(f=>f(t));
+ const s=Math.min(Math.floor(t/STEP),S.steps.length-1);
+ if(s!==S.shown){S.shown=s;const m=S.id==='map';$('#cap').innerHTML=`<b>${m?s:s+1}/${m?S.steps.length-1:S.steps.length}</b>`+S.steps[s];[...$('#dots').children].forEach((b,i)=>i===s?b.setAttribute('aria-current','true'):b.removeAttribute('aria-current'))}
+ const i=ORDER.indexOf(S.id);$('#prog').style.width=100*(i+(s+1)/S.steps.length)/ORDER.length+'%'}
+
+function renderList(v){
+ $('#list').replaceChildren(...v.rows.map((r,i)=>{const b=document.createElement('button');b.className='row';b.dataset.id=r.id;const on=r.id===S.id;b.setAttribute('aria-expanded',on);
+  b.innerHTML=`<i>${String(i+1).padStart(2,'0')}</i><h3>${r.name}</h3><p>${r.desc}</p><u${r.status?' style="color:var(--warn)"':''}>${r.status??r.tag}</u>`+(on?`<dl class="more">${(r.facts||[]).filter(([,w])=>w!=null).map(([k,w])=>`<dt>${k}</dt><dd>${w}</dd>`).join('')}${r.chips?`<div class="chips">${r.chips.map(c=>`<span>${c}</span>`).join('')}</div>`:''}${r.flag?`<div class="flag"><span>${r.flag}</span></div>`:''}</dl>`:'');
+  b.onclick=()=>open(r.id);return b}))}
+
+function open(id,keepTour){
+ const c=COMPS.find(x=>x.id===id),view=c?VIEWS.find(v=>v.id===c.view):null;
+ if(!keepTour)S.tour=false;S.id=id;S.view=c?c.view:'map';S.t=0;S.shown=-1;S.paused=false;S.hold=0;A=[];U=[];svg.replaceChildren();
+ $('#cols').classList.toggle('is-map',!c);
+ [...$('#tabs').children].forEach(b=>{const on=b.dataset.view===S.view;b.setAttribute('aria-selected',on);if(on)$('#tabs').scrollLeft=b.offsetLeft-16});
+ if(c){svg.setAttribute('viewBox','0 0 650 520');S.steps=c.steps;$('#sec').textContent=`${String(VIEWS.indexOf(view)+1).padStart(2,'0')} / ${view.name}`;$('#sub').textContent=view.sub;$('#plabel').textContent=c.label;renderList(view);c.draw()}
+ else{S.steps=TRACE.map(s=>s[0]);$('#sub').textContent=META.mapSub;$('#plabel').textContent=META.mapLabel;drawMap()}
+ const dots=$('#dots');dots.replaceChildren(...S.steps.map((_,i)=>{const b=document.createElement('button');b.className='dot';b.textContent=c?i+1:i;b.setAttribute('aria-label','Go to step '+(c?i+1:i));b.onclick=()=>{S.tour=false;S.paused=true;S.t=c?(i+1)*STEP-.02:i*STEP+.001;seek(S.t);syncPlay()};return b}));
+ try{history.replaceState(null,'','#'+id)}catch{}
+ if(!c)S.paused=!S.tour;
+ if(still)S.t=c?S.steps.length*STEP-.01:0;
+ seek(S.t);syncPlay()}
+
+function syncPlay(){$('#play').textContent=S.tour?'Pause tour':'Play tour'}
+function step(d){const i=(ORDER.indexOf(S.id)+d+ORDER.length)%ORDER.length;open(ORDER[i])}
+function frame(now){const dt=Math.min(.1,(now-S.last)/1000||0);S.last=now;if(META.hardware)chip(now/1000);
+ if(!S.paused){const end=S.steps.length*STEP-.01;
+  if(S.t<end){S.t=Math.min(end,S.t+dt);seek(S.t)}
+  else if(S.tour&&(!still||(S.hold+=dt)>4)){const i=ORDER.indexOf(S.id);i<ORDER.length-1?open(ORDER[i+1],true):(S.tour=false,syncPlay())}}
+ else if(S.id==='map'&&S.shown>0&&!still){const b=S.shown*STEP;S.t=b+((S.t-b+dt)%(STEP-.01));seek(S.t)}
+ requestAnimationFrame(frame)}
+
+$('#tabs').replaceChildren(...[{id:'map',name:META.mapTab??'System map'},...VIEWS].map((v,i)=>{const b=document.createElement('button');b.className='tab';b.dataset.view=v.id;b.setAttribute('role','tab');b.innerHTML=`<b>0${i}</b>${v.name}`;b.onclick=()=>open(v.id==='map'?'map':v.rows[0].id);return b}));
+$('#prev').onclick=()=>step(-1);$('#next').onclick=()=>step(1);
+$('#play').onclick=()=>{S.tour=!S.tour;if(S.tour)S.paused=false;else if(S.id==='map')S.paused=true;syncPlay()};
+addEventListener('keydown',e=>{if(e.target.closest('button,.go'))return;if(e.key==='ArrowRight')step(1);if(e.key==='ArrowLeft')step(-1)});
+addEventListener('hashchange',()=>{const id=location.hash.slice(1);if(id!==S.id&&ORDER.includes(id))open(id)});
+$('#home').href=`${ROOT}/index.html`;$('#brand').textContent='\u25C6\u00A0 '+META.name;$('#stamp').textContent=`Explorer / snapshot ${META.snapshot} / ${META.commit}`;$('#foot').textContent=META.footer;
+$('#title').innerHTML=`${META.name}<em>${META.accent}</em>`;
+if(META.hardware){$('#gpu').hidden=false;$('#hwname').textContent=META.hardware.name;$('#hwsub').textContent=META.hardware.sub;chip(0)}
+const h=location.hash.slice(1);open(ORDER.includes(h)?h:'map');requestAnimationFrame(frame);
+
+</script></body></html>

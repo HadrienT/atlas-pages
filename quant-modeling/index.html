@@ -1,0 +1,365 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>quant-modeling Explorer</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&family=Space+Grotesk:wght@400;500&display=swap">
+<style>/* Layout: the video's three-column console. Stage rail, component list, animated diagram; the map spans the last two. */
+:root{color-scheme:dark;--bg:#060a0b;--panel:#080d0b;--card:#0a100d;--node:#0b120e;--ink:#eef2ee;--soft:#b9c1ba;--mute:#8d968f;--dim:#5b655e;--line:#1f2a24;--line2:#2c3a30;--lime:#c6f135;--olive:#1d2a12;--violet:#8c7dff;--warn:#f2b84b;
+--display:"Space Grotesk",ui-sans-serif,system-ui,sans-serif;--mono:"JetBrains Mono",ui-monospace,monospace}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{margin:0;background:radial-gradient(1100px 700px at 62% 62%,#0d1610 0%,transparent 70%),radial-gradient(800px 500px at 10% 100%,#0b130e 0%,transparent 70%),var(--bg);background-attachment:fixed;color:var(--ink);font-family:var(--display);font-size:15px}
+button{font:inherit;color:inherit;background:none;border:0;cursor:pointer;text-align:left}
+:focus-visible{outline:2px solid var(--lime);outline-offset:2px}
+.app{min-height:100%;display:flex;flex-direction:column;gap:22px;padding-block:22px 14px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));max-width:1720px;margin:0 auto}
+@media(min-width:900px){.app{padding-left:max(44px,env(safe-area-inset-left,0px));padding-right:max(44px,env(safe-area-inset-right,0px))}}
+.mono{font-family:var(--mono);text-transform:uppercase;letter-spacing:.2em;font-size:11px;color:var(--mute)}
+.top{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;align-items:center;padding-bottom:12px;border-bottom:1px solid var(--line)}
+.brand{color:var(--ink);font-weight:500;font-size:13px}
+.nav{display:flex;align-items:center;gap:18px;flex-wrap:wrap}
+.home{color:var(--lime);text-decoration:none;padding:4px 10px;margin-left:-10px;border-radius:8px;transition:background .2s}
+.home:hover{background:#1d2a12}
+.head h1{margin:0;font-size:clamp(32px,4vw,52px);font-weight:500;letter-spacing:-.02em;line-height:1.1;text-wrap:balance}
+.head h1 em{font-style:normal;color:var(--lime);margin-left:.35em;text-shadow:0 0 28px #c6f13555}
+.head p{margin:8px 0 0;font-size:clamp(15px,1.4vw,19px);color:var(--soft);min-height:1.4em}
+.cols{display:grid;grid-template-columns:230px minmax(0,1fr) minmax(0,1.08fr);gap:0 34px;flex:1;align-items:start}
+.side{padding-right:30px;border-right:1px solid var(--line);display:flex;flex-direction:column;gap:12px;align-self:stretch;min-width:0}
+.tabs{display:flex;flex-direction:column;gap:6px}
+.tab{display:flex;align-items:center;gap:14px;height:46px;padding:0 16px;border-radius:12px;border:1.5px solid transparent;color:var(--mute);font-size:16px;white-space:nowrap;transition:color .2s,background .2s,border-color .2s}
+.tab b{font:500 11px var(--mono);color:var(--lime);opacity:.85}
+.tab:hover{color:var(--ink);background:#0e1611}
+.tab[aria-selected=true]{color:var(--ink);border-color:var(--lime);background:linear-gradient(90deg,#26361499,#14200f66);box-shadow:0 0 22px #c6f13522}
+.gpu{margin-top:auto;text-align:center;padding-top:6px}
+.gpu canvas{width:100%;max-width:200px;height:auto;display:block;margin:0 auto}
+.gpu strong{display:block;color:var(--lime);font-weight:500;font-size:16px;margin-top:4px}
+.gpu span{color:var(--mute);font-size:13px}
+.mid,.right{min-width:0;display:flex;flex-direction:column;gap:12px}
+.list{display:flex;flex-direction:column;gap:8px}
+.row{position:relative;display:block;width:100%;border-radius:13px;border:1px solid var(--line2);background:var(--card);padding:11px 16px 11px 50px;transition:border-color .2s,background .2s,box-shadow .2s}
+.row:hover{border-color:#47604c}
+.row i{position:absolute;left:18px;top:15px;font:400 11px var(--mono);color:var(--mute)}
+.row h3{margin:0;font-size:17px;font-weight:500;padding-right:96px}
+.row p{margin:2px 0 0;font-size:14px;color:var(--mute)}
+.row u{position:absolute;right:14px;top:14px;font:400 10px var(--mono);color:var(--mute);text-decoration:none;letter-spacing:.06em;max-width:92px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.row[aria-expanded=true]{border:1.5px solid var(--lime);background:linear-gradient(90deg,#2a3b1680,#17230f40);box-shadow:0 0 24px #c6f13520}
+.row[aria-expanded=true] p{color:var(--soft)}
+.more{display:grid;grid-template-columns:minmax(84px,auto) minmax(0,1fr);gap:4px 14px;margin-top:10px;font-size:13px}
+.more dt{font:400 10px/1.9 var(--mono);text-transform:uppercase;letter-spacing:.1em;color:var(--mute)}
+.more dd{margin:0;color:var(--soft);overflow-wrap:anywhere}
+.more code{font:400 12px var(--mono);color:var(--ink)}
+.chips{display:flex;flex-wrap:wrap;gap:4px;grid-column:1/-1;margin-top:4px}
+.chips span{font:400 11px var(--mono);padding:2px 7px;border-radius:6px;background:#141c15;color:var(--soft)}
+.flag{grid-column:1/-1;margin-top:6px;display:flex;gap:8px;font-size:13px;color:var(--warn);line-height:1.4}
+.flag::before{content:"▲";font-size:9px;line-height:18px}
+.panel{position:relative;border:1px solid var(--line);border-radius:16px;background:var(--panel);overflow:hidden}
+.scroll{overflow-x:auto}
+#svg{display:block;width:100%;height:auto}
+.is-map .mid{display:none}.is-map .right{grid-column:2/4}
+.is-map #svg{min-width:760px;max-height:max(440px,calc(100vh - 310px))}
+.is-map .gpu canvas{max-width:190px}
+.cap{font-size:16px;color:var(--soft);min-height:2.7em;margin:0;line-height:1.35}
+.cap b{font:400 12px var(--mono);color:var(--lime);margin-right:8px}
+.dots{display:flex;flex-wrap:wrap;gap:6px}
+.dot{min-width:30px;height:28px;padding:0 8px;border-radius:7px;border:1px solid var(--line2);font:400 11px var(--mono);color:var(--mute);text-align:center}
+.dot:hover{color:var(--ink);border-color:#47604c}
+.dot[aria-current=true]{background:var(--olive);border-color:var(--lime);color:var(--lime)}
+footer{display:flex;flex-direction:column;gap:10px}
+.bar{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.ctl{display:flex;gap:6px}
+.ctl button{height:32px;padding:0 12px;border-radius:8px;border:1px solid var(--line2);font:400 11px var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--soft)}
+.ctl button:hover{color:var(--ink);border-color:#47604c}
+#play{border-color:var(--lime);color:var(--lime);background:var(--olive)}
+.track{height:3px;background:var(--line);position:relative}
+#prog{position:absolute;left:0;top:0;bottom:0;background:var(--lime);box-shadow:0 0 12px #c6f13588;width:0}
+svg text{font-family:var(--display);fill:var(--ink)}
+svg .m{font-family:var(--mono)}
+svg .go{cursor:pointer}
+svg .go:hover>rect:first-child{stroke:var(--lime)}
+svg .go:focus-visible{outline:none}svg .go:focus-visible>rect:first-child{stroke:var(--lime);stroke-width:2}
+@media(max-width:1180px){
+ .cols{grid-template-columns:minmax(0,1fr);gap:18px}
+ .side{border:0;padding:0}.tabs{flex-direction:row;overflow-x:auto;padding-bottom:4px}.tab{height:40px;flex:none}
+ .gpu{display:none}.is-map .right{grid-column:auto}
+ .right{order:2}.mid{order:3}
+}
+.head h1{overflow-wrap:anywhere}
+</style>
+<body>
+<div class="app">
+ <div class="top"><span class="nav"><a class="mono home" id="home">&larr; Atlas</a><span class="mono brand" id="brand"></span></span><span class="mono" id="stamp"></span></div>
+ <div class="head"><h1 id="title"></h1><p id="sub"></p></div>
+ <main class="cols" id="cols">
+  <nav class="side" aria-label="Stages">
+   <span class="mono">Views</span>
+   <div class="tabs" id="tabs" role="tablist"></div>
+   <div class="gpu" id="gpu" hidden><canvas id="chip" width="400" height="270" aria-hidden="true"></canvas><strong id="hwname"></strong><span id="hwsub"></span></div>
+  </nav>
+  <section class="mid"><span class="mono" id="sec" style="color:var(--lime)"></span><div class="list" id="list"></div></section>
+  <section class="right">
+   <span class="mono" id="plabel"></span>
+   <div class="panel scroll"><svg id="svg" role="img" aria-label="Animated diagram of the selected component"></svg></div>
+   <p class="cap" id="cap" aria-live="polite"></p>
+   <div class="dots" id="dots" aria-label="Steps"></div>
+  </section>
+ </main>
+ <footer>
+  <div class="bar"><span class="mono" id="foot" style="font-size:10px"></span>
+   <div class="ctl"><button id="prev" aria-label="Previous component">Prev</button><button id="play">Play tour</button><button id="next" aria-label="Next component">Next</button></div></div>
+  <div class="track"><div id="prog"></div></div>
+ </footer>
+</div>
+
+<script>
+const STATE={},REPOS=["AgenticEnv","DeutschAutoCorrect","JobTracker","Portfolio","RamTracker","VoiceClone","agenticenv-chat","data-ingest","genealogy","live-subs","quant-backtest","quant-dev","quant-microstructure","quant-modeling","quant-platform"],ROOT='..';
+/* Live values from repos/<name>/state.json. A public build has none, so L() returns the fallback. */
+const L=(key,fallback=null)=>STATE[key]??fallback;
+const B=1.97,STEP=B*2,NS='http://www.w3.org/2000/svg',$=s=>document.querySelector(s),svg=$('#svg');
+const LIME='#c6f135',MUTE='#8d968f',LINE='#2c3a30',VIOLET='#8c7dff',WARN='#f2b84b',INK='#eef2ee',SOFT='#b9c1ba';
+const still=matchMedia('(prefers-reduced-motion: reduce)').matches;
+const clamp=(v,a=0,b=1)=>Math.min(b,Math.max(a,v)),ease=p=>1-Math.pow(1-clamp(p),3);
+let A=[],U=[];
+
+function el(n,a={},p=svg){const e=document.createElementNS(NS,n);for(const k in a)e.setAttribute(k,a[k]);p.appendChild(e);return e}
+function txt(g,x,y,s,o={}){const e=el('text',{x,y,'font-size':o.size??16,'text-anchor':o.anchor??'middle','font-weight':o.w??400,class:o.mono?'m':''},g);e.textContent=s;e.style.fill=o.fill??INK;if(o.ls)e.style.letterSpacing=o.ls;return e}
+const reveal=(e,at,o={})=>(A.push({e,tin:at*STEP,dy:o.dy??10,blur:o.blur??7}),e);
+
+/* Drawing kit for the 650×520 panel. `at` is expressed in steps, so diagrams line up with the captions. */
+const d={
+ g(at=0,o){return reveal(el('g'),at,o)},
+ box(x,y,w,h,title,sub,o={}){const g=d.g(o.at??0);
+  el('rect',{x,y,width:w,height:h,rx:11,fill:'#0b120e',stroke:LINE},g);
+  if(title)txt(g,x+w/2,y+(sub?h/2-3:h/2+6),title,{size:o.size??17,w:500,mono:o.mono});
+  if(sub)txt(g,x+w/2,y+h/2+17,sub,{size:o.subsize??13,fill:MUTE,mono:o.submono});
+  if(o.hl!=null)reveal(el('rect',{x,y,width:w,height:h,rx:11,fill:(o.c??LIME)+'14',stroke:o.c??LIME,'stroke-width':2,'pointer-events':'none'},g),o.hl,{dy:0,blur:0});
+  if(o.to)link(g,o.to,title);return g},
+ line(pts,o={}){const at=(o.at??0)*STEP,p=el('path',{d:'M'+pts.map(q=>q.join(' ')).join('L'),fill:'none',stroke:o.c??MUTE,'stroke-width':o.w??1.5,pathLength:1});
+  U.push(t=>{p.style.strokeDasharray=`${ease((t-at)/(o.dur??.5))} 1`;p.style.opacity=t<at?0:1});return p},
+ text(x,y,s,o={}){const g=d.g(o.at??0);return txt(g,x,y,s,o)},
+ pill(s,at,c=LIME){const g=d.g(0,{dy:0});el('rect',{x:24,y:456,width:602,height:46,rx:11,fill:c===LIME?'#1d2a12':'#2b2110'},g);const t=d.g(at);txt(t,325,485,s,{size:17,w:500,fill:c})},
+ grid(x,y,cols,rows,o={}){const u=o.u??30,v=o.v??26,gap=o.gap??8;for(let r=0;r<rows;r++)for(let c=0;c<cols;c++){const X=x+c*(u+gap),Y=y+r*(v+gap),i=r*cols+c;
+  reveal(el('rect',{x:X,y:Y,width:u,height:v,rx:4,fill:'#2b3a30'}),(o.at??0)+(r+c)*.015,{dy:0,blur:3});
+  if(o.fill&&o.fill(i)){const f=el('rect',{x:X,y:Y,width:u,height:v,rx:4,fill:o.fill(i)===true?LIME:o.fill(i)}),tin=(o.fillAt??1)*STEP+i*.05;U.push(t=>f.style.opacity=ease((t-tin)/.2))}}},
+ count(x,y,n,at,o={}){const e=d.text(x,y,'0',{...o,at,mono:1}),tin=at*STEP;U.push(t=>{e.textContent=Math.round(n*ease((t-tin)/.8)).toLocaleString('en-US')+(o.unit??'')})}
+};
+/* `to` is a component id, or `repo#id` for another page. A repo outside this build gets no link. */
+function follow(to){const[repo,id]=to.split('#');if(id)location.href=`${ROOT}/${repo}/index.html#${id}`;else open(to)}
+function link(g,to,label){if(to.includes('#')&&!REPOS.includes(to.split('#')[0]))return;g.dataset.to=to;g.classList.add('go');g.setAttribute('tabindex','0');g.setAttribute('role','button');g.setAttribute('aria-label','Open '+label);g.addEventListener('click',()=>follow(to));g.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();follow(to)}})}
+
+/* Content of the quant-modeling page. Read from the repository at 6cf9706. */
+const META={name:'quant-modeling',accent:'layer by layer',snapshot:'2026-10-31',commit:'6cf9706',
+ footer:'C++20 core / pybind11 / FastAPI / React',
+ mapTab:'Layer map',mapSub:'One view of the layers, and the path of a single pricing call.',mapLabel:'Layer map / follow one Monte Carlo price',
+ hardware:{name:'2 × TESLA V100',sub:'Optional CUDA build'}};
+const ZONES=[{x:20,w:190,label:'PRODUCT'},{x:210,w:210,label:'ORCHESTRATION'},{x:420,w:220,label:'PAYOFF + MODEL'},{x:640,w:440,label:'NUMERICAL METHODS'}];
+const VIEWS=[
+{id:'library',name:'Library',sub:'Payoff, model and method stay apart, and a thin layer wires them.',rows:[
+ {id:'instruments',name:'Instruments',desc:'Payoffs that read no market data',tag:'instruments/',facts:[['Visitor','<code>IInstrumentVisitor</code>, 28 <code>visit</code> overloads'],['Registered','24 values of <code>InstrumentKind</code>'],['Rule','No instrument reads market data']],chips:['vanilla','asian','barrier','digital','lookback','basket','rainbow','autocall','mountain','variance swap','dispersion','bonds','cap/floor','swap','swaption','FX','commodity','CDS'],flag:'The README says about 20 instruments. The visitor has 28 overloads and the registry knows 24 kinds.',
+  label:'Instruments / the payoff calls the engine',steps:['An instrument only describes a contract.','It accepts an engine, which visits it with its exact type.'],draw(){
+  d.box(40,110,230,100,'VanillaOption','payoff + exercise',{hl:.3});d.box(380,110,230,100,'Engine','visit(const VanillaOption&)',{at:1,hl:1.3,subsize:12,submono:1,to:'vanilla-mc'});
+  d.line([[270,145],[380,145]],{at:1,c:LIME});d.text(325,133,'accept',{size:12,mono:1,fill:MUTE,at:1});d.line([[380,180],[270,180]],{at:1.2,c:LIME});d.text(325,200,'visit',{size:12,mono:1,fill:MUTE,at:1.2});
+  d.box(40,290,230,76,'Market data',null,{at:.5});d.line([[155,290],[155,210]],{at:.6,c:WARN});d.text(170,256,'never read',{size:13,fill:WARN,anchor:'start',at:.7});d.pill('No engine branches on a product',1.5)}},
+ {id:'models',name:'Models',desc:'Two interfaces, for two architectures',tag:'models/',facts:[['Closed forms','<code>IModel</code> and its sub-interfaces, such as <code>ILocalVolModel</code>'],['Simulation','<code>ISimulationModel&lt;T&gt;</code>, 13 implementations'],['In the registry','9 values of <code>ModelKind</code>']],chips:['Black-Scholes','local vol','Bates','Merton jumps','Kou jumps','rough Bergomi','SABR','SLV','multi-asset BS','multi-asset LV','Vasicek','Hull-White equity','Schwartz-Smith'],
+  label:'Models / the same class for prices and adjoints',steps:['A simulation model merges the product dates with its own steps.','It is templated on T: double for a price, aad::Number for risks.'],draw(){
+  d.box(165,70,320,74,'ISimulationModel<T>',null,{mono:1,size:16});[['init()','timeline'],['generate_path()','per path'],['clone()','per thread']].forEach(([a,b],i)=>{const x=24+i*208;d.box(x,200,186,76,a,b,{at:.2+i*.15,mono:1,size:14});d.line([[325,144],[325,172],[x+93,172],[x+93,200]],{at:.2+i*.15,c:LIME})});
+  d.box(70,330,220,76,'T = double','price',{at:1,mono:1,size:15});d.box(360,330,220,76,'T = aad::Number','model risks',{at:1.2,mono:1,size:15,hl:1.3,to:'aad'});d.pill('One model, two number types',1.5)}},
+ {id:'registry',name:'Pricer registry',desc:'Instrument, model and engine as one key',tag:'pricers/',facts:[['Key','<code>(InstrumentKind, ModelKind, EngineKind)</code>'],['Size','42 registered pricers, 21 adapter files'],['Unknown key','<code>UnsupportedInstrument</code>'],['Adapter','Builds the instrument, the model and the context, then picks the engine']],flag:'The README presents the registry as the wiring of the library. Scripts and every model outside the 9 <code>ModelKind</code> values bypass it.',
+  label:'Registry / a typed lookup, then an adapter',steps:['A flat input and a three-part key arrive.','The key selects a function, and the adapter builds real objects.'],draw(){
+  d.box(30,110,180,100,'PricingRequest','key + input');[['instrument',0],['model',1],['engine',2]].forEach(([s,i])=>{const y=90+i*56;d.box(270,y,130,44,s,null,{at:.3+i*.1,mono:1,size:14});d.line([[210,160],[240,160],[240,y+22],[270,y+22]],{at:.3+i*.1,c:LIME})});
+  d.box(460,120,160,80,'Pricer','std::function',{at:1,hl:1.2,submono:1});d.line([[400,160],[460,160]],{at:1,c:LIME});[['Instrument','instruments'],['Model','models'],['Engine','analytic']].forEach(([s,to],i)=>{const x=60+i*190;d.box(x,310,150,70,s,null,{at:1.3+i*.1,to});d.line([[540,200],[540,260],[x+75,260],[x+75,310]],{at:1.3+i*.1})});d.pill('42 keys, one lookup',1.7)}},
+ {id:'timeline',name:'Dates and timeline',desc:'Calendar dates become year fractions once',tag:'core/date.hpp',facts:[['Date types','<code>Date</code>, <code>Period</code>, calendars, conventions, <code>Schedule</code>'],['Bridge','<code>ValuationContext</code> resolves dates when a product is built'],['Kernels see','A <code>TimeLine</code> of year fractions']],
+  label:'Timeline / resolved at construction',steps:['A product is written with real dates and conventions.','Everything below the product works in year fractions.'],draw(){
+  ['Schedule, calendar','ValuationContext','TimeLine','Path kernel'].forEach((s,i)=>{const y=70+i*92;d.box(165,y,320,66,s,['dates','resolved once','year fractions','plain doubles'][i],{at:i*.3,hl:i===2?1.2:null});if(i)d.line([[325,y-26],[325,y]],{at:i*.3,c:LIME})});d.pill('No Date below the product',1.5)}}]},
+
+{id:'engines',name:'Engines',sub:'Five numerical methods behind one result type.',rows:[
+ {id:'analytic',name:'Analytic',desc:'Closed forms, with exact greeks',tag:'engines/analytic',facts:[['Base','<code>EngineBase</code> holds the context and the <code>PricingResult</code>'],['Vanilla','Black-Scholes on the forward, with five greeks']],chips:['Black-Scholes','Asian','digital','bonds','short rate','FX','commodity','swap','Hull-White swaption','CDS','Heston COS','variance swap'],
+  label:'Analytic / a forward, then two normals',steps:['The forward comes from spot, carry and the discount curve.','d1 and d2 give the price and every greek at once.'],draw(){
+  d.box(40,90,250,76,'F = S e^(-qT) / DF(T)',null,{mono:1,size:14});d.box(360,90,250,76,'stddev = σ√T',null,{mono:1,size:15,at:.3});d.box(165,240,320,84,'d1, d2','norm_cdf, norm_pdf',{at:1,hl:1.2,submono:1,mono:1});d.line([[165,166],[165,204],[325,204],[325,240]],{at:1,c:LIME});d.line([[485,166],[485,204],[325,204]],{at:1,c:LIME});d.pill('Price and greeks, no sampling',1.5)}},
+ {id:'trees',name:'Trees',desc:'Binomial and trinomial, with early exercise',tag:'engines/tree',facts:[['Binomial','Cox-Ross-Rubinstein'],['Trinomial','Boyle'],['Exercise','American and European'],['Inputs','<code>tree_steps</code>, 100 by default']],
+  label:'Tree / roll back through the nodes (example)',steps:['Prices spread forward from the spot.','Values roll back, checking early exercise at each node.'],draw(){
+  const X=[90,230,370,510];X.forEach((x,c)=>{for(let r=0;r<=c;r++){const y=240+(r*2-c)*62,g=d.g(c*.25);el('circle',{cx:x,cy:y,r:17,fill:'#0b120e',stroke:LINE},g);if(c<3){d.line([[x+17,y],[x+123,y-62]],{at:c*.25});d.line([[x+17,y],[x+123,y+62]],{at:c*.25})}}});
+  X.forEach((x,c)=>{for(let r=0;r<=c;r++){const y=240+(r*2-c)*62,g=d.g(1+(3-c)*.25);el('circle',{cx:x,cy:y,r:9,fill:LIME},g)}});d.pill('max(hold, exercise)',1.8)}},
+ {id:'pde',name:'PDE',desc:'Crank-Nicolson on the Black-Scholes equation',tag:'engines/pde',facts:[['Scheme','Crank-Nicolson, central differences in space'],['Solver','Thomas algorithm'],['Exercise','European only']],flag:'The registry has a key for American + PDE, but its adapter always throws. Only the European route works.',
+  label:'PDE / march back from the payoff',steps:['The payoff sets the last column of the grid.','Each time step solves one tridiagonal system.'],draw(){
+  d.grid(60,80,10,7,{u:44,v:34,gap:7,at:0,fillAt:.6,fill:n=>n%10===9}) ;d.pill('Tridiagonal solve, each step',1.5)}},
+ {id:'vanilla-mc',name:'Dedicated Monte Carlo',desc:'One engine per product, on templated kernels',tag:'engines/mc',facts:[['Dispatch','Call or put, antithetic and IS are template parameters'],['Per path','No virtual call, one per request'],['Portable','Flat aggregate, <code>QM_HOST_DEVICE</code>'],['Adapter','Antithetic is on for vanillas']],
+  label:'Kernel / everything precomputed once',steps:['The engine folds market and contract into a flat spec.','The kernel only samples and accumulates.'],draw(){
+  d.box(30,100,250,120,'VanillaTerminalSpec','movedSpot, rootVariance, df',{mono:1,size:14,subsize:12,submono:1});d.box(370,100,250,120,'Kernel','<Call, antithetic, IS>',{at:1,hl:1.2,submono:1});d.line([[280,160],[370,160]],{at:.9,c:LIME});
+  ['payoff','delta','vega','rho','gamma','theta'].forEach((s,i)=>{const x=30+i*102;d.box(x,300,92,56,s,null,{at:1.3+i*.06,mono:1,size:13})});d.line([[495,220],[495,262],[76,262],[76,300]],{at:1.3});d.pill('Six estimators on each path',1.7)}},
+ {id:'generic-mc',name:'Generic simulation',desc:'One engine, any product, any model',tag:'simulate()',facts:[['Contract','<code>ISimulatableProduct</code> + <code>ISimulationModel</code>'],['Payoffs','Already deflated: the engine only averages'],['Early exercise','Longstaff-Schwartz, in <code>lsm.hpp</code>'],['Dispatch','No visitor and no per-product engine']],
+  label:'Generic / the model writes, the product reads',steps:['The product publishes its dates and what it needs there.','The model writes each scenario, and the product reads it back.'],draw(){
+  d.box(30,110,200,100,'Product','timeline, defline');d.box(420,110,200,100,'Model','generate_path',{at:.3});d.line([[230,160],[420,160]],{at:.3,c:LIME});d.box(225,290,200,84,'Scenario','spots, discounts',{at:1,hl:1.2});d.line([[520,210],[520,332],[425,332]],{at:1,c:LIME});d.line([[225,332],[130,332],[130,210]],{at:1.3,c:LIME});d.pill('The engine only averages',1.6)}}]},
+
+{id:'montecarlo',name:'Monte Carlo',sub:'Where the draws come from, how noise is cut, and why results are reproducible.',rows:[
+ {id:'sampling',name:'Sampling',desc:'Pseudo-random, Sobol or stratified',tag:'utils/',facts:[['Default','PCG32 with Box-Muller'],['Counter-based','Philox 4x32-10: draw j of path p depends only on (seed, p, j)'],['Sobol','Digital shift or Owen scrambling, 16 batches by default'],['Bridge','Brownian bridge on by default for Sobol']],
+  label:'Sampling / batches give an honest error (example)',steps:['Low-discrepancy points are not independent.','Independent replicates are, so the error comes from batch means.'],draw(){
+  for(let b=0;b<4;b++){const x=40+b*146;d.box(x,90,130,170,null,null,{at:b*.1});for(let i=0;i<22;i++){const u=((i+1)*.618034+b*.27)%1,v=((i+1)*.754877+b*.41)%1;reveal(el('circle',{cx:x+12+u*106,cy:102+v*146,r:3,fill:LIME}),.2+i*.012,{dy:0,blur:0})}d.line([[x+65,260],[x+65,316]],{at:1+b*.08,c:LIME});d.box(x+10,316,110,50,'mean '+(b+1),null,{at:1+b*.08,size:14})}d.pill('Error = spread of the batch means',1.5)}},
+ {id:'variance',name:'Variance reduction',desc:'Less noise for the same paths',tag:'variance_reduction/',chips:['antithetic','control variates','importance sampling','conditional MC','bridge extrema','spot controls','importance drift'],facts:[['Controls','Geometric Asian for the arithmetic one, multi-control regression for spots'],['Generic drift','Kept only when a pilot shows that it lowers the variance'],['Settings defaults','Controls on, importance sampling off']],
+  label:'Control variate / remove what you already know',steps:['A control has a known mean and moves with the payoff.','Its observed error is subtracted, scaled by beta.'],draw(){
+  d.box(40,100,250,84,'Y','target payoff',{mono:1});d.box(360,100,250,84,'X','known E[X]',{mono:1,at:.3,hl:.5});d.box(120,270,410,84,'Y − β (mean(X) − E[X])',null,{at:1,mono:1,size:17,hl:1.2});d.line([[165,184],[165,228],[325,228],[325,270]],{at:1,c:LIME});d.line([[485,184],[485,228],[325,228]],{at:1,c:LIME});d.pill('Variance times (1 − ρ²)',1.5)}},
+ {id:'blocks',name:'Logical blocks',desc:'The same bits for any hardware split',tag:'logical_blocks.hpp',facts:[['Problem','Floating-point addition is not associative'],['Answer','A fixed reduction tree over path indices'],['Merge','Chan\'s parallel Welford formula'],['Holds for','Thread counts, GPU launches and GPU counts']],
+  label:'Blocks / the order belongs to the paths (example)',steps:['Units are grouped by index, whatever runs them.','Every merge follows the same tree, so the sum is identical.'],draw(){
+  for(let i=0;i<8;i++){const x=28+i*78;d.box(x,330,50,46,String(i),null,{at:i*.05,mono:1,size:14})}for(let i=0;i<4;i++){const x=70+i*156;d.box(x,220,70,44,null,null,{at:1+i*.05});d.line([[x-17,330],[x+35,264]],{at:1});d.line([[x+61,330],[x+35,264]],{at:1})}
+  for(let i=0;i<2;i++){const x=148+i*312;d.box(x,120,70,44,null,null,{at:1.3});d.line([[x-43,220],[x+35,164]],{at:1.3});d.line([[x+113,220],[x+35,164]],{at:1.3})}d.box(285,50,80,44,'mean',null,{at:1.5,hl:1.6,size:14});d.line([[183,120],[325,94]],{at:1.5,c:LIME});d.line([[495,120],[325,94]],{at:1.5,c:LIME});d.pill('One tree on CPU and GPU',1.7)}}]},
+
+{id:'risk',name:'Risk',sub:'Greeks by three routes, then the exposure of a whole netting set.',rows:[
+ {id:'greeks',name:'Greeks',desc:'Estimators, bumps or adjoints',tag:'results.hpp',facts:[['In the kernel','Pathwise delta, LRM vega and rho, FD gamma and theta with common random numbers'],['In the API','<code>greeks_fallback.py</code> bumps what an engine leaves out, and names it'],['Bump sizes','1% spot, 0.1% vol, 0.01% rate, 1 day'],['Beyond five','<code>RiskReport</code> carries labelled sensitivities']],
+  label:'Greeks / three routes to one answer',steps:['The engine returns the greeks it can estimate.','The API bumps the rest with the same seed.','Timeline products can use adjoints instead.'],draw(){
+  [['Engine','estimators per path',0],['API fallback','same seed, bumped',1],['Adjoints','one reverse sweep',2]].forEach(([a,b,i])=>{const y=74+i*116;d.box(40,y,270,90,a,b,{at:i,hl:i+.2,to:i===2?'aad':null});d.line([[310,y+45],[420,y+45],[420,240],[450,240]],{at:i+.1,c:LIME})});d.box(450,190,170,100,'Greeks',"with std errors",{at:.2});d.pill('Delta, gamma, vega, theta, rho',2.4)}},
+ {id:'aad',name:'AAD',desc:'A tape, for every risk at once',tag:'aad/',facts:[['Number','16 bytes: a value and a tape node'],['Conversion','To double is explicit, so a tape link cannot drop silently'],['Control flow','Comparisons record nothing: smoothing handles digitals'],['Scope','Timeline products: <code>BlackScholesSimModel</code> and scripts'],['Second order','Adjoint over tangent, <code>simulation_engine_aad2.hpp</code>'],['Threads','One tape per thread, same result as a series run']],
+  label:'AAD / forward once, backward once (example)',steps:['Each operation on a Number writes a node to the tape.','One reverse sweep gives every parameter its adjoint.'],draw(){
+  ['S0','σ','r'].forEach((s,i)=>d.box(30,80+i*90,90,66,s,null,{at:i*.08,mono:1,hl:1.6}));['exp','×','max'].forEach((s,i)=>{const x=200+i*140;d.box(x,170,100,66,s,null,{at:.3+i*.2,mono:1});d.line([[x-40,203],[x,203]],{at:.3+i*.2,c:LIME})});[0,1,2].forEach(i=>d.line([[120,113+i*90],[160,203]],{at:.3}));d.line([[560,203],[600,203]],{at:.9,c:LIME});
+  d.line([[600,370],[60,370]],{at:1.1,c:VIOLET,dur:1});d.text(330,396,'adjoints flow back',{size:13,fill:VIOLET,at:1.2});d.pill('One sweep for every risk',1.7)}},
+ {id:'xva',name:'xVA',desc:'Exposure of a netting set, then the integrals',tag:'risk/, engines/xva',chips:['CVA','DVA','FVA','MVA','KVA','SA-CCR','SA-CVA','BA-CVA','SIMM','wrong-way risk'],facts:[['Grid','Weekly, then monthly, then quarterly, plus every event date'],['Signs','A cost to the bank is negative'],['Collateral','Value at t and at t minus the margin period of risk'],['Runs on','CPU, and the single-currency engine on the GPU']],
+  label:'xVA / profile first, integral after',steps:['Paths value the netting set at each date of the grid.','Netting and collateral turn values into exposure.','Each adjustment integrates a profile against a cost rate.'],draw(){
+  d.box(30,80,180,80,'Trades','netting set');d.box(235,80,180,80,'Paths','Hull-White',{at:.3});d.box(440,80,180,80,'Values','on the grid',{at:.6});d.line([[210,120],[235,120]],{at:.3,c:LIME});d.line([[415,120],[440,120]],{at:.6,c:LIME});
+  d.box(235,220,380,76,'Netting + collateral','exposure profile',{at:1,hl:1.2});d.line([[530,160],[530,220]],{at:1,c:LIME});['CVA','DVA','FVA','MVA','KVA'].forEach((s,i)=>d.box(40+i*118,360,100,56,s,null,{at:2+i*.08,mono:1,size:15}));d.line([[425,296],[425,360]],{at:2,c:LIME});d.pill('Discounted exposure, then the integrals',2.5)}}]},
+
+{id:'scripting',name:'Scripting',sub:'Any payoff as text, parsed, smoothed, compiled, and run on either device.',rows:[
+ {id:'language',name:'Payoff language',desc:'A script instead of a code path per product',tag:'.qms',facts:[['Pipeline','Lexer, parser, tree, visitors, evaluator'],['Library','42 scripts in <code>api/app/product_library</code>'],['Model choice','<code>model_advice.hpp</code> reads the script: BS, local vol, Heston or SLV'],['Assistant','A local LLM drafts scripts, and the real parser checks them']],
+  label:'Script / dates, then what happens on them (example)',steps:['A script lists dates and the events on each one.','Visitors analyse it before any path runs.'],draw(){
+  [['2027-06-10  2027-12-10',0],['if spot() >= s0 then',1],['pays 1000 * 1.05',2],['alive = 0',2],['endIf',1]].forEach(([s,n],i)=>{const g=d.g(i*.1);txt(g,50+n*28,102+i*30,s,{size:15,mono:1,fill:i?SOFT:LIME,anchor:'start'})});
+  ['Lexer','Parser','Visitors','Evaluator'].forEach((s,i)=>{const x=24+i*154;d.box(x,290,140,70,s,null,{at:1+i*.1,size:16});if(i)d.line([[x-14,325],[x,325]],{at:1+i*.1,c:LIME})});d.pill('One engine for all 42 scripts',1.6)}},
+ {id:'fuzzy',name:'Fuzzy evaluator',desc:'Conditions become differentiable',tag:'fuzzy_evaluator.hpp',facts:[['Comparison','A degree of truth in [0, 1], from a call spread of half-width eps'],['Logic','<code>and</code>, <code>or</code>, <code>not</code> are min, max and 1 − x'],['Interior degree','Runs both branches and blends them'],['Discrete tests','Stay crisp']],
+  label:'Fuzzy / a smooth edge for adjoints (example)',steps:['A hard test has no useful derivative.','A call spread gives a slope that a delta can use.'],draw(){
+  d.line([[80,380],[80,110]],{});d.line([[80,380],[590,380]],{});d.text(335,412,'spot − barrier',{size:13,fill:MUTE});d.text(66,120,'1',{size:13,mono:1,fill:MUTE});
+  d.line([[90,370],[330,370],[330,130],[580,130]],{at:.3,c:WARN,dur:1});d.line([[90,370],[280,370],[380,130],[580,130]],{at:1,c:LIME,dur:1});d.text(170,350,'hard',{size:13,fill:WARN,at:.4});d.text(420,160,'fuzzy',{size:13,fill:LIME,at:1.2});d.pill('Slope = 1 / (2 eps)',1.5)}},
+ {id:'bytecode',name:'Bytecode',desc:'One interpreter on the CPU and in a kernel',tag:'bytecode.hpp',facts:[['Machine','A stack machine over raw pointers and fixed-size data'],['Oracles','Tree evaluators: the 42 scripts must match to the bit'],['Fuzzy if','A slot range fixed at compile time, since scripts have no loops'],['Test','<code>tests/testScriptBytecode.cpp</code>']],
+  label:'Bytecode / a tree becomes an array (example)',steps:['The compiler flattens the parsed tree into instructions.','run_event interprets a range of them, on either device.'],draw(){
+  d.box(245,70,160,56,'if',null,{mono:1});d.box(120,160,130,50,'>=',null,{mono:1,at:.1});d.box(400,160,130,50,'pays',null,{mono:1,at:.2});d.line([[325,126],[185,160]],{at:.1});d.line([[325,126],[465,160]],{at:.2});
+  ['Spot','Var','Ge','JumpIfFalse','Const','Pays'].forEach((s,i)=>d.box(24+i*103,262,94,50,s,null,{at:1+i*.06,mono:1,size:i===3?10:13}));[['CPU',120],['GPU',370]].forEach(([s,x])=>{d.box(x,350,160,60,s,'run_event',{at:1.5,submono:1});d.line([[x+80,312],[x+80,350]],{at:1.5,c:LIME})});d.pill('Same function, same bits',1.7)}},
+ {id:'gpu',name:'GPU backend',desc:'Prices and risks on two V100s',tag:'src/gpu',status:'optional build',facts:[['Build','<code>QM_ENABLE_CUDA</code> is off by default'],['Without it','<code>cpu_only.cpp</code> refuses a GPU run with <code>GpuUnavailable</code>'],['Device choice','CPU, GPU or Auto, and the result reports which ran'],['Draws','Philox or Sobol, never PCG32'],['Risks','Forward duals, and a per-path adjoint for local vol']],
+  label:'GPU / a run shares blocks between cards',steps:['Auto takes the GPU when the request fits.','Cards share logical blocks, and the host folds them in order.'],draw(){
+  d.box(205,70,240,70,'Request','device: auto');[0,1].forEach(i=>{const x=40+i*310;d.box(x,200,260,120,'V100 '+i,'logical blocks',{at:.4+i*.1,hl:1+i*.1});d.line([[325,140],[325,170],[x+130,170],[x+130,200]],{at:.3+i*.1,c:LIME});d.line([[x+130,320],[x+130,360],[325,360],[325,380]],{at:1.3})});d.box(225,380,200,56,'Host folds in order',null,{at:1.4,size:14,to:'blocks'});d.pill('The card count changes the time only',1.6)}}]},
+
+{id:'market',name:'Market',sub:'Curves and surfaces built from quotes, on the C++ side.',rows:[
+ {id:'curves',name:'Curves',desc:'Discounting, projection and credit',tag:'market/',facts:[['Discounting','<code>discount_curve</code>, bootstrapped in <code>curve_bootstrap</code>'],['Multi-curve','OIS plus projection curves'],['Credit','Survival curves from CDS quotes']],
+  label:'Curves / quotes in, a curve out (example)',steps:['Instruments are repriced one maturity at a time.','Each knot is solved so that its quote is matched exactly.'],draw(){
+  d.line([[70,380],[590,380]],{});d.line([[70,380],[70,110]],{});const P=[[120,330],[220,270],[330,235],[450,205],[570,185]];P.forEach(([x,y],i)=>{const g=d.g(.3+i*.15);el('circle',{cx:x,cy:y,r:7,fill:LIME},g)});d.line(P,{at:1,c:LIME,dur:1});d.text(330,412,'maturity',{size:13,fill:MUTE});d.pill('Bootstrapped, knot by knot',1.5)}},
+ {id:'calibration',name:'Calibration',desc:'Models fitted to quoted surfaces',tag:'market/',chips:['SVI','Dupire','Heston','SLV','rough Bergomi','SABR','Hull-White'],facts:[['Solver','Levenberg-Marquardt, in <code>market/calibration</code>'],['Local vol','SVI slices, then Dupire'],['SLV','A leverage on the local-vol grid'],['Superbucket','Vega to each quoted implied vol']],
+  label:'Calibration / from quotes to local vol',steps:['Chains are fitted per maturity with SVI.','The surface gives Dupire, then the leverage of SLV.'],draw(){
+  ['Option chain','SVI slices','Dupire surface','SLV leverage'].forEach((s,i)=>{const y=70+i*92;d.box(165,y,320,66,s,null,{at:i*.3,hl:i===2?1.1:null});if(i)d.line([[325,y-26],[325,y]],{at:i*.3,c:LIME})});d.pill('The fit stays on the C++ side',1.5)}}]},
+
+{id:'product',name:'Product',sub:'The library, carried through to something a person can use.',rows:[
+ {id:'bindings',name:'Python bindings',desc:'One pybind11 module, one wheel',tag:'src/module.cpp',facts:[['Size','3,462 lines, 70 <code>m.def</code>, 29 classes, 7 enums'],['Wheel','<code>quantmodeling</code>, by <code>scripts/build_wheel.sh</code>'],['Threads','10 <code>gil_scoped_release</code> sites'],['Stamp','<code>QM_BUILD_SHA</code> identifies the build']],
+  label:'Bindings / a thin C++ shell',steps:['A Python call fills a C++ input struct.','The binding asks the registry, and returns a dict.'],draw(){
+  d.box(30,110,190,90,'Python','qm.price_vanilla_bs_mc',{subsize:11,submono:1});d.box(280,110,110,90,'pybind11',null,{at:.3,hl:.5,size:15});d.box(450,110,170,90,'Registry',null,{at:.6,to:'registry'});d.line([[220,155],[280,155]],{at:.3,c:LIME});d.line([[390,155],[450,155]],{at:.6,c:LIME});
+  d.line([[535,200],[535,300],[125,300],[125,200]],{at:1,c:VIOLET,dur:1});d.text(330,290,'dict',{size:13,mono:1,fill:VIOLET,at:1.2});d.pill('price, error, greeks, diagnostics',1.6)}},
+ {id:'api',name:'FastAPI',desc:'Every price is recorded and can be replayed',tag:'api/app',facts:[['Routers','13 included in <code>main.py</code>'],['Single path','Every pricing goes through <code>_price</code>'],['Timeout','408 when a pricing runs too long'],['Record','A <code>pricing.valuation</code> event with its inputs'],['Market data','Postgres, fed by <code>data-ingest</code>']],flag:'<code>CLAUDE.md</code> lists <code>api/app/local_vol/</code>, which does not exist. The code is in <code>routers/local_vol_pricing.py</code> and <code>vol_surface.py</code>.',
+  label:'API / one door for every price',steps:['A request runs in a worker thread, under a timeout.','The valuation is recorded, then missing greeks are bumped.'],draw(){
+  d.box(30,100,180,84,'POST','/price/option/...',{submono:1,subsize:12});d.box(250,100,150,84,'_price',null,{at:.2,mono:1,hl:.4});d.box(440,100,180,84,'Wheel','thread pool',{at:.4,to:'bindings'});d.line([[210,142],[250,142]],{at:.2,c:LIME});d.line([[400,142],[440,142]],{at:.4,c:LIME});
+  d.box(130,270,180,84,'Audit event','pricing.valuation',{at:1,submono:1,subsize:12});d.box(345,270,180,84,'Greek bumps','greeks_fallback',{at:1.2,to:'greeks',submono:1,subsize:12});d.line([[325,184],[325,226],[220,226],[220,270]],{at:1,c:LIME});d.line([[325,226],[435,226],[435,270]],{at:1.2,c:LIME});d.pill('Replay needs the inputs and the seed',1.6)}},
+ {id:'web',name:'Front end',desc:'A pricing workbench, with generated types',tag:'web/src',facts:[['Stack','React 19, Vite, TypeScript'],['Features','13 folders in <code>web/src/features</code>'],['Discipline','No feature imports another, 230 lines at most per feature file'],['Types','Generated from <code>web/openapi.json</code>']],flag:'<code>CLAUDE.md</code> says React 18. <code>web/package.json</code> uses React 19, as the README says.',
+  label:'Front end / types come from the API',steps:['FastAPI publishes its OpenAPI schema.','The client types are generated, and CI fails on any drift.'],draw(){
+  d.box(30,110,180,84,'FastAPI','schemas',{to:'api'});d.box(235,110,180,84,'openapi.json',null,{at:.3,mono:1,size:14});d.box(440,110,180,84,'schema.gen.ts',null,{at:.6,mono:1,size:14,hl:.8});d.line([[210,152],[235,152]],{at:.3,c:LIME});d.line([[415,152],[440,152]],{at:.6,c:LIME});
+  d.box(135,280,380,76,'api-contract job','regenerates, then diffs',{at:1,hl:1.2,c:WARN,to:'delivery'});d.line([[325,194],[325,280]],{at:1,c:WARN});d.pill('Drift fails the build',1.5)}},
+ {id:'ml',name:'ML twin',desc:'Trained in PyTorch, evaluated in C++',tag:'ml/',facts:[['Paper','Huge and Savine, Differential Machine Learning'],['Training','On values, and on adjoint differentials when given'],['Runtime','<code>ml::Mlp</code> reads the exported weights'],['Isolation','Separate environment, never in the production image']],
+  label:'ML / two languages, one fixture',steps:['Python trains the network on values and differentials.','C++ only reads the weights, against a shared fixture.'],draw(){
+  d.box(30,110,240,100,'qmml','PyTorch, training',{mono:1});d.box(380,110,240,100,'ml::Mlp','C++ evaluation',{mono:1,at:1,hl:1.2});d.line([[270,160],[380,160]],{at:.8,c:LIME});d.text(325,148,'weights',{size:12,mono:1,fill:MUTE,at:.9});d.box(180,300,290,76,'mlp_reference.cases','shared by both tests',{at:1.2,mono:1,size:14});d.line([[150,210],[150,338],[180,338]],{at:1.2});d.line([[500,210],[500,338],[470,338]],{at:1.2});d.pill('No training in production',1.6)}}]},
+
+{id:'verify',name:'Verification',sub:'How the repository checks itself.',rows:[
+ {id:'tests',name:'Tests',desc:'Properties rather than single numbers',tag:'tests/',facts:[['C++','117 files in <code>tests/</code>, 7 more in <code>tests/gpu</code>, 1,290 <code>TEST</code> macros'],['Python','41 test files in <code>api/tests</code>, plus <code>ml/tests</code>'],['Front end','42 unit test files, 2 Playwright specs'],['Style','Parity, in + out = vanilla, bounds, log-log convergence']],flag:'The README says about 70 GoogleTest suites and 43k lines of C++. The repository has 124 test files and about 77k lines in <code>include/</code> and <code>src/</code>.',
+  label:'Tests / check the property, not one number',steps:['A property holds across inputs.','Each engine has to satisfy it.'],draw(){
+  [['C − P = S e^(-qT) − K e^(-rT)','call-put parity'],['in + out = vanilla','barrier parity'],['error ~ 1 / √N','convergence order']].forEach(([a,b],i)=>{const y=76+i*118;d.box(60,y,530,92,a,b,{at:i*.35,hl:1+i*.12,mono:1,size:17})});d.pill('Each engine must agree',1.6)}},
+ {id:'delivery',name:'CI and delivery',desc:'Seven jobs, then a self-hosted image',tag:'ci.yml',chips:['format-check','build-test','pytest','pytest-ml','web','api-contract','publish-image'],facts:[['Hosting','Docker Compose on a personal server, behind a Cloudflare tunnel'],['Images','Published to GHCR'],['Deploy','<code>scripts/auto-deploy.sh</code>: a user timer polls <code>main</code> every 2 minutes'],['Gate','Deploys only a commit with green checks, and rolls back a failed deploy'],['Why pulled','The server has no open port, and a public repo should not run code on it']],flag:'CI runs <code>ctest</code> on the default preset only. ASan and UBSan are a local preset, and the GPU tests never run in CI. <code>CLAUDE.md</code> describes the deploy as manual and does not mention the timer.',
+  label:'CI / what a pull request must pass',steps:['Format, C++, Python, ML, web and the API contract run on each push.','The server pulls a green main, and goes back if the deploy fails.'],draw(){
+  ['format-check','build-test','pytest','pytest-ml','web','api-contract'].forEach((s,i)=>{const x=30+(i%3)*200,y=80+(i>>1>>0)*0+(i>2?90:0);d.box(x,y,190,70,s,null,{at:i*.08,mono:1,size:14,hl:.8+i*.05})});d.box(205,270,240,70,'publish-image','GHCR',{at:1,mono:1,size:14,hl:1.2});d.line([[325,240],[325,270]],{at:1,c:LIME});d.box(205,370,240,60,'auto-deploy.sh',null,{at:1.3,mono:1,size:14});d.line([[325,340],[325,370]],{at:1.3});d.pill('No sanitizers and no GPU in CI',1.5,WARN)}},
+ {id:'benchmarks',name:'Benchmarks',desc:'Measured against the CPU',tag:'benchmarks/',facts:[['Files','9 programs'],['GPU','<code>qm_gpu_bench</code>, <code>qm_gpu_vr_bench</code>, <code>qm_gpu_risk_bench</code>, <code>qm_gpu_exposure_bench</code>, <code>qm_gpu_table_bench</code>'],['AAD','<code>qm_xva_aad_bench</code>, <code>bench_aad_basket.cpp</code>'],['Built by','<code>QM_BUILD_BENCHMARKS</code>, <code>QM_BUILD_CLI</code>, <code>QM_ENABLE_CUDA</code>']],
+  label:'Benchmarks / time to a target error (example)',steps:['A fair comparison fixes the error, not the paths.','Faster here means less wall time for the same precision.'],draw(){
+  ['1 thread','8 threads','1 V100','2 V100'].forEach((s,i)=>{const y=90+i*84,g=d.g(i*.1);txt(g,40,y+26,s,{size:15,mono:1,anchor:'start',fill:SOFT});const r=el('rect',{x:180,y:y+6,height:30,rx:4,fill:i>1?LIME:'#66756b'},g),W=[420,150,40,26][i],tin=(.6+i*.1)*STEP;U.push(t=>r.setAttribute('width',W*ease((t-tin)/.7)))});d.pill('Same precision, less wall time',1.4)}}]}
+];
+
+/* Map: layers of the library, not hosts. Ids are map nodes; each opens a component. */
+const N={web:[40,100,140,64,'Front end','web/','web'],api:[40,220,140,64,'FastAPI','api/app','api'],bindings:[40,340,140,64,'pybind11','wheel','bindings'],data:[40,460,140,64,'Postgres','data-ingest','calibration'],
+ registry:[230,100,160,64,'Registry','42 pricers','registry'],adapter:[230,220,160,64,'Adapters','21 files','registry'],script:[230,340,160,64,'Script','to bytecode','language'],
+ instrument:[440,100,170,64,'Instrument','payoff','instruments'],model:[440,220,170,64,'Model','dynamics','models'],curves:[440,340,170,64,'Curves','rates, credit','curves'],calib:[440,460,170,64,'Calibration','surfaces','calibration'],
+ analytic:[660,100,125,64,'Analytic','','analytic'],trees:[795,100,125,64,'Trees','','trees'],pde:[930,100,125,64,'PDE','','pde'],
+ kernel:[660,220,190,64,'Dedicated MC','templated kernel','vanilla-mc'],generic:[865,220,190,64,'Generic MC','any product, model','generic-mc'],
+ sampling:[660,340,190,64,'Sampling','PCG32, Philox, Sobol','sampling'],aad:[865,340,190,64,'AAD','tape and adjoints','aad'],
+ gpu:[660,460,190,64,'Two GPUs','same bits as CPU','gpu'],xva:[865,460,190,64,'xVA','netting sets','xva']};
+const E={wa:[[110,164],[110,220]],ab:[[110,284],[110,340]],br:[[180,372],[205,372],[205,132],[230,132]],ra:[[310,164],[310,220]],ai:[[390,240],[415,240],[415,132],[440,132]],am:[[390,252],[440,252]],
+ ak:[[310,284],[310,316],[635,316],[635,252],[660,252]],ks:[[755,284],[755,340]],kg:[[660,270],[648,270],[648,492],[660,492]],bs:[[180,388],[230,388]],sg:[[310,404],[310,436],[857,436],[857,252],[865,252]],
+ ga:[[960,284],[960,340]],xa:[[960,460],[960,404]],dc:[[180,492],[440,492]],cc:[[525,460],[525,404]],cm:[[525,340],[525,284]]};
+const TRACE=[
+ ['Click any box to open it, or step through one price.',[],[]],
+ ['The workbench posts a vanilla request to /price/option/vanilla.',['web','api'],['wa']],
+ ['The API fills a VanillaBSInput and calls qm.price_vanilla_bs_mc.',['api','bindings'],['ab']],
+ ['The binding builds a PricingRequest and asks the default registry.',['bindings','registry'],['br']],
+ ['The key (vanilla, Black-Scholes, Monte Carlo) selects the adapter.',['registry','adapter'],['ra']],
+ ['The adapter builds the option and the model, knowing nothing about paths.',['adapter','instrument','model'],['ai','am']],
+ ['It hands them to the engine, which folds them into a flat kernel spec.',['adapter','kernel'],['ak']],
+ ['The kernel draws paths, and accumulates price and greeks on each one.',['kernel','sampling'],['ks']],
+ ['With device set to gpu, the same kernel runs on the cards instead.',['kernel','gpu'],['kg']],
+ ['A PricingResult returns as a dict: price, error, greeks, diagnostics.',['kernel','adapter','registry','bindings','api','web'],['ak','ra','br','ab','wa']]];
+
+const COMPS=VIEWS.flatMap(v=>v.rows.map(r=>({...r,view:v.id}))),ORDER=['map',...COMPS.map(c=>c.id)];
+const S={view:'map',id:'map',t:0,tour:false,last:0,steps:TRACE.map(s=>s[0]),paused:false};
+
+function drawMap(){
+ svg.setAttribute('viewBox','0 0 1100 600');
+ ZONES.forEach(({x,w,label,dashed})=>{el('rect',{x,y:48,width:w-10,height:510,rx:14,fill:dashed?'#0c1511':'#090f0c',stroke:'#1f2a24','stroke-dasharray':dashed?'6 5':''});txt(svg,x+14,34,label,{size:13,mono:1,fill:MUTE,anchor:'start',ls:'.14em'})});
+ const paths={};for(const k in E)paths[k]=el('path',{d:'M'+E[k].map(q=>q.join(' ')).join('L'),fill:'none',stroke:'#34443a','stroke-width':1.5});
+ const hot={};for(const k in E)hot[k]=el('path',{d:paths[k].getAttribute('d'),fill:'none',stroke:LIME,'stroke-width':2.4});
+ const lit={};
+ for(const k in N){const[x,y,w,h,a,b,to]=N[k],g=el('g');el('rect',{x,y,width:w,height:h,rx:11,fill:'#0b120e',stroke:LINE},g);txt(g,x+w/2,y+(b?h/2-3:h/2+6),a,{size:w<110?14:17,w:500});if(b)txt(g,x+w/2,y+h/2+18,b,{size:13,fill:MUTE,mono:b[0]===':'||b[0]==='/'});
+  lit[k]=el('rect',{x,y,width:w,height:h,rx:11,fill:'#c6f13518',stroke:LIME,'stroke-width':2,'pointer-events':'none'},g);link(g,to,a)}
+ const dot=[0,1,2,3].map(()=>el('circle',{r:5,fill:LIME}));
+ U.push(t=>{const s=Math.floor(t/STEP),[,ns,es]=TRACE[Math.min(s,TRACE.length-1)],since=t-s*STEP,p=ease(since/.35);
+  for(const k in lit)lit[k].style.opacity=ns.includes(k)?p:0;
+  for(const k in hot){const on=es.includes(k);hot[k].style.opacity=on?1:0}
+  dot.forEach((c,i)=>{const k=es[i];if(!k){c.style.opacity=0;return}const q=paths[k],L=q.getTotalLength(),pt=q.getPointAtLength(L*((since/1.4)%1));c.setAttribute('cx',pt.x);c.setAttribute('cy',pt.y);c.style.opacity=1})})
+}
+
+const C=$('#chip').getContext('2d');
+function chip(t){C.clearRect(0,0,400,270);const a=.72+.3*Math.sin(t*.42),e=.62,sc=.94;
+ const rot=([x,y,z])=>{const X=x*Math.cos(a)-y*Math.sin(a),Y=x*Math.sin(a)+y*Math.cos(a);return[X,Y*Math.cos(e)-z*Math.sin(e),Y*Math.sin(e)+z*Math.cos(e)]};
+ const face=(pts,c)=>{C.beginPath();pts.map(rot).forEach((p,i)=>{const x=200+p[0]*sc,y=132+p[1]*sc;i?C.lineTo(x,y):C.moveTo(x,y)});C.closePath();C.fillStyle=`rgb(${c.join(',')})`;C.fill();C.strokeStyle='rgba(0,0,0,.45)';C.stroke()};
+ const shade=(c,s)=>c.map(v=>Math.round(v*s));
+ const cub=(x0,y0,z0,x1,y1,z1,c)=>{for(const[n,pts,s]of[[[1,0,0],[[x1,y0,z0],[x1,y1,z0],[x1,y1,z1],[x1,y0,z1]],.55],[[-1,0,0],[[x0,y0,z0],[x0,y1,z0],[x0,y1,z1],[x0,y0,z1]],.3],[[0,1,0],[[x0,y1,z0],[x1,y1,z0],[x1,y1,z1],[x0,y1,z1]],.4],[[0,-1,0],[[x0,y0,z0],[x1,y0,z0],[x1,y0,z1],[x0,y0,z1]],.3]])if(rot(n)[2]>0)face(pts,shade(c,s));face([[x0,y0,z1],[x1,y0,z1],[x1,y1,z1],[x0,y1,z1]],c)};
+ cub(-105,-80,-34,105,80,-12,[122,126,118]);face([[-94,-68,-12],[94,-68,-12],[94,68,-12],[-94,68,-12]],[26,30,27]);
+ [...Array(8)].map((_,i)=>-92+i*25).sort((u,v)=>(u-v)*Math.sin(a)).forEach(x=>cub(x,-66,-12,x+16,66,18,[182,184,170]))}
+
+function seek(t){
+ for(const a of A){const p=ease((t-a.tin)/.42),s=a.e.style;s.opacity=t>=a.tin?p:0;s.transform=`translateY(${a.dy*(1-p)}px)`;const b=a.blur*(1-p);s.filter=b>.05&&t>=a.tin?`blur(${b}px)`:'none'}
+ U.forEach(f=>f(t));
+ const s=Math.min(Math.floor(t/STEP),S.steps.length-1);
+ if(s!==S.shown){S.shown=s;const m=S.id==='map';$('#cap').innerHTML=`<b>${m?s:s+1}/${m?S.steps.length-1:S.steps.length}</b>`+S.steps[s];[...$('#dots').children].forEach((b,i)=>i===s?b.setAttribute('aria-current','true'):b.removeAttribute('aria-current'))}
+ const i=ORDER.indexOf(S.id);$('#prog').style.width=100*(i+(s+1)/S.steps.length)/ORDER.length+'%'}
+
+function renderList(v){
+ $('#list').replaceChildren(...v.rows.map((r,i)=>{const b=document.createElement('button');b.className='row';b.dataset.id=r.id;const on=r.id===S.id;b.setAttribute('aria-expanded',on);
+  b.innerHTML=`<i>${String(i+1).padStart(2,'0')}</i><h3>${r.name}</h3><p>${r.desc}</p><u${r.status?' style="color:var(--warn)"':''}>${r.status??r.tag}</u>`+(on?`<dl class="more">${(r.facts||[]).filter(([,w])=>w!=null).map(([k,w])=>`<dt>${k}</dt><dd>${w}</dd>`).join('')}${r.chips?`<div class="chips">${r.chips.map(c=>`<span>${c}</span>`).join('')}</div>`:''}${r.flag?`<div class="flag"><span>${r.flag}</span></div>`:''}</dl>`:'');
+  b.onclick=()=>open(r.id);return b}))}
+
+function open(id,keepTour){
+ const c=COMPS.find(x=>x.id===id),view=c?VIEWS.find(v=>v.id===c.view):null;
+ if(!keepTour)S.tour=false;S.id=id;S.view=c?c.view:'map';S.t=0;S.shown=-1;S.paused=false;S.hold=0;A=[];U=[];svg.replaceChildren();
+ $('#cols').classList.toggle('is-map',!c);
+ [...$('#tabs').children].forEach(b=>{const on=b.dataset.view===S.view;b.setAttribute('aria-selected',on);if(on)$('#tabs').scrollLeft=b.offsetLeft-16});
+ if(c){svg.setAttribute('viewBox','0 0 650 520');S.steps=c.steps;$('#sec').textContent=`${String(VIEWS.indexOf(view)+1).padStart(2,'0')} / ${view.name}`;$('#sub').textContent=view.sub;$('#plabel').textContent=c.label;renderList(view);c.draw()}
+ else{S.steps=TRACE.map(s=>s[0]);$('#sub').textContent=META.mapSub;$('#plabel').textContent=META.mapLabel;drawMap()}
+ const dots=$('#dots');dots.replaceChildren(...S.steps.map((_,i)=>{const b=document.createElement('button');b.className='dot';b.textContent=c?i+1:i;b.setAttribute('aria-label','Go to step '+(c?i+1:i));b.onclick=()=>{S.tour=false;S.paused=true;S.t=c?(i+1)*STEP-.02:i*STEP+.001;seek(S.t);syncPlay()};return b}));
+ try{history.replaceState(null,'','#'+id)}catch{}
+ if(!c)S.paused=!S.tour;
+ if(still)S.t=c?S.steps.length*STEP-.01:0;
+ seek(S.t);syncPlay()}
+
+function syncPlay(){$('#play').textContent=S.tour?'Pause tour':'Play tour'}
+function step(d){const i=(ORDER.indexOf(S.id)+d+ORDER.length)%ORDER.length;open(ORDER[i])}
+function frame(now){const dt=Math.min(.1,(now-S.last)/1000||0);S.last=now;if(META.hardware)chip(now/1000);
+ if(!S.paused){const end=S.steps.length*STEP-.01;
+  if(S.t<end){S.t=Math.min(end,S.t+dt);seek(S.t)}
+  else if(S.tour&&(!still||(S.hold+=dt)>4)){const i=ORDER.indexOf(S.id);i<ORDER.length-1?open(ORDER[i+1],true):(S.tour=false,syncPlay())}}
+ else if(S.id==='map'&&S.shown>0&&!still){const b=S.shown*STEP;S.t=b+((S.t-b+dt)%(STEP-.01));seek(S.t)}
+ requestAnimationFrame(frame)}
+
+$('#tabs').replaceChildren(...[{id:'map',name:META.mapTab??'System map'},...VIEWS].map((v,i)=>{const b=document.createElement('button');b.className='tab';b.dataset.view=v.id;b.setAttribute('role','tab');b.innerHTML=`<b>0${i}</b>${v.name}`;b.onclick=()=>open(v.id==='map'?'map':v.rows[0].id);return b}));
+$('#prev').onclick=()=>step(-1);$('#next').onclick=()=>step(1);
+$('#play').onclick=()=>{S.tour=!S.tour;if(S.tour)S.paused=false;else if(S.id==='map')S.paused=true;syncPlay()};
+addEventListener('keydown',e=>{if(e.target.closest('button,.go'))return;if(e.key==='ArrowRight')step(1);if(e.key==='ArrowLeft')step(-1)});
+addEventListener('hashchange',()=>{const id=location.hash.slice(1);if(id!==S.id&&ORDER.includes(id))open(id)});
+$('#home').href=`${ROOT}/index.html`;$('#brand').textContent='\u25C6\u00A0 '+META.name;$('#stamp').textContent=`Explorer / snapshot ${META.snapshot} / ${META.commit}`;$('#foot').textContent=META.footer;
+$('#title').innerHTML=`${META.name}<em>${META.accent}</em>`;
+if(META.hardware){$('#gpu').hidden=false;$('#hwname').textContent=META.hardware.name;$('#hwsub').textContent=META.hardware.sub;chip(0)}
+const h=location.hash.slice(1);open(ORDER.includes(h)?h:'map');requestAnimationFrame(frame);
+
+</script></body></html>

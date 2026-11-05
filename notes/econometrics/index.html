@@ -1,0 +1,1241 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Econometrics Cheat Sheet</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&family=Space+Grotesk:wght@400;500;600&family=STIX+Two+Text:ital,wght@0,400;1,400&display=swap">
+<style>
+/* Layout: a long reference page. A sticky table of contents on wide screens, a decision tree on top, then reference cards. Single dark theme, as Atlas. */
+:root{color-scheme:dark;--bg:#060a0b;--panel:#080d0b;--card:#0a100d;--ink:#eef2ee;--soft:#b9c1ba;--mute:#8d968f;--dim:#5b655e;--line:#1f2a24;--line2:#2c3a30;--lime:#c6f135;--olive:#1d2a12;--violet:#8c7dff;--warn:#f2b84b;--coral:#ff7b6b;--cyan:#5ad1d8;
+--display:"Space Grotesk",ui-sans-serif,system-ui,sans-serif;--mono:"JetBrains Mono",ui-monospace,SFMono-Regular,Menlo,monospace;--math:"STIX Two Text","STIX Two Math","Cambria Math","Latin Modern Roman",Georgia,serif}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;scroll-padding-top:16px}
+body{margin:0;background:radial-gradient(1100px 700px at 62% 20%,#0d1610 0%,transparent 70%),var(--bg);background-color:var(--bg);background-attachment:fixed;color:var(--ink);font-family:var(--display);font-size:15px;line-height:1.55}
+button{font:inherit;color:inherit;background:none;border:0;cursor:pointer;text-align:left}
+a{color:var(--lime)}
+:focus-visible{outline:2px solid var(--lime);outline-offset:2px}
+.app{max-width:1500px;margin:0 auto;padding:22px max(16px,env(safe-area-inset-right,0px)) 60px max(16px,env(safe-area-inset-left,0px))}
+@media(min-width:900px){.app{padding-left:44px;padding-right:44px}}
+.mono{font-family:var(--mono);text-transform:uppercase;letter-spacing:.2em;font-size:11px;color:var(--mute)}
+.top{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;align-items:center;padding-bottom:12px;border-bottom:1px solid var(--line)}
+.home{color:var(--lime);text-decoration:none;padding:4px 10px;margin-left:-10px;border-radius:8px}.home:hover{background:var(--olive)}
+.head{margin:26px 0 8px}
+.head h1{margin:0;font-size:clamp(30px,4vw,50px);font-weight:500;letter-spacing:-.02em;line-height:1.1}
+.head h1 em{font-style:normal;color:var(--lime)}
+.head p{margin:10px 0 0;color:var(--soft);max-width:900px;font-size:clamp(15px,1.3vw,18px)}
+.layout{display:grid;grid-template-columns:minmax(0,1fr);gap:28px;margin-top:20px}
+@media(min-width:1100px){.layout{grid-template-columns:230px minmax(0,1fr)}}
+.toc{display:none}
+@media(min-width:1100px){.toc{display:flex;flex-direction:column;gap:2px;position:sticky;top:16px;align-self:start;max-height:calc(100vh - 32px);overflow:auto;padding-right:14px;border-right:1px solid var(--line)}}
+.toc a{color:var(--mute);text-decoration:none;font-size:14px;padding:4px 10px;border-radius:8px}
+.toc a:hover,.toc a.on{color:var(--ink);background:#0e1611}
+.toc a b{font:500 10px var(--mono);color:var(--lime);margin-right:8px}
+.mtoc{display:flex;flex-wrap:wrap;gap:6px}
+@media(min-width:1100px){.mtoc{display:none}}
+.mtoc a{font:400 11px var(--mono);color:var(--soft);text-decoration:none;border:1px solid var(--line2);border-radius:7px;padding:3px 8px}
+.search{display:flex;gap:10px;align-items:center;margin:16px 0 0;flex-wrap:wrap}
+.search input{flex:1;min-width:0;max-width:520px;height:38px;border-radius:10px;border:1px solid var(--line2);background:var(--card);color:var(--ink);padding:0 14px;font:400 14px var(--display)}
+.search input:focus{border-color:var(--lime);outline:none}
+main{min-width:0}
+section{margin:0 0 46px}
+section>h2{font-size:clamp(22px,2.2vw,30px);font-weight:500;margin:0 0 6px;letter-spacing:-.01em;display:flex;gap:14px;align-items:baseline;flex-wrap:wrap}
+section>h2 b{font:500 12px var(--mono);color:var(--lime)}
+section>p.lead{color:var(--soft);margin:0 0 16px;max-width:950px}
+h3{font-size:17px;font-weight:500;margin:22px 0 8px;color:var(--ink)}
+h3 small{font:400 11px var(--mono);color:var(--mute);margin-left:8px;letter-spacing:.06em}
+p{margin:0 0 10px}
+.soft{color:var(--soft)}.muted{color:var(--mute)}
+ul,ol{margin:0 0 10px;padding-left:22px}
+li{margin:3px 0}
+li::marker{color:var(--dim)}
+code{font:400 .9em var(--mono);color:var(--ink)}
+/* Formulas: a math serif, single-letter variables in italics, real subscripts and superscripts (see mathify in js/page.js). */
+.f{font:400 1.08em/1.3 var(--math);color:#e6f7b0;white-space:nowrap}
+.f i,.k i{font-style:italic}
+.acc{position:relative;display:inline-block}.acc::after{content:attr(data-a);position:absolute;left:0;right:0;top:-.28em;text-align:center;font-style:normal;padding-left:.12em}.acc.tall::after{top:-.4em}
+sub,sup{font-size:.7em;line-height:0}
+sub{vertical-align:-.3em}sup{vertical-align:.5em}
+.ss{display:inline-flex;flex-direction:column;vertical-align:.55em;font-size:.7em;line-height:1.05;margin:0 .1em}.ss sub,.ss sup{font-size:1em;vertical-align:0;line-height:1.05}
+td .f,li .f,p .f{white-space:normal}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,360px),1fr));gap:14px}
+.card{border:1px solid var(--line2);border-radius:14px;background:var(--card);padding:14px 18px}
+.card h4{margin:0 0 6px;font-size:15px;font-weight:600}
+.card p:last-child,.card ul:last-child,.card ol:last-child{margin-bottom:0}
+.k{display:block;margin:8px 0;padding:9px 14px;border-left:2px solid var(--lime);background:#0d150f;border-radius:0 8px 8px 0;font:400 17px/1.75 var(--math);color:#e6f7b0;overflow-x:auto;white-space:pre-wrap;overflow-wrap:anywhere}
+.warn{border-left:2px solid var(--warn);background:#17130a;padding:9px 14px;border-radius:0 8px 8px 0;margin:10px 0;color:#f3dfb6}
+.warn b{color:var(--warn)}
+.tip{border-left:2px solid var(--cyan);background:#0a1416;padding:9px 14px;border-radius:0 8px 8px 0;margin:10px 0;color:#c8eef0}
+.tip b{color:var(--cyan)}
+.tw{overflow-x:auto;border:1px solid var(--line);border-radius:12px;margin:8px 0 14px}
+table{border-collapse:collapse;width:100%;font-size:13.5px;min-width:640px}
+th{font:500 10.5px var(--mono);text-transform:uppercase;letter-spacing:.08em;color:var(--mute);text-align:left;padding:9px 12px;background:#0b120e;border-bottom:1px solid var(--line2);position:sticky;top:0}
+td{padding:8px 12px;border-bottom:1px solid var(--line);vertical-align:top;color:var(--soft)}
+td:first-child{color:var(--ink)}
+tr:last-child td{border-bottom:0}
+tr.hide{display:none}
+.tag{display:inline-block;font:400 10.5px var(--mono);padding:1px 7px;border-radius:6px;background:#141c15;color:var(--soft);margin:1px 2px 1px 0;white-space:nowrap}
+.tag.ok{background:#1d2a12;color:var(--lime)}.tag.no{background:#2a1512;color:var(--coral)}.tag.mid{background:#2a2210;color:var(--warn)}
+pre{margin:8px 0 14px;padding:12px 14px;background:#050807;border:1px solid var(--line);border-radius:10px;overflow-x:auto;font:400 12.5px/1.6 var(--mono);color:#d7ded8}
+pre .c{color:var(--dim)}
+/* Decision tree */
+.tree{border:1px solid var(--line2);border-radius:16px;background:var(--panel);padding:18px}
+.crumbs{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-bottom:14px}
+.crumbs button{font:400 11px var(--mono);color:var(--soft);border:1px solid var(--line2);border-radius:7px;padding:3px 8px}
+.crumbs button:hover{color:var(--ink);border-color:var(--lime)}
+.crumbs span{color:var(--dim);font-size:11px}
+.node h3{margin:0 0 8px;font-size:clamp(18px,1.8vw,23px)}
+.node .kind{font:500 10.5px var(--mono);letter-spacing:.14em;text-transform:uppercase;color:var(--lime);margin-bottom:6px}
+.node .kind.leaf{color:var(--cyan)}
+.opts{display:flex;flex-direction:column;gap:8px;margin-top:14px}
+.opts button{border:1px solid var(--line2);border-radius:12px;padding:11px 16px;background:var(--card);transition:border-color .15s,background .15s}
+.opts button:hover{border-color:var(--lime);background:#101a10}
+.opts button b{color:var(--lime);font-family:var(--mono);font-weight:400;margin-right:10px}
+.opts button small{display:block;color:var(--mute);font-size:13px;margin-top:2px}
+.see{margin-top:12px;display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.see a{font:400 11px var(--mono);border:1px solid var(--line2);border-radius:7px;padding:3px 8px;text-decoration:none}
+.tbar{display:flex;gap:8px;flex-wrap:wrap;margin-top:16px;padding-top:14px;border-top:1px solid var(--line)}
+.tbar button{height:30px;padding:0 12px;border-radius:8px;border:1px solid var(--line2);font:400 11px var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--soft)}
+.tbar button:hover{color:var(--ink)}
+.tbar button[aria-pressed=true]{border-color:var(--lime);color:var(--lime);background:var(--olive)}
+.outline{margin-top:14px;font-size:14px}
+.outline ul{list-style:none;padding-left:18px;margin:0;border-left:1px dashed var(--line2)}
+.outline>ul{padding-left:0;border:0}
+.outline li{margin:5px 0}
+.outline .q{color:var(--ink)}
+.outline .a{font:400 11px var(--mono);color:var(--lime);margin-right:6px}
+.outline .l{color:var(--cyan)}
+.outline .back{color:var(--dim);font-style:italic}
+.outline button.go{font:400 10px var(--mono);color:var(--mute);border:1px solid var(--line2);border-radius:6px;padding:0 6px;margin-left:6px}
+footer{margin-top:40px;padding-top:14px;border-top:1px solid var(--line);color:var(--mute);font-size:13px}
+mark{background:#3a4a12;color:var(--ink);border-radius:3px}
+</style>
+</head><body>
+
+<div class="app">
+ <div class="top">
+  <a class="mono home" href="../../index.html">&larr; Atlas</a>
+  <span class="mono">Study guide · Wooldridge &amp; Tsay</span>
+ </div>
+ <div class="head">
+  <h1>Studying a linear model<em>.</em></h1>
+  <p>A decision tree and a reference sheet for cross-section, panel and time-series regressions: the assumptions, the tests that check them, the tests on the parameters, when to go robust, and what to do when a test rejects. Built from Wooldridge, <i>Introductory Econometrics</i>, and Tsay, <i>Analysis of Financial Time Series</i>.</p>
+ </div>
+ <nav class="mtoc" id="mtoc" aria-label="Sections"></nav>
+ <div class="search"><input id="q" type="search" placeholder="Filter the tables: a test, an assumption, a symptom (e.g. White, serial, unit root)" aria-label="Filter the tables"><span class="mono" id="qn"></span></div>
+ <div class="layout">
+  <nav class="toc" id="toc" aria-label="Sections"></nav>
+  <main id="main">
+<section id="tree"><h2><b></b>Decision tree</h2>
+<p class="lead">Answer each question and follow the branch. Each node says which test to run, its null hypothesis, and what to do with the result; the links lead to the reference sections below. "Show the whole tree" prints every branch at once.</p>
+<div class="tree">
+ <div class="crumbs" id="tcrumbs"></div>
+ <div class="node" id="tnode" aria-live="polite"></div>
+ <div class="tbar"><button id="tback">Back</button><button id="trestart">Restart</button><button id="tall" aria-pressed="false">Show the whole tree</button></div>
+ <div class="outline" id="toutline" hidden></div>
+</div>
+</section>
+
+<section id="workflow"><h2><b></b>The workflow in one page</h2>
+<p class="lead">The order matters: a test on the variance is meaningless if the mean is wrong, and a t test is meaningless if its standard error is wrong. Specification first, then exogeneity, then the second moments, then inference.</p>
+<div class="grid">
+ <div class="card"><h4>1 · Before estimating</h4><ol>
+  <li>State the question: causal effect (ceteris paribus) or prediction? Only the first needs E(u|x) = 0.</li>
+  <li>Write the population model and the sign you expect for each β.</li>
+  <li>Look at the data: summary statistics, histograms (logs for skewed positive variables), scatter plots, missing values, outliers, units.</li>
+  <li>Time series: plot every series, check stationarity (ADF + KPSS), seasonality, breaks.</li></ol></div>
+ <div class="card"><h4>2 · Estimate and check the mean</h4><ol start="5">
+  <li>OLS. Check signs, magnitudes, R², the number of observations actually used.</li>
+  <li>Functional form: residual plots, RESET, logs, quadratics, interactions.</li>
+  <li>Exogeneity: omitted variables, measurement error, simultaneity. Proxy, panel or IV if needed.</li>
+  <li>Time series: strict or contemporaneous exogeneity, dynamics, cointegration.</li></ol></div>
+ <div class="card"><h4>3 · Check the second moments</h4><ol start="9">
+  <li>Heteroskedasticity: Breusch–Pagan, White. ARCH LM in time series.</li>
+  <li>Serial correlation (time series, panel): Breusch–Godfrey, Ljung–Box on residuals.</li>
+  <li>Choose the variance estimator: usual, HC, HAC, clustered. Or FGLS / WLS for efficiency.</li></ol></div>
+ <div class="card"><h4>4 · Infer and report</h4><ol start="12">
+  <li>t tests, confidence intervals, F / Wald / LM for joint hypotheses, using the chosen variance.</li>
+  <li>Stability: Chow, sup-F, CUSUM; sub-samples.</li>
+  <li>Robustness: alternative specifications, samples, estimators. Report the ones that disagree.</li>
+  <li>Interpret magnitudes in the units of y, with the functional form in mind.</li></ol></div>
+</div>
+</section>
+
+<section id="assumptions"><h2><b></b>Assumptions and what they buy</h2>
+<p class="lead">Each property of OLS rests on a specific set of assumptions. Knowing which one fails tells you what is lost: bias, efficiency, or only the standard errors.</p>
+<h3>Cross-section <small>W ch. 2–5</small></h3>
+<div class="tw"><table>
+<tr><th>Assumption</th><th>Statement</th><th>If it fails</th><th>Check</th></tr>
+<tr><td>MLR.1 Linear in parameters</td><td><span class="f">y = β₀ + β₁x₁ + … + β_k x_k + u</span>; x can be any function of the data (logs, squares).</td><td>Misspecification: biased β̂ for the effect you want.</td><td>Residual plots, RESET, nonlinear terms</td></tr>
+<tr><td>MLR.2 Random sampling</td><td>(xᵢ, yᵢ) i.i.d. from the population.</td><td>Sample selection bias (if selection depends on y or u); clustering → wrong SE.</td><td>Design of the data; Heckman for selection; clustered SE</td></tr>
+<tr><td>MLR.3 No perfect collinearity</td><td>No regressor is an exact linear combination of others; no constant regressor.</td><td>β̂ not defined (software drops a variable). Near-collinearity only inflates variances.</td><td>Dummy trap; VIF, condition number</td></tr>
+<tr><td>MLR.4 Zero conditional mean</td><td><span class="f">E(u | x₁, …, x_k) = 0</span></td><td><b>Biased and inconsistent</b> β̂: omitted variables, measurement error in x, simultaneity, wrong functional form.</td><td>Not testable from OLS residuals; RESET, Hausman with an instrument, reasoning</td></tr>
+<tr><td>MLR.5 Homoskedasticity</td><td><span class="f">Var(u | x) = σ²</span></td><td>β̂ still unbiased and consistent; the usual SE, t and F are <b>wrong</b>; OLS no longer BLUE.</td><td>Breusch–Pagan, White</td></tr>
+<tr><td>MLR.6 Normality</td><td><span class="f">u ~ N(0, σ²)</span>, independent of x</td><td>t and F only approximately valid (fine in large samples).</td><td>QQ plot, Jarque–Bera</td></tr>
+</table></div>
+<div class="grid">
+ <div class="card"><h4>What each set gives</h4><ul>
+  <li><b>MLR.1–4:</b> OLS is unbiased, <span class="f">E(β̂) = β</span>.</li>
+  <li><b>MLR.1–5 (Gauss–Markov):</b> OLS is BLUE, and <span class="f">Var(β̂_j) = σ² / [SST_j(1 − R_j²)]</span> is valid.</li>
+  <li><b>MLR.1–6 (classical linear model):</b> t and F have exact t and F distributions.</li></ul></div>
+ <div class="card"><h4>Large samples <small>W ch. 5</small></h4><ul>
+  <li>Consistency needs only <span class="f">E(u) = 0</span> and <span class="f">Cov(x_j, u) = 0</span> (MLR.4′), weaker than MLR.4.</li>
+  <li>Under MLR.1–5, β̂ is asymptotically normal: t and F are approximately valid without normality.</li>
+  <li>Inconsistency with one regressor: <span class="f">plim β̂₁ − β₁ = Cov(x₁, u) / Var(x₁)</span>.</li></ul></div>
+</div>
+<h3>Time series <small>W ch. 10–11</small></h3>
+<div class="tw"><table>
+<tr><th>Finite sample</th><th>Statement</th><th>Large-sample version</th><th>Statement</th></tr>
+<tr><td>TS.1 Linear in parameters</td><td>The process {(x_t, y_t)} follows a linear model.</td><td>TS.1′ Linear, stationary, weakly dependent</td><td>Plus stationarity and weak dependence (Corr(x_t, x_{t+h}) → 0 fast enough).</td></tr>
+<tr><td>TS.2 No perfect collinearity</td><td>As MLR.3.</td><td>TS.2′</td><td>Same.</td></tr>
+<tr><td>TS.3 Strict exogeneity</td><td><span class="f">E(u_t | X) = 0</span> for all t: u_t unrelated to past, present and future x.</td><td>TS.3′ Contemporaneous exogeneity</td><td><span class="f">E(u_t | x_t) = 0</span>. Allows feedback and lagged y.</td></tr>
+<tr><td>TS.4 Homoskedasticity</td><td><span class="f">Var(u_t | X) = σ²</span></td><td>TS.4′</td><td><span class="f">Var(u_t | x_t) = σ²</span></td></tr>
+<tr><td>TS.5 No serial correlation</td><td><span class="f">Corr(u_t, u_s | X) = 0</span>, t ≠ s</td><td>TS.5′</td><td><span class="f">E(u_t u_s | x_t, x_s) = 0</span></td></tr>
+<tr><td>TS.6 Normality</td><td>u_t i.i.d. N(0, σ²), independent of X</td><td>—</td><td>Not needed asymptotically.</td></tr>
+</table></div>
+<div class="grid">
+ <div class="card"><h4>What each set gives</h4><ul>
+  <li><b>TS.1–3:</b> unbiased. <b>TS.1–5:</b> BLUE, usual variance. <b>TS.1–6:</b> exact t and F.</li>
+  <li><b>TS.1′–3′:</b> consistent. <b>TS.1′–5′:</b> asymptotically normal, usual inference valid asymptotically.</li></ul></div>
+ <div class="card"><h4>Traps specific to time series</h4><ul>
+  <li>A lagged dependent variable always breaks strict exogeneity: OLS is biased in small samples but consistent under TS.3′.</li>
+  <li>Highly persistent (unit-root) series break TS.1′: the usual asymptotics fail.</li>
+  <li>Strict exogeneity is needed for FGLS corrections of serial correlation; HAC needs only TS.3′.</li></ul></div>
+</div>
+</section>
+
+<section id="diagnostics"><h2><b></b>Diagnostic tests</h2>
+<p class="lead">Every test of an assumption, with its null hypothesis and what to do when it rejects. The filter box at the top narrows this table (try "serial", "variance", "unit root").</p>
+<div class="tw"><table>
+<tr><th>Test</th><th>Checks</th><th>H0</th><th>How</th><th>Statistic</th><th>If rejected</th></tr>
+<tr><td>RESET (Ramsey)</td><td>Functional form</td><td>Correct form</td><td>Add ŷ², ŷ³; joint test</td><td>F(2, n−k−3)</td><td>Logs, quadratics, interactions</td></tr>
+<tr><td>Davidson–MacKinnon</td><td>Non-nested models</td><td>Model 1 is correct</td><td>Add the fitted values of model 2 to model 1; t test</td><td>t</td><td>Prefer the other model; both may be rejected</td></tr>
+<tr><td>Breusch–Pagan</td><td>Heteroskedasticity linear in x</td><td>Var(u|x) = σ²</td><td>û² on x₁ … x_k</td><td>F, or LM = n·R² ~ χ²_k</td><td>Robust SE, or WLS / FGLS</td></tr>
+<tr><td>White</td><td>Heteroskedasticity of any form</td><td>Var(u|x) = σ²</td><td>û² on x, squares, cross products; special form: û² on ŷ, ŷ²</td><td>LM = n·R² ~ χ²_q (q = 2 in the special form)</td><td>Robust SE, or WLS / FGLS. Also rejects if the mean is misspecified</td></tr>
+<tr><td>Goldfeld–Quandt</td><td>Variance rising with one variable</td><td>Equal variances</td><td>Sort by x, drop the middle, compare SSR of the two ends</td><td>F</td><td>WLS with weights in that variable</td></tr>
+<tr><td>Jarque–Bera</td><td>Normality of errors</td><td>Skewness 0, kurtosis 3</td><td>From residual moments</td><td>JB = n[S²/6 + (K−3)²/24] ~ χ²₂</td><td>Rely on asymptotics; bootstrap in small samples. Returns always reject</td></tr>
+<tr><td>Shapiro–Wilk</td><td>Normality, small samples</td><td>Normal</td><td>Order statistics</td><td>W</td><td>As above</td></tr>
+<tr><td>VIF</td><td>Multicollinearity (not a test)</td><td>—</td><td>VIF_j = 1/(1 − R_j²)</td><td>&gt; 10 is the usual alarm</td><td>Nothing if the coefficient of interest is precise; more data; drop or combine controls</td></tr>
+<tr><td>Durbin–Watson</td><td>AR(1) serial correlation</td><td>ρ = 0</td><td>From residuals; needs strict exogeneity, no lagged y, normal errors</td><td>d ≈ 2(1 − ρ̂); bounds d_L, d_U</td><td>FGLS, HAC, add dynamics</td></tr>
+<tr><td>Durbin's h / alternative</td><td>AR(1) with lagged y</td><td>ρ = 0</td><td>û_t on x_t and û_{t−1}; t test</td><td>t (robust)</td><td>Add lags; OLS is inconsistent otherwise</td></tr>
+<tr><td>Breusch–Godfrey</td><td>AR(q) serial correlation</td><td>ρ₁ = … = ρ_q = 0</td><td>û_t on all x and û_{t−1} … û_{t−q}</td><td>F, or LM = (n−q)R² ~ χ²_q</td><td>HAC, FGLS (strict exog.), or a dynamically complete model</td></tr>
+<tr><td>Ljung–Box / Box–Pierce</td><td>Serial correlation of a series or residuals</td><td>ρ₁ = … = ρ_m = 0</td><td>Sample ACF up to lag m</td><td>Q(m) ~ χ²_m; χ²_{m−p−q} on ARMA residuals</td><td>Model the dependence (ARMA)</td></tr>
+<tr><td>McLeod–Li</td><td>ARCH effects</td><td>No ARCH</td><td>Ljung–Box on squared residuals</td><td>Q(m) ~ χ²_m</td><td>GARCH-type model, or robust SE</td></tr>
+<tr><td>Engle ARCH LM</td><td>ARCH(m)</td><td>No ARCH</td><td>â_t² on â²_{t−1} … â²_{t−m}</td><td>F, or T·R² ~ χ²_m</td><td>GARCH-type model</td></tr>
+<tr><td>Sign bias (Engle–Ng)</td><td>Asymmetric volatility</td><td>Symmetric response</td><td>ã_t² on dummy(a_{t−1} &lt; 0) and its interactions with a_{t−1}</td><td>t, F</td><td>GJR / TGARCH, EGARCH</td></tr>
+<tr><td>ADF (augmented Dickey–Fuller)</td><td>Unit root</td><td>Unit root (β = 0)</td><td>Δx_t on x_{t−1}, lags of Δx, constant (and trend)</td><td>t on x_{t−1}, Dickey–Fuller critical values</td><td>Not rejecting: difference, or test cointegration</td></tr>
+<tr><td>Phillips–Perron</td><td>Unit root</td><td>Unit root</td><td>DF regression with a nonparametric correction for serial correlation</td><td>Z_t, DF critical values</td><td>As ADF</td></tr>
+<tr><td>KPSS</td><td>Stationarity</td><td><b>Stationary</b></td><td>Partial sums of residuals from a level (or trend)</td><td>LM, KPSS critical values</td><td>Unit root likely; combine with ADF</td></tr>
+<tr><td>Zivot–Andrews</td><td>Unit root with one break</td><td>Unit root, no break</td><td>ADF with a break at the date that minimises t</td><td>min t, ZA critical values</td><td>Stationary around a broken trend</td></tr>
+<tr><td>Engle–Granger</td><td>Cointegration (one relation)</td><td>No cointegration</td><td>ADF on the residuals of the levels regression</td><td>t, EG critical values (stricter than ADF)</td><td>Rejecting = cointegrated: ECM</td></tr>
+<tr><td>Johansen trace / max-eigenvalue</td><td>Cointegration rank</td><td>Rank ≤ r</td><td>Reduced-rank VAR</td><td>LR, Johansen tables</td><td>VECM with the chosen rank</td></tr>
+<tr><td>Strict exogeneity test</td><td>Feedback from y to x</td><td>Strict exogeneity</td><td>Add x_{t+1}; t or F test</td><td>t, F</td><td>No FGLS; OLS + HAC, or model the feedback</td></tr>
+<tr><td>Chow</td><td>Same coefficients in two groups or periods</td><td>No break</td><td>Pooled vs separate regressions, or dummy interactions</td><td>F = [(SSR_P − SSR₁ − SSR₂)/(k+1)] / [(SSR₁+SSR₂)/(n−2(k+1))]</td><td>Separate models, interactions; needs homoskedasticity (else robust Wald)</td></tr>
+<tr><td>Quandt–Andrews (sup-F)</td><td>Break at an unknown date</td><td>No break</td><td>Max of Chow F over trimmed dates (15 %–85 %)</td><td>sup-F, Andrews critical values</td><td>Split at the estimated date; Bai–Perron for several</td></tr>
+<tr><td>CUSUM / CUSUM-SQ</td><td>Gradual instability</td><td>Stable coefficients / variance</td><td>Cumulated recursive residuals</td><td>Crossing of the bands</td><td>Rolling or time-varying parameters</td></tr>
+<tr><td>Hausman (regression form)</td><td>Endogeneity of x</td><td>x exogenous</td><td>Add first-stage residual v̂ to the structural equation</td><td>t (robust), F for several</td><td>2SLS</td></tr>
+<tr><td>First-stage F</td><td>Instrument relevance</td><td>Instruments irrelevant</td><td>Endogenous x on z and exogenous x</td><td>F (robust); &gt; 10 rule, Stock–Yogo</td><td>Weak-IV robust inference, better instruments</td></tr>
+<tr><td>Sargan / Hansen J</td><td>Overidentifying restrictions</td><td>All instruments exogenous</td><td>2SLS residuals on all exogenous variables</td><td>n·R² ~ χ²_q, q = #IV − #endog.</td><td>At least one instrument invalid</td></tr>
+<tr><td>Hausman FE vs RE</td><td>aᵢ correlated with x</td><td>RE consistent</td><td>Compare β̂_FE and β̂_RE</td><td>χ²_k</td><td>Fixed effects</td></tr>
+<tr><td>Breusch–Pagan LM (panel)</td><td>Unobserved effect present</td><td>σ²_a = 0</td><td>From pooled OLS residuals</td><td>χ²₁</td><td>RE (or FE) instead of pooled OLS</td></tr>
+<tr><td>Granger causality</td><td>Lags of x predict y</td><td>No Granger causality</td><td>Exclusion test on lags of x in the y equation</td><td>F, Wald</td><td>x helps forecast y (not causation)</td></tr>
+<tr><td>Diebold–Mariano</td><td>Equal forecast accuracy</td><td>Equal expected loss</td><td>Mean loss differential, HAC variance</td><td>≈ N(0,1)</td><td>One model forecasts better</td></tr>
+</table></div>
+<div class="warn"><b>Reading a test.</b> Not rejecting H0 is not evidence that H0 is true, only that the data cannot tell. Tests of assumptions have low power in small samples and reject trivial departures in huge ones: look at the size of the problem (plots, how much the standard errors change), not just the p-value.</div>
+</section>
+
+<section id="inference"><h2><b></b>Testing the parameters</h2>
+<p class="lead">Once the mean and the variance estimator are settled. Every formula below has a robust counterpart (next section); the SSR and R² forms are valid only under homoskedasticity.</p>
+<div class="grid">
+ <div class="card"><h4>One coefficient: the t test <small>W ch. 4</small></h4>
+  <span class="k">t = (β̂_j − a_j) / se(β̂_j)   ~ t(n−k−1)</span>
+  <ul><li>Two-sided H1: reject if |t| &gt; c, c = 1.96 at 5 % in large samples.</li>
+  <li>One-sided H1 (β_j &gt; 0): c = 1.645 at 5 %; only if the sign was set before seeing the data.</li>
+  <li>p-value: the smallest level at which H0 is rejected.</li>
+  <li>Confidence interval: <span class="f">β̂_j ± c · se(β̂_j)</span>; it contains every a_j that a two-sided test would not reject.</li></ul></div>
+ <div class="card"><h4>A linear combination</h4>
+  <p>H0: β₁ = β₂. Either compute <span class="f">se(β̂₁ − β̂₂) = √[se₁² + se₂² − 2·Cov(β̂₁, β̂₂)]</span>, or reparametrise:</p>
+  <span class="k">θ = β₁ − β₂  ⇒  y = β₀ + θx₁ + β₂(x₁ + x₂) + … + u</span>
+  <p>and read the t test of θ directly. Same trick for a long-run propensity (sum of lag coefficients) or a predicted value at given x (centre the regressors at those values: the intercept is the prediction).</p></div>
+ <div class="card"><h4>Several restrictions: the F test</h4>
+  <span class="k">F = [(SSR_r − SSR_ur)/q] / [SSR_ur/(n−k−1)]   ~ F(q, n−k−1)</span>
+  <span class="k">F = [(R²_ur − R²_r)/q] / [(1 − R²_ur)/(n−k−1)]</span>
+  <ul><li>q = number of restrictions. The R² form needs the same dependent variable in both models.</li>
+  <li>Overall significance: <span class="f">F = [R²/k] / [(1−R²)/(n−k−1)]</span>.</li>
+  <li>Variables can be jointly significant while each t is small (collinearity), and the reverse.</li>
+  <li>General linear restrictions (β₁ = 1, β₂ = 0): impose them, transform y, and compare SSR.</li></ul></div>
+ <div class="card"><h4>LM (score) test: only the restricted model <small>W §5.2</small></h4>
+  <ol><li>Estimate the restricted model, save ũ.</li><li>Regress ũ on <b>all</b> regressors.</li><li><span class="f">LM = n · R²_ũ ~ χ²_q</span>.</li></ol>
+  <p>Useful when the unrestricted model is hard to estimate. Asymptotically equivalent to F.</p></div>
+ <div class="card"><h4>Wald, LR, LM</h4><ul>
+  <li><b>Wald:</b> unrestricted model only; <span class="f">W = (Rβ̂ − r)′ [R V̂ R′]⁻¹ (Rβ̂ − r) ~ χ²_q</span> (W/q ≈ F). Plug in any V̂: robust, HAC, clustered. Not invariant to how a nonlinear restriction is written.</li>
+  <li><b>LR:</b> both models, by maximum likelihood; <span class="f">LR = 2(ℓ_ur − ℓ_r) ~ χ²_q</span>. Valid only if the likelihood is right (no robust version). Standard for ARMA / GARCH / probit.</li>
+  <li><b>LM:</b> restricted model only.</li>
+  <li>For linear models with normal errors, W ≥ LR ≥ LM in finite samples.</li></ul></div>
+ <div class="card"><h4>Groups and breaks: Chow <small>W §7.4</small></h4>
+  <p>Interact every regressor with a group dummy d, and F-test all the d terms (intercept + slopes): k+1 restrictions. Testing only the slopes lets the intercept differ. With heteroskedasticity use the robust Wald version of the same test.</p></div>
+</div>
+<h3>Critical values to know</h3>
+<div class="tw"><table style="min-width:520px">
+<tr><th>Distribution</th><th>10 %</th><th>5 %</th><th>1 %</th></tr>
+<tr><td>N(0,1), two-sided</td><td>1.645</td><td>1.960</td><td>2.576</td></tr>
+<tr><td>N(0,1), one-sided</td><td>1.282</td><td>1.645</td><td>2.326</td></tr>
+<tr><td>χ²₁ / χ²₂ / χ²₅</td><td>2.71 / 4.61 / 9.24</td><td>3.84 / 5.99 / 11.07</td><td>6.63 / 9.21 / 15.09</td></tr>
+<tr><td>Dickey–Fuller, constant (asymptotic)</td><td>−2.57</td><td>−2.86</td><td>−3.43</td></tr>
+<tr><td>Dickey–Fuller, constant and trend</td><td>−3.12</td><td>−3.41</td><td>−3.96</td></tr>
+<tr><td>Engle–Granger, 2 variables, constant</td><td>−3.04</td><td>−3.34</td><td>−3.90</td></tr>
+<tr><td>Engle–Granger, 2 variables, constant and trend</td><td>−3.50</td><td>−3.78</td><td>−4.32</td></tr>
+</table></div>
+</section>
+
+<section id="robust"><h2><b></b>Robust or not: which standard errors</h2>
+<p class="lead">The coefficients do not change; the variance estimate does, and with it every t, F and confidence interval. Choose it from what you know about the errors.</p>
+<div class="tw"><table>
+<tr><th>Situation</th><th>Coefficients</th><th>Standard errors</th><th>Joint tests</th><th>Notes</th></tr>
+<tr><td>Cross-section, homoskedastic</td><td>OLS</td><td>Usual <span class="tag ok">valid</span></td><td>F (SSR or R² form), LM</td><td>Robust SE would also be valid, slightly noisier</td></tr>
+<tr><td>Cross-section, heteroskedastic</td><td>OLS (or WLS for efficiency)</td><td>HC0–HC3 <span class="tag no">usual invalid</span></td><td>Robust Wald / F, robust LM</td><td>HC3 in small samples; HC1 = HC0 × n/(n−k−1)</td></tr>
+<tr><td>Clustered observations (groups, panel)</td><td>OLS, FE, RE</td><td>Cluster-robust by group</td><td>Cluster-robust Wald, F(q, G−1)</td><td>Needs many clusters (rule of thumb ≥ 40–50); few clusters: wild cluster bootstrap</td></tr>
+<tr><td>Time series, serial correlation and/or heteroskedasticity, contemporaneous exogeneity</td><td>OLS</td><td>HAC (Newey–West)</td><td>HAC Wald</td><td>Lag g ≈ 4(n/100)^{2/9}; ≥ h−1 with overlapping h-period returns</td></tr>
+<tr><td>Time series, AR(1) errors, strictly exogenous x</td><td>FGLS (Prais–Winsten)</td><td>FGLS usual (or HAC on FGLS)</td><td>F on the transformed model</td><td>More efficient than OLS + HAC when its assumptions hold</td></tr>
+<tr><td>Time series with lagged y and serially correlated errors</td><td><span class="tag no">OLS inconsistent</span></td><td>—</td><td>—</td><td>No SE fixes this: add lags until the errors are white noise, or use IV</td></tr>
+<tr><td>Small sample, non-normal errors</td><td>OLS</td><td>Bootstrap (pairs, or wild if heteroskedastic)</td><td>Bootstrap the test statistic</td><td>Bootstrap the t statistic, not the coefficient, for better accuracy</td></tr>
+<tr><td>2SLS / IV</td><td>2SLS</td><td>Robust (or HAC, clustered)</td><td>Robust Wald</td><td>Do not do 2SLS "by hand": second-stage SE are wrong</td></tr>
+<tr><td>Linear probability model</td><td>OLS</td><td>Robust <span class="tag mid">always</span></td><td>Robust Wald</td><td>Heteroskedastic by construction: Var = p(1−p)</td></tr>
+<tr><td>Maximum likelihood (ARMA, GARCH, probit)</td><td>MLE</td><td>Inverse Hessian, or sandwich (QMLE / Bollerslev–Wooldridge)</td><td>LR (correct likelihood) or Wald (sandwich)</td><td>Use the sandwich for GARCH with non-normal innovations under a normal likelihood</td></tr>
+</table></div>
+<div class="grid">
+ <div class="card"><h4>The robust variance (White, W §8.2)</h4>
+  <span class="k">Var̂(β̂_j) = Σᵢ r̂²_ij û²_i / SSR_j²</span>
+  <p>r̂_ij: residual of regressing x_j on the other regressors; SSR_j: its sum of squares. In matrix form, <span class="f">(X′X)⁻¹ X′diag(û²)X (X′X)⁻¹</span>. HAC adds weighted autocovariance terms (Bartlett kernel, weights 1 − h/(g+1)).</p></div>
+ <div class="card"><h4>Robust LM test (W §8.2)</h4><ol>
+  <li>Restricted model, residuals ũ.</li><li>Regress each excluded x_j on the included regressors, residuals r̃_j.</li>
+  <li>Form the products ũ·r̃_j, j = 1 … q.</li><li>Regress 1 on them, no intercept: <span class="f">LM = n − SSR₁ ~ χ²_q</span>.</li></ol></div>
+ <div class="card"><h4>Rules of thumb</h4><ul>
+  <li>With a cross-section of any size, reporting robust SE costs little; many papers do so by default.</li>
+  <li>If robust and usual SE differ a lot, the heteroskedasticity is real; it can also signal a misspecified mean.</li>
+  <li>Robust SE fix inference, not bias. They do nothing for an endogenous regressor.</li>
+  <li>Clustering: cluster at the level at which the regressor of interest varies, or the treatment was assigned.</li></ul></div>
+</div>
+</section>
+
+<section id="remedies"><h2><b></b>Symptoms and fixes</h2>
+<p class="lead">What to do once a test rejects, and what each fix costs.</p>
+<div class="tw"><table>
+<tr><th>Problem</th><th>Consequence for OLS</th><th>Fix</th><th>Cost or condition</th></tr>
+<tr><td>Wrong functional form</td><td>Biased effects</td><td>Logs, polynomials, interactions, splines</td><td>Interpretation changes; check with RESET again</td></tr>
+<tr><td>Omitted variable</td><td>Bias: β₂·δ₁</td><td>Add it, a proxy, panel FE / FD, IV</td><td>Do not add "bad controls" that are themselves outcomes of x</td></tr>
+<tr><td>Measurement error in x (classical)</td><td>Attenuation towards 0</td><td>IV (a second measurement is a good instrument)</td><td>Error in y only raises the variance</td></tr>
+<tr><td>Simultaneity</td><td>Biased, inconsistent</td><td>IV / 2SLS with an excluded exogenous shifter</td><td>Need an instrument for each endogenous variable</td></tr>
+<tr><td>Heteroskedasticity</td><td>Wrong SE; not BLUE</td><td>Robust SE; WLS / FGLS</td><td>WLS needs a variance model; report robust SE anyway</td></tr>
+<tr><td>Serial correlation, exogenous x</td><td>Wrong SE (usually too small with positive ρ); not BLUE</td><td>HAC; Prais–Winsten / Cochrane–Orcutt</td><td>FGLS needs strict exogeneity</td></tr>
+<tr><td>Serial correlation with lagged y</td><td>Inconsistent</td><td>Add lags (dynamic completeness), IV</td><td>—</td></tr>
+<tr><td>Unit root in y and x</td><td>Spurious regression</td><td>Difference; or cointegration + ECM</td><td>Differencing loses long-run information</td></tr>
+<tr><td>Structural break</td><td>Averaged, misleading coefficients</td><td>Break dummies and interactions, split sample</td><td>Unknown date: sup-F critical values</td></tr>
+<tr><td>Volatility clustering</td><td>Wrong SE; inefficient</td><td>HAC / robust SE, or GARCH errors</td><td>GARCH needs a likelihood and enough data</td></tr>
+<tr><td>Near-collinearity</td><td>Large SE, unstable signs</td><td>More data, combine variables, accept it</td><td>Dropping a relevant variable creates bias</td></tr>
+<tr><td>Outliers / influential points</td><td>Estimates driven by a few points</td><td>Check data; LAD; logs; report with and without</td><td>Never drop silently</td></tr>
+<tr><td>Sample selection on y</td><td>Biased</td><td>Heckman two-step, truncated regression</td><td>Needs an exclusion restriction</td></tr>
+<tr><td>Missing data</td><td>Bias if missingness depends on y</td><td>Complete cases if missing at random; missing indicators bias in general</td><td>State the assumption</td></tr>
+</table></div>
+</section>
+
+<section id="spec"><h2><b></b>Specification and interpretation</h2>
+<p class="lead">How to read a coefficient in each functional form, and the algebra behind omitted variables and collinearity.</p>
+<div class="tw"><table style="min-width:560px">
+<tr><th>Model</th><th>Dependent</th><th>Regressor</th><th>Interpretation of β₁</th></tr>
+<tr><td>Level–level</td><td>y</td><td>x</td><td>Δy = β₁Δx</td></tr>
+<tr><td>Level–log</td><td>y</td><td>log x</td><td>Δy ≈ (β₁/100) · %Δx</td></tr>
+<tr><td>Log–level</td><td>log y</td><td>x</td><td>%Δy ≈ 100β₁ · Δx; exact: 100[exp(β₁Δx) − 1]</td></tr>
+<tr><td>Log–log</td><td>log y</td><td>log x</td><td>%Δy ≈ β₁ · %Δx: the elasticity</td></tr>
+<tr><td>Dummy in log model</td><td>log y</td><td>d ∈ {0, 1}</td><td>Exact: 100[exp(β₁) − 1] %; the approximation is poor when |β₁| &gt; 0.1</td></tr>
+<tr><td>Quadratic</td><td>y</td><td>x, x²</td><td>Δy/Δx ≈ β₁ + 2β₂x; turning point x* = −β₁ / (2β₂)</td></tr>
+<tr><td>Interaction</td><td>y</td><td>x₁, x₂, x₁x₂</td><td>∂y/∂x₁ = β₁ + β₃x₂: β₁ is the effect at x₂ = 0 (centre x₂ to make it meaningful)</td></tr>
+<tr><td>Standardised</td><td>z_y</td><td>z_x</td><td>Effect of a one-standard-deviation change in x, in standard deviations of y: β̂_j · σ̂_x / σ̂_y</td></tr>
+</table></div>
+<div class="grid">
+ <div class="card"><h4>Omitted-variable bias <small>W §3.3</small></h4>
+  <span class="k">E(β̃₁) = β₁ + β₂ · δ̃₁</span>
+  <div class="tw" style="margin:6px 0"><table style="min-width:300px"><tr><th></th><th>Corr(x₁,x₂) &gt; 0</th><th>Corr(x₁,x₂) &lt; 0</th></tr><tr><td>β₂ &gt; 0</td><td>Upward bias</td><td>Downward bias</td></tr><tr><td>β₂ &lt; 0</td><td>Downward bias</td><td>Upward bias</td></tr></table></div>
+  <p>Including an irrelevant variable costs only variance; omitting a relevant one costs bias.</p></div>
+ <div class="card"><h4>Variance of a coefficient</h4>
+  <span class="k">Var(β̂_j) = σ² / [SST_j (1 − R_j²)]</span>
+  <ul><li>σ² larger → less precise; more variation in x_j (SST_j, grows with n) → more precise.</li>
+  <li>R_j²: R² of x_j on the other regressors. VIF_j = 1/(1 − R_j²).</li>
+  <li><span class="f">σ̂² = SSR / (n − k − 1)</span>, the standard error of the regression is σ̂.</li></ul></div>
+ <div class="card"><h4>Goodness of fit</h4><ul>
+  <li><span class="f">R² = 1 − SSR/SST</span>; never falls when a regressor is added.</li>
+  <li><span class="f">R̄² = 1 − [SSR/(n−k−1)] / [SST/(n−1)]</span>; rises when the added variable has |t| &gt; 1.</li>
+  <li>A low R² does not bias β̂; a high R² does not make it causal.</li>
+  <li>To compare log y with y: predict y from the log model, <span class="f">ŷ = α̂₀ · exp(m̂)</span>, with m̂ the fitted log y and α̂₀ = mean of exp(û) (Duan smearing), and take the squared correlation of ŷ with y.</li>
+  <li>Information criteria (smaller is better): <span class="f">AIC = ln(SSR/n) + 2(k+1)/n</span>, <span class="f">BIC = ln(SSR/n) + (k+1) ln n / n</span>.</li></ul></div>
+ <div class="card"><h4>Dummies <small>W ch. 7</small></h4><ul>
+  <li>g categories → g − 1 dummies with an intercept (the omitted one is the base group).</li>
+  <li>Ordinal variable: dummies for each level, then F-test that the effects are linear.</li>
+  <li>Difference-in-differences: <span class="f">y = β₀ + δ₀·after + β₁·treated + δ₁·after·treated + u</span>; δ₁ is the effect, under parallel trends.</li>
+  <li>LPM: binary y; β_j is a change in probability; predictions can leave [0, 1]; always robust SE. Probit / logit for the shape, with average partial effects.</li></ul></div>
+ <div class="card"><h4>Proxies and lagged dependent variables <small>W §9.2</small></h4>
+  <p>A proxy z for an unobserved x* removes the bias if, once z is controlled for, x* is unrelated to the other regressors. A lagged y (from an earlier period of a cross-section) controls for history that drives the current outcome.</p></div>
+ <div class="card"><h4>Prediction intervals</h4>
+  <p>The variance of a prediction error adds the error variance to the estimation variance: <span class="f">se(ê⁰) = √[se(ŷ⁰)² + σ̂²]</span>. Get se(ŷ⁰) by centring the regressors at x⁰ and reading the intercept's standard error.</p></div>
+</div>
+</section>
+
+<section id="iv"><h2><b></b>Endogeneity and instrumental variables</h2>
+<p class="lead">When E(u|x) = 0 is not credible and no panel is available. W ch. 15–16.</p>
+<div class="grid">
+ <div class="card"><h4>A valid instrument z</h4><ol>
+  <li><b>Exogenous:</b> <span class="f">Cov(z, u) = 0</span>. Not testable with one instrument per endogenous variable; argue it.</li>
+  <li><b>Relevant:</b> <span class="f">Cov(z, x) ≠ 0</span>, given the other exogenous variables. Testable: first-stage F.</li></ol>
+  <p>Simple IV: <span class="f">β̂₁ = Cov(z, y) / Cov(z, x)</span>. A weak instrument amplifies any small correlation between z and u: <span class="f">plim β̂_IV = β₁ + [Corr(z,u)/Corr(z,x)]·(σ_u/σ_x)</span>.</p></div>
+ <div class="card"><h4>2SLS</h4><ol>
+  <li>First stage: regress x on z and all exogenous regressors, save x̂.</li>
+  <li>Second stage: regress y on x̂ and the exogenous regressors.</li></ol>
+  <p>Use a 2SLS routine: the second-stage SE from step 2 by hand are wrong. 2SLS is consistent, biased in finite samples (towards OLS), and its SE are larger than OLS's; R² has no meaning.</p></div>
+ <div class="card"><h4>The tests, in order</h4><ol>
+  <li>Relevance: first-stage F (robust). F &gt; 10 as a minimum.</li>
+  <li>Endogeneity: Hausman regression form (add v̂, t test).</li>
+  <li>Overidentification (if #IV &gt; #endog.): Sargan n·R², Hansen J under heteroskedasticity.</li>
+  <li>Heteroskedasticity: BP on 2SLS residuals, or simply robust SE.</li>
+  <li>Serial correlation (time series): BG on 2SLS residuals with the 2SLS fitted values.</li></ol></div>
+ <div class="card"><h4>Simultaneous equations <small>W ch. 16</small></h4><ul>
+  <li>Each structural equation needs an excluded exogenous variable that appears elsewhere in the system (order condition), with a nonzero coefficient there (rank condition).</li>
+  <li>Estimate each identified equation by 2SLS.</li>
+  <li>In time series, lagged variables are often used as instruments; they are valid only if the errors are not serially correlated.</li></ul></div>
+</div>
+</section>
+
+<section id="panel"><h2><b></b>Panel data</h2>
+<p class="lead"><span class="f">y_it = β x_it + a_i + u_it</span>: aᵢ is the unobserved effect, constant over time. W ch. 13–14.</p>
+<div class="tw"><table>
+<tr><th>Estimator</th><th>Transformation</th><th>Needs</th><th>Keeps time-constant x?</th><th>When</th></tr>
+<tr><td>Pooled OLS</td><td>None</td><td>aᵢ uncorrelated with x</td><td>Yes</td><td>Rarely credible; cluster SE by unit</td></tr>
+<tr><td>First differences (FD)</td><td>Δy_it on Δx_it</td><td>Strict exogeneity; Δx varies</td><td>No</td><td>T = 2, or u_it close to a random walk</td></tr>
+<tr><td>Fixed effects (within)</td><td>y_it − ȳᵢ</td><td>Strict exogeneity of x w.r.t. u</td><td>No</td><td>aᵢ correlated with x; u_it serially uncorrelated</td></tr>
+<tr><td>Random effects (GLS)</td><td>y_it − λȳᵢ</td><td>aᵢ uncorrelated with every x_it</td><td>Yes</td><td>Hausman does not reject; x randomised</td></tr>
+<tr><td>Correlated RE (Mundlak)</td><td>RE with x̄ᵢ added</td><td>aᵢ linear in x̄ᵢ</td><td>Yes</td><td>Gives FE slopes and a robust Hausman test</td></tr>
+<tr><td>Arellano–Bond GMM</td><td>FD with lagged levels as instruments</td><td>No serial correlation in u_it</td><td>No</td><td>Lagged y with short T (FE has Nickell bias)</td></tr>
+</table></div>
+<div class="tip"><b>Always:</b> time dummies for common shocks, and standard errors clustered by unit. Difference-in-differences is a two-period FE model with a treatment interaction.</div>
+</section>
+
+<section id="tsbasics"><h2><b></b>Time series: stationarity, ACF, ARMA</h2>
+<p class="lead">The univariate toolkit of Tsay ch. 1–2, and Wooldridge ch. 11 for the regression side.</p>
+<div class="grid">
+ <div class="card"><h4>Returns <small>T ch. 1</small></h4><ul>
+  <li>Simple: <span class="f">R_t = P_t / P_{t−1} − 1</span>; log: <span class="f">r_t = ln(1 + R_t) = ln P_t − ln P_{t−1}</span>.</li>
+  <li>Multi-period log returns add up; simple returns compound. Portfolio returns are linear in simple returns.</li>
+  <li>Stylised facts: little serial correlation, heavy tails (excess kurtosis), volatility clustering, leverage (volatility rises after falls).</li></ul></div>
+ <div class="card"><h4>Stationarity and weak dependence</h4><ul>
+  <li>Weakly stationary: constant mean and variance, <span class="f">Cov(r_t, r_{t−ℓ}) = γ_ℓ</span> depends only on ℓ.</li>
+  <li>Weakly dependent: correlation dies out as ℓ grows (AR(1) with |ρ| &lt; 1, any MA). A random walk is neither.</li>
+  <li>AR(1) <span class="f">y_t = ρy_{t−1} + e_t</span>: stationary iff |ρ| &lt; 1; ρ = 1 is a unit root.</li></ul></div>
+ <div class="card"><h4>Sample ACF</h4><ul>
+  <li><span class="f">ρ̂_ℓ = Σ (r_t − r̄)(r_{t−ℓ} − r̄) / Σ (r_t − r̄)²</span>.</li>
+  <li>For i.i.d. data, ρ̂_ℓ ≈ N(0, 1/T): bands ±2/√T.</li>
+  <li>Bartlett, for an MA(q): <span class="f">Var(ρ̂_ℓ) ≈ (1 + 2Σ_{i=1}^{q} ρ_i²)/T</span> for ℓ &gt; q.</li>
+  <li>Ljung–Box Q(m) tests many lags at once; m ≈ ln T (Tsay).</li></ul></div>
+ <div class="card"><h4>AR(p) <small>T §2.4</small></h4><ul>
+  <li><span class="f">r_t = φ₀ + φ₁r_{t−1} + … + φ_p r_{t−p} + a_t</span>; mean <span class="f">φ₀ / (1 − φ₁ − … − φ_p)</span>.</li>
+  <li>Stationary iff all roots of <span class="f">1 − φ₁z − … − φ_p z^p</span> are outside the unit circle.</li>
+  <li>AR(2) with complex roots: cycles of average length <span class="f">2π / cos⁻¹[φ₁ / (2√−φ₂)]</span>.</li>
+  <li>Order: PACF cuts off after p; or AIC/BIC over p.</li>
+  <li><span class="f">AIC(ℓ) = ln σ̃²_ℓ + 2ℓ/T</span>, <span class="f">BIC(ℓ) = ln σ̃²_ℓ + ℓ ln T / T</span>.</li></ul></div>
+ <div class="card"><h4>MA(q) and ARMA(p,q)</h4><ul>
+  <li>MA(q): <span class="f">r_t = c₀ + a_t − θ₁a_{t−1} − … − θ_q a_{t−q}</span>, always stationary, finite memory: ACF zero after lag q; forecasts revert to the mean after q steps.</li>
+  <li>Invertible if the roots of the MA polynomial are outside the unit circle.</li>
+  <li>ARMA: both ACF and PACF tail off; use the EACF or information criteria. Common AR and MA roots cancel: keep the model small.</li>
+  <li>Estimate by conditional or exact likelihood.</li></ul></div>
+ <div class="card"><h4>Seasonal models <small>T §2.8</small></h4><ul>
+  <li>Seasonal difference <span class="f">(1 − B^s) x_t</span>, s = 4 quarterly, 12 monthly.</li>
+  <li>Airline model: <span class="f">(1 − B)(1 − B^s) x_t = (1 − θB)(1 − ΘB^s) a_t</span>.</li>
+  <li>Deterministic seasonality: seasonal dummies in a regression.</li></ul></div>
+ <div class="card"><h4>Forecasting</h4><ul>
+  <li>ℓ-step forecast of a stationary ARMA converges to the unconditional mean; its error variance to the unconditional variance.</li>
+  <li>MA representation <span class="f">r_t = μ + Σ ψ_i a_{t−i}</span>: forecast error variance <span class="f">σ²(1 + ψ₁² + … + ψ²_{ℓ−1})</span>.</li>
+  <li>Evaluate out of sample (rolling origin); never select the model on the test sample.</li></ul></div>
+ <div class="card"><h4>Long memory <small>T §2.11</small></h4>
+  <p>ACF decays hyperbolically, not exponentially; typical for absolute or squared returns. Fractional differencing <span class="f">(1 − B)^d</span>, −0.5 &lt; d &lt; 0.5: ARFIMA.</p></div>
+</div>
+</section>
+
+<section id="unitroot"><h2><b></b>Unit roots, spurious regressions, cointegration</h2>
+<p class="lead">W ch. 11 and 18, T §2.7 and ch. 8. The single most common way time-series regressions go wrong.</p>
+<div class="grid">
+ <div class="card"><h4>ADF regression</h4>
+  <span class="k">Δx_t = α + δt + θx_{t−1} + Σ_{i=1}^{p} γ_iΔx_{t−i} + e_t,   H0: θ = 0</span>
+  <ul><li>Compare the t of θ̂ with the Dickey–Fuller critical values (not ±1.96): −2.86 at 5 % with a constant, −3.41 with a trend.</li>
+  <li>Constant only for series without a trend; add the trend δt for trending series. Wrong choice → wrong size or low power.</li>
+  <li>Choose p by AIC/BIC, or start large and drop insignificant lags.</li>
+  <li>Low power: a near-unit-root stationary series (ρ = 0.95) is hard to distinguish from a random walk.</li></ul></div>
+ <div class="card"><h4>Combining ADF and KPSS</h4>
+  <div class="tw" style="margin:6px 0"><table style="min-width:320px"><tr><th>ADF</th><th>KPSS</th><th>Conclusion</th></tr>
+  <tr><td>Rejects</td><td>Does not reject</td><td>Stationary</td></tr>
+  <tr><td>Does not reject</td><td>Rejects</td><td>Unit root</td></tr>
+  <tr><td>Rejects</td><td>Rejects</td><td>Break or long memory</td></tr>
+  <tr><td>Does not reject</td><td>Does not reject</td><td>Not enough data</td></tr></table></div></div>
+ <div class="card"><h4>Spurious regression</h4><ul>
+  <li>Two independent random walks regressed on each other: t statistics reject far more than 5 % of the time, R² does not go to 0 (Granger–Newbold; Phillips).</li>
+  <li>Symptoms: high R², very low DW, residuals with a unit root.</li>
+  <li>Trending but stationary series: add a time trend instead.</li></ul></div>
+ <div class="card"><h4>Cointegration</h4><ul>
+  <li>y_t and x_t are I(1) but <span class="f">y_t − βx_t</span> is I(0): a long-run equilibrium (spot and futures, yields of nearby maturities, pairs of stocks).</li>
+  <li>Engle–Granger: OLS in levels, ADF on residuals with EG critical values. β known in advance (e.g. β = 1)? Test the spread with ordinary ADF.</li>
+  <li>OLS β̂ is superconsistent, but its t statistic is not usable; use DOLS (add leads and lags of Δx) with HAC SE for inference on β.</li>
+  <li>Johansen: the rank of Π in <span class="f">Δx_t = Πx_{t−1} + Σ Γ_iΔx_{t−i} + e_t</span>; rank 0: no cointegration, VAR in differences.</li></ul></div>
+ <div class="card"><h4>Error-correction model</h4>
+  <span class="k">Δy_t = α₀ + γ₀Δx_t + δ(y_{t−1} − βx_{t−1}) + u_t</span>
+  <p>δ &lt; 0: the speed at which deviations close (half-life <span class="f">ln 0.5 / ln(1 + δ)</span>). All terms are I(0), so t and F are standard. Granger representation theorem: cointegration ⇔ an ECM exists.</p></div>
+ <div class="card"><h4>Unit roots in finance</h4><ul>
+  <li>Log prices ≈ random walk; returns ≈ white noise in the mean.</li>
+  <li>Interest rates, spreads, volatility: very persistent; tests often do not reject even when theory says mean reversion.</li>
+  <li>Pairs trading relies on cointegration; check it out of sample, as relations break.</li></ul></div>
+</div>
+</section>
+
+<section id="tsreg"><h2><b></b>Regression with time series</h2>
+<p class="lead">W ch. 10–12 and T §2.9: static models, distributed lags, trends, and serially correlated errors.</p>
+<div class="grid">
+ <div class="card"><h4>Model types</h4><ul>
+  <li><b>Static:</b> <span class="f">y_t = β₀ + β₁z_t + u_t</span>, contemporaneous effect.</li>
+  <li><b>Finite distributed lag:</b> <span class="f">y_t = α + δ₀z_t + δ₁z_{t−1} + δ₂z_{t−2} + u_t</span>. Impact propensity δ₀, long-run propensity <span class="f">δ₀ + δ₁ + δ₂</span>.</li>
+  <li><b>Dynamic / ARDL:</b> lags of y too. Long-run effect <span class="f">Σδ / (1 − Σφ)</span>.</li>
+  <li>Lags of z are often collinear: test the LRP (reparametrise) rather than each δ.</li></ul></div>
+ <div class="card"><h4>Trends and seasonality <small>W §10.5</small></h4><ul>
+  <li>Two trending series correlate even when unrelated: include t (or t, t²).</li>
+  <li>With a trend, R² is inflated by it; detrend y to report a meaningful R².</li>
+  <li>Seasonal dummies; test jointly. Seasonally adjusted data: no dummies needed.</li>
+  <li>Log of a trending variable: a linear trend coefficient is the average growth rate.</li></ul></div>
+ <div class="card"><h4>Serial correlation: what it does</h4><ul>
+  <li>Strictly exogenous x: OLS unbiased and consistent; usual SE wrong (too small when ρ &gt; 0 and x is positively correlated over time).</li>
+  <li>Lagged y and correlated errors: OLS inconsistent.</li>
+  <li>R² is still a valid measure if the data are stationary and weakly dependent.</li></ul></div>
+ <div class="card"><h4>Testing (W §12.2)</h4><ol>
+  <li>AR(1), strictly exogenous x: û_t on û_{t−1}; t test.</li>
+  <li>General x: û_t on x_t and û_{t−1}; robust t test.</li>
+  <li>AR(q): û_t on x_t and q lags; F, or Breusch–Godfrey LM.</li>
+  <li>Seasonal (quarterly): û_t on x_t and û_{t−4}.</li></ol></div>
+ <div class="card"><h4>Correcting</h4><ul>
+  <li>HAC (Newey–West) with OLS: needs only TS.3′.</li>
+  <li>Prais–Winsten / Cochrane–Orcutt FGLS: strict exogeneity; efficient.</li>
+  <li>Differencing: when ρ is near 1, first differences remove most serial correlation.</li>
+  <li>Dynamic completeness: add lags until errors are white noise.</li>
+  <li>Regression with ARMA errors (T): joint MLE of regression and error process.</li></ul></div>
+ <div class="card"><h4>Predictive regressions in finance</h4><ul>
+  <li>Returns on lagged persistent predictors (dividend yield, rates): β̂ biased in small samples when innovations correlate (Stambaugh).</li>
+  <li>Overlapping long-horizon returns: HAC with g ≥ h − 1, or non-overlapping data; t statistics are still oversized.</li>
+  <li>Out-of-sample R² against the historical mean is the honest test.</li></ul></div>
+</div>
+</section>
+
+<section id="vol"><h2><b></b>Volatility: ARCH and GARCH</h2>
+<p class="lead">T ch. 3. The mean equation removes linear dependence; the volatility equation describes the conditional variance of what remains.</p>
+<div class="grid">
+ <div class="card"><h4>The procedure (T §3.3)</h4><ol>
+  <li>Build a mean equation (often a constant or a low-order ARMA); test residuals for serial correlation.</li>
+  <li>Test the residuals a_t for ARCH effects (Ljung–Box on a_t², Engle LM).</li>
+  <li>Specify a volatility model; PACF of a_t² can suggest an ARCH order; GARCH(1,1) is the usual start.</li>
+  <li>Estimate mean and volatility jointly by MLE.</li>
+  <li>Check the standardised residuals; refine.</li></ol></div>
+ <div class="card"><h4>ARCH(m) and GARCH(1,1)</h4>
+  <span class="k">a_t = σ_t ε_t,   σ²_t = α₀ + α₁a²_{t−1} + … + α_m a²_{t−m}</span>
+  <span class="k">σ²_t = α₀ + α₁a²_{t−1} + β₁σ²_{t−1}</span>
+  <ul><li>α₀ &gt; 0, α₁, β₁ ≥ 0, α₁ + β₁ &lt; 1. Unconditional variance <span class="f">α₀ / (1 − α₁ − β₁)</span>.</li>
+  <li>Persistence α₁ + β₁; half-life of a shock <span class="f">ln 0.5 / ln(α₁ + β₁)</span>.</li>
+  <li>Forecasts revert to the unconditional variance at rate α₁ + β₁.</li>
+  <li>Implies fat tails even with normal ε.</li></ul></div>
+ <div class="card"><h4>Variants</h4><ul>
+  <li><b>IGARCH:</b> α₁ + β₁ = 1, shocks persist (RiskMetrics EWMA with λ = 0.94 is a special case without α₀).</li>
+  <li><b>GJR / TGARCH:</b> <span class="f">σ²_t = α₀ + (α₁ + γN_{t−1})a²_{t−1} + β₁σ²_{t−1}</span>, N = 1 if a_{t−1} &lt; 0. γ &gt; 0: leverage.</li>
+  <li><b>EGARCH:</b> models ln σ²_t, so no positivity constraints; asymmetric response to the sign of ε.</li>
+  <li><b>GARCH-M:</b> σ_t (or σ²_t) in the mean equation: a risk premium.</li>
+  <li>Innovations: normal, Student-t (ν estimated), skewed-t, GED.</li></ul></div>
+ <div class="card"><h4>Checking the model</h4><ul>
+  <li><span class="f">ã_t = a_t / σ̂_t</span> should be i.i.d.: Ljung–Box on ã_t and on ã_t².</li>
+  <li>Sign-bias test on ã_t² for missed asymmetry.</li>
+  <li>QQ plot against the assumed distribution; KS or JB on ã_t.</li>
+  <li>Compare models by AIC / BIC and by out-of-sample volatility forecasts against realised variance (QLIKE or MSE loss).</li>
+  <li>Use QMLE (sandwich) standard errors if the innovations are not what the likelihood assumes.</li></ul></div>
+</div>
+</section>
+
+<section id="multi"><h2><b></b>Several series and forecasting</h2>
+<p class="lead">T ch. 8 for VAR and cointegration in systems; forecast evaluation for any model.</p>
+<div class="grid">
+ <div class="card"><h4>VAR(p)</h4><ul>
+  <li><span class="f">x_t = φ₀ + Φ₁x_{t−1} + … + Φ_p x_{t−p} + a_t</span>, each equation by OLS.</li>
+  <li>Order: AIC, BIC, HQ, or sequential LR tests of Φ_p = 0.</li>
+  <li>Stationary if all roots of <span class="f">|I − Φ₁z − … − Φ_p z^p| = 0</span> lie outside the unit circle.</li>
+  <li>Residual check: multivariate Portmanteau <span class="f">Q_k(m) ~ χ²(k²(m − p))</span> asymptotically.</li></ul></div>
+ <div class="card"><h4>Granger causality and impulse responses</h4><ul>
+  <li>x Granger-causes y if lags of x help predict y given lags of y: Wald / F test of the x lags in the y equation.</li>
+  <li>Impulse responses trace a shock through the system. Cholesky ordering: the first variable reacts only to its own shock on impact. Results depend on the order.</li>
+  <li>Forecast error variance decomposition: the share of each shock in the forecast variance.</li></ul></div>
+ <div class="card"><h4>Forecast evaluation</h4><ul>
+  <li>Split by time, never randomly. Rolling or expanding windows.</li>
+  <li>Losses: RMSE, MAE; QLIKE for volatility.</li>
+  <li>Diebold–Mariano: equal accuracy of two forecasts (HAC variance of the loss difference). For nested models use Clark–West.</li>
+  <li>Benchmarks: random walk for prices, historical mean for returns, EWMA for volatility.</li></ul></div>
+</div>
+</section>
+
+<section id="formulas"><h2><b></b>Formula sheet</h2>
+<p class="lead">The formulas that come back in every chapter.</p>
+<div class="grid">
+ <div class="card"><h4>OLS</h4>
+  <span class="k">β̂ = (X′X)⁻¹X′y        Var(β̂|X) = σ²(X′X)⁻¹
+β̂₁ = Σ(xᵢ − x̄)(yᵢ − ȳ) / Σ(xᵢ − x̄)²   (simple regression)
+SST = SSE + SSR       R² = SSE/SST = 1 − SSR/SST
+σ̂² = SSR/(n − k − 1)</span>
+  <p>Frisch–Waugh: β̂_j equals the slope of y on r̂_j, the residual of x_j regressed on the other regressors.</p></div>
+ <div class="card"><h4>Tests</h4>
+  <span class="k">t = (β̂_j − a)/se(β̂_j)
+F = [(SSR_r − SSR_ur)/q] / [SSR_ur/(n−k−1)]
+LM = n·R²_aux ~ χ²_q
+W = (Rβ̂ − r)′[R V̂ R′]⁻¹(Rβ̂ − r) ~ χ²_q
+LR = 2(ℓ_ur − ℓ_r) ~ χ²_q</span></div>
+ <div class="card"><h4>Diagnostics</h4>
+  <span class="k">JB = n[S²/6 + (K − 3)²/24] ~ χ²₂
+DW ≈ 2(1 − ρ̂)
+Q(m) = T(T+2) Σ ρ̂²_ℓ/(T − ℓ) ~ χ²_{m−g}
+VIF_j = 1/(1 − R²_j)</span></div>
+ <div class="card"><h4>Time series</h4>
+  <span class="k">AR(1): E(y) = φ₀/(1 − φ₁),  Var(y) = σ²/(1 − φ₁²),  ρ_ℓ = φ₁^ℓ
+MA(1): ρ₁ = −θ/(1 + θ²), ρ_ℓ = 0 for ℓ ≥ 2
+GARCH(1,1): Var(a) = α₀/(1 − α₁ − β₁)
+Newey–West lag: g = ⌊4(n/100)^{2/9}⌋</span></div>
+ <div class="card"><h4>IV and panel</h4>
+  <span class="k">β̂_IV = Cov(z, y)/Cov(z, x)
+β̂_2SLS = (X̂′X)⁻¹X̂′y,  X̂ = Z(Z′Z)⁻¹Z′X
+RE: λ = 1 − [σ²_u/(σ²_u + Tσ²_a)]^{1/2}
+Hausman: (β̂_FE − β̂_RE)′[V̂_FE − V̂_RE]⁻¹(β̂_FE − β̂_RE)</span></div>
+</div>
+</section>
+
+<section id="python"><h2><b></b>Python recipes</h2>
+<p class="lead">statsmodels for regressions and tests, <code>arch</code> for GARCH, <code>linearmodels</code> for IV and panels. Check the signature against your installed version: argument names have changed across releases.</p>
+<h3>Estimate, with each kind of standard error</h3>
+<pre><span class="c"># y: Series, X: DataFrame of regressors</span>
+import statsmodels.api as sm
+import statsmodels.formula.api as smf
+
+X = sm.add_constant(X)
+ols   = sm.OLS(y, X).fit()                                     <span class="c"># usual SE</span>
+hc3   = sm.OLS(y, X).fit(cov_type='HC3')                       <span class="c"># heteroskedasticity-robust</span>
+hac   = sm.OLS(y, X).fit(cov_type='HAC', cov_kwds={'maxlags': 4})   <span class="c"># Newey–West</span>
+clu   = sm.OLS(y, X).fit(cov_type='cluster', cov_kwds={'groups': df['firm']})
+m     = smf.ols('np.log(wage) ~ educ + exper + I(exper**2)', data=df).fit(cov_type='HC1')
+print(m.summary())</pre>
+<h3>Tests on the parameters</h3>
+<pre>m.t_test('educ = 0.08')                     <span class="c"># one restriction</span>
+m.t_test('exper + 20 * I(exper ** 2) = 0')  <span class="c"># combination: marginal effect of exper at exper = 10</span>
+m.f_test('exper = 0, I(exper ** 2) = 0')    <span class="c"># joint; uses the fitted cov_type (robust Wald if robust)</span>
+m.wald_test('exper = 0, I(exper ** 2) = 0', scalar=True)
+full.compare_f_test(restricted)             <span class="c"># SSR form, homoskedastic only</span>
+full.compare_lr_test(restricted)
+full.compare_lm_test(restricted)
+m.conf_int(alpha=0.05)</pre>
+<h3>Diagnostics</h3>
+<pre>from statsmodels.stats.diagnostic import (het_breuschpagan, het_white, linear_reset,
+    acorr_breusch_godfrey, acorr_ljungbox, het_arch, breaks_cusumolsresid)
+from statsmodels.stats.stattools import durbin_watson, jarque_bera
+from statsmodels.stats.outliers_influence import variance_inflation_factor, OLSInfluence
+
+linear_reset(ols, power=3, use_f=True)                  <span class="c"># RESET</span>
+het_breuschpagan(ols.resid, ols.model.exog)             <span class="c"># (LM, p, F, p)</span>
+het_white(ols.resid, ols.model.exog)
+jarque_bera(ols.resid)                                  <span class="c"># (JB, p, skew, kurtosis)</span>
+[variance_inflation_factor(X.values, i) for i in range(X.shape[1])]
+durbin_watson(ols.resid)
+acorr_breusch_godfrey(ols, nlags=4)                     <span class="c"># (LM, p, F, p)</span>
+acorr_ljungbox(ols.resid, lags=[10, 20])                <span class="c"># DataFrame of Q and p</span>
+het_arch(ols.resid, nlags=5)                            <span class="c"># Engle ARCH LM</span>
+breaks_cusumolsresid(ols.resid)                         <span class="c"># CUSUM on OLS residuals</span>
+OLSInfluence(ols).cooks_distance[0]                     <span class="c"># influential points</span>
+
+<span class="c"># Chow test at a known date: interact every regressor with a post-break dummy</span>
+df['post'] = (df.index >= '2008-09-01').astype(int)
+c = smf.ols('y ~ x1 + x2 + post + post:x1 + post:x2', data=df).fit(cov_type='HC1')
+c.f_test('post = 0, post:x1 = 0, post:x2 = 0')</pre>
+<h3>Unit roots and cointegration</h3>
+<pre>from statsmodels.tsa.stattools import adfuller, kpss, coint, zivot_andrews, grangercausalitytests
+from statsmodels.tsa.vector_ar.vecm import coint_johansen
+
+adfuller(x, regression='c', autolag='AIC')    <span class="c"># 'c' constant, 'ct' constant+trend, 'n' none</span>
+kpss(x, regression='c', nlags='auto')         <span class="c"># H0: stationary</span>
+zivot_andrews(x, regression='c')
+coint(y, x)                                   <span class="c"># Engle–Granger, with the right critical values</span>
+j = coint_johansen(data, det_order=0, k_ar_diff=2)
+j.lr1, j.cvt                                  <span class="c"># trace statistics and critical values</span>
+grangercausalitytests(df[['y', 'x']], maxlag=4)   <span class="c"># does the 2nd column cause the 1st?</span></pre>
+<h3>ARMA, regression with ARMA errors, VAR</h3>
+<pre>from statsmodels.tsa.arima.model import ARIMA
+from statsmodels.graphics.tsaplots import plot_acf, plot_pacf
+from statsmodels.tsa.api import VAR
+
+plot_acf(r, lags=20); plot_pacf(r, lags=20)
+a = ARIMA(r, order=(1, 0, 1)).fit()
+acorr_ljungbox(a.resid, lags=[10], model_df=2)    <span class="c"># df = m − (p + q)</span>
+a.forecast(steps=10)
+ax = ARIMA(y, exog=X, order=(1, 0, 0)).fit()      <span class="c"># regression with AR(1) errors</span>
+
+v = VAR(data).fit(maxlags=8, ic='aic')
+v.test_causality('y', ['x'], kind='f')
+v.irf(10).plot(orth=True)                         <span class="c"># Cholesky: order of columns matters</span>
+v.test_whiteness(nlags=10)                        <span class="c"># multivariate Portmanteau</span></pre>
+<h3>GARCH</h3>
+<pre>from arch import arch_model
+
+<span class="c"># returns in percent help the optimiser</span>
+g = arch_model(100 * r, mean='Constant', vol='GARCH', p=1, q=1, dist='t').fit(disp='off')
+gjr = arch_model(100 * r, vol='GARCH', p=1, o=1, q=1, dist='t').fit(disp='off')   <span class="c"># o=1: GJR</span>
+eg  = arch_model(100 * r, vol='EGARCH', p=1, o=1, q=1, dist='t').fit(disp='off')
+z = g.std_resid.dropna()
+acorr_ljungbox(z, lags=[10]); acorr_ljungbox(z**2, lags=[10])
+g.forecast(horizon=10).variance.iloc[-1]</pre>
+<h3>IV and panels</h3>
+<pre>from linearmodels.iv import IV2SLS
+from linearmodels.panel import PanelOLS, RandomEffects
+
+iv = IV2SLS.from_formula('lwage ~ 1 + exper + [educ ~ fatheduc + motheduc]', df).fit(cov_type='robust')
+iv.first_stage          <span class="c"># first-stage F and partial R²</span>
+iv.wu_hausman()         <span class="c"># endogeneity</span>
+iv.sargan               <span class="c"># overidentification; iv.wooldridge_overid for a robust version</span>
+
+p  = df.set_index(['firm', 'year'])
+fe = PanelOLS.from_formula('y ~ x1 + x2 + EntityEffects + TimeEffects', p).fit(cov_type='clustered', cluster_entity=True)
+re = RandomEffects.from_formula('y ~ 1 + x1 + x2', p).fit()
+
+<span class="c"># classic Hausman on the common coefficients</span>
+import numpy as np
+from scipy import stats
+k = ['x1', 'x2']
+d = fe.params[k] - re.params[k]
+V = fe.cov.loc[k, k] - re.cov.loc[k, k]
+H = float(d @ np.linalg.pinv(V) @ d); stats.chi2.sf(H, len(k))</pre>
+</section>
+
+<section id="pitfalls"><h2><b></b>Pitfalls</h2>
+<p class="lead">The mistakes that survive every test above.</p>
+<div class="grid">
+ <div class="card"><h4>Inference</h4><ul>
+  <li>Statistical significance ≠ economic importance: always read the magnitude and the confidence interval.</li>
+  <li>"Not significant" ≠ "no effect": a wide interval that includes large values is not evidence of zero.</li>
+  <li>Testing many specifications and reporting the significant one: the 5 % level no longer means 5 %. Bonferroni (α/m) or a pre-specified model.</li>
+  <li>A one-sided test chosen after seeing the sign of β̂.</li></ul></div>
+ <div class="card"><h4>Specification</h4><ul>
+  <li>Bad controls: controlling for a variable that is itself caused by x removes part of the effect you want.</li>
+  <li>Comparing R² of models with different dependent variables (y vs log y).</li>
+  <li>Extrapolating a quadratic beyond the turning point or the data range.</li>
+  <li>Interpreting the main effect in a model with interactions as an average effect.</li></ul></div>
+ <div class="card"><h4>Time series</h4><ul>
+  <li>Regressing levels of I(1) series without checking cointegration.</li>
+  <li>Durbin–Watson with a lagged dependent variable.</li>
+  <li>FGLS when x is not strictly exogenous.</li>
+  <li>Look-ahead bias: using data not available at forecast time (revised macro data, survivorship-free universes).</li>
+  <li>Selecting the model on the whole sample, then "testing" it out of sample.</li></ul></div>
+ <div class="card"><h4>Causality</h4><ul>
+  <li>Granger causality is predictive, not causal.</li>
+  <li>IV estimates the effect for the units moved by the instrument (LATE), not necessarily the average effect.</li>
+  <li>An overidentification test that does not reject does not prove instruments are valid.</li>
+  <li>Robust standard errors do not fix endogeneity.</li></ul></div>
+</div>
+</section>
+  </main>
+ </div>
+ <footer>Chapter references: W = Wooldridge, <i>Introductory Econometrics: A Modern Approach</i>; T = Tsay, <i>Analysis of Financial Time Series</i> (3rd ed.). Chapter numbers follow the editions most people study and can shift by one between editions. Critical values are the usual asymptotic ones; check the table that matches your sample size and deterministic terms before relying on a borderline result.</footer>
+</div>
+<script>
+// The decision tree. Each node is a question or a test, with answers leading to other nodes, or a leaf
+// with a recipe. `see` lists the sections of the page that hold the details.
+const TREE = {
+  start: {kind: 'Question', title: 'What does your data look like?',
+    body: '<p>The data structure decides which assumptions you need and which tests are available.</p>',
+    opts: [
+      {a: 'Cross-section', d: 'One observation per unit, a random sample (W ch. 2–9).', go: 'cs-spec'},
+      {a: 'Time series', d: 'One unit observed over time: returns, macro series, prices (W ch. 10–12, 18; T ch. 1–3, 8).', go: 'ts-kind'},
+      {a: 'Panel', d: 'Several units observed over several periods (W ch. 13–14).', go: 'pn-ai'},
+    ]},
+
+  // Cross-section
+  'cs-spec': {kind: 'Test · functional form', title: 'Is the functional form right?',
+    body: `<p>Estimate the model by OLS, then plot the residuals against the fitted values and against each regressor. Run <b>RESET</b>: add <span class="f">ŷ²</span> and <span class="f">ŷ³</span> and test them jointly with an F test, <span class="f">F(2, n−k−3)</span>.</p>
+    <p class="muted">H0: the model is correctly specified in its functional form. RESET has power against missing nonlinearities, not against omitted variables in general.</p>`,
+    opts: [
+      {a: 'Reject', d: 'Curvature or missing interactions.', go: 'cs-spec-fix'},
+      {a: 'Do not reject', d: 'Move on to exogeneity.', go: 'cs-endog'},
+    ], see: ['diagnostics', 'spec']},
+  'cs-spec-fix': {kind: 'Fix', title: 'Change the functional form, then test again',
+    body: `<ul><li>Take logs of positive, skewed variables (wages, prices, firm size): it often fixes curvature and heteroskedasticity at once.</li>
+    <li>Add quadratics (<span class="f">x²</span>, turning point <span class="f">−β₁/2β₂</span>) or interactions (<span class="f">x₁·x₂</span>).</li>
+    <li>Two candidate models that are not nested? Use the <b>Davidson–MacKinnon</b> test: add the fitted values of one model to the other and t-test them. Both can be rejected, or neither.</li>
+    <li>Compare models with the same dependent variable by adjusted R², AIC or BIC, never a level model with a log model by R².</li></ul>`,
+    opts: [{a: 'Done', d: 'Re-run RESET on the new specification.', go: 'cs-spec'}], see: ['spec']},
+  'cs-endog': {kind: 'Question · exogeneity', title: 'Could any regressor be correlated with the error?',
+    body: `<p>This is the assumption that matters most, <span class="f">E(u|x) = 0</span> (MLR.4), and no test on OLS residuals can check it: by construction they are uncorrelated with the regressors. Think about the three sources:</p>
+    <ul><li><b>Omitted variable</b> that drives y and is correlated with a regressor (ability in a wage equation).</li>
+    <li><b>Measurement error</b> in a regressor: classical error biases its coefficient towards zero.</li>
+    <li><b>Simultaneity</b>: y also causes x (police and crime, price and quantity).</li></ul>`,
+    opts: [
+      {a: 'Yes, plausibly', d: 'Look for a proxy or an instrument.', go: 'cs-proxy'},
+      {a: 'No, or the goal is prediction only', d: 'Prediction does not need a causal β: move on to the variance.', go: 'cs-het'},
+    ], see: ['spec', 'iv']},
+  'cs-proxy': {kind: 'Question', title: 'Do you have a good proxy, a panel, or an instrument?',
+    body: '<p>Three ways out, from cheapest to most demanding.</p>',
+    opts: [
+      {a: 'A proxy for the omitted variable', d: 'An IQ score for ability, a lagged dependent variable for history.', go: 'cs-proxy-leaf'},
+      {a: 'The same units over time', d: 'If the omitted factor is fixed over time, panel methods remove it.', go: 'pn-ai'},
+      {a: 'An instrument z', d: 'Correlated with x, uncorrelated with u.', go: 'iv-weak'},
+      {a: 'None of these', d: 'Report the likely direction of the bias.', go: 'cs-bias-leaf'},
+    ], see: ['iv']},
+  'cs-proxy-leaf': {kind: 'Recipe', leaf: true, title: 'Add the proxy, then carry on',
+    body: `<p>Adding a proxy z₃ for the omitted x₃* removes the bias if x₃* depends on the other regressors only through z₃ (the proxy is "good enough"). Interpret the other coefficients, not the proxy's.</p>
+    <p>A lagged dependent variable (<span class="f">y<sub>t−1</sub></span> in a cross-section of cities, firms) is a common proxy for unobserved history.</p>`,
+    opts: [{a: 'Next', d: 'Check heteroskedasticity.', go: 'cs-het'}], see: ['spec']},
+  'cs-bias-leaf': {kind: 'Recipe', leaf: true, title: 'Sign the omitted-variable bias',
+    body: `<p>If <span class="f">y = β₀ + β₁x₁ + β₂x₂ + u</span> and you omit x₂, then <span class="f">E(β̃₁) = β₁ + β₂·δ̃₁</span>, where δ̃₁ is the slope of x₂ on x₁. The bias has the sign of <span class="f">β₂ · Corr(x₁, x₂)</span>. Say whether your estimate is an upper or a lower bound, and present the result as an association.</p>`,
+    opts: [{a: 'Next', d: 'Check heteroskedasticity.', go: 'cs-het'}], see: ['spec']},
+  'iv-weak': {kind: 'Test · relevance', title: 'Is the instrument strong?',
+    body: `<p>Estimate the <b>first stage</b>: regress the endogenous x on z and all the exogenous regressors. Test the instruments jointly (robust F if heteroskedastic).</p>
+    <p class="muted">Rule of thumb (Staiger–Stock): F &gt; 10. Stock–Yogo tables give sharper cut-offs. Lee, McCrary, Moreira and Porter (2022) show that for one instrument the usual 5 % t test needs F &gt; 104.7, or their tF adjustment.</p>`,
+    opts: [
+      {a: 'Strong (large F)', d: 'Go on with 2SLS.', go: 'iv-endog'},
+      {a: 'Weak (small F)', d: '2SLS is biased towards OLS and its t tests over-reject.', go: 'iv-weak-leaf'},
+    ], see: ['iv']},
+  'iv-weak-leaf': {kind: 'Recipe', leaf: true, title: 'Weak instruments',
+    body: `<ul><li>Look for a stronger instrument; do not add many weak ones (that makes the bias worse).</li>
+    <li>Use inference that stays valid with weak instruments: Anderson–Rubin confidence sets, the conditional LR test.</li>
+    <li>LIML is less biased than 2SLS with many instruments.</li></ul>`,
+    opts: [{a: 'Next', d: 'Check heteroskedasticity.', go: 'cs-het'}], see: ['iv']},
+  'iv-endog': {kind: 'Test · endogeneity', title: 'Is x actually endogenous? (Hausman, regression form)',
+    body: `<p>Save the first-stage residuals <span class="f">v̂</span>, add them to the structural equation estimated by OLS, and t-test their coefficient (robust t if needed). With several endogenous regressors, F-test all the v̂ jointly.</p>
+    <p class="muted">H0: x is exogenous, so OLS is consistent and more efficient than 2SLS.</p>`,
+    opts: [
+      {a: 'Reject', d: 'x is endogenous: keep 2SLS.', go: 'iv-overid'},
+      {a: 'Do not reject', d: 'OLS and 2SLS agree; OLS is more precise.', go: 'cs-het'},
+    ], see: ['iv']},
+  'iv-overid': {kind: 'Test · overidentification', title: 'More instruments than endogenous regressors?',
+    body: `<p>If yes, test the extra ones. Regress the 2SLS residuals on all exogenous variables: <span class="f">n·R² ~ χ²_q</span>, q = number of instruments − number of endogenous regressors (Sargan). Under heteroskedasticity use Hansen's J from GMM.</p>
+    <p class="muted">H0: all instruments are exogenous. Not rejecting is weak evidence: if every instrument is invalid in the same way, the test cannot see it. Exact identification cannot be tested at all.</p>`,
+    opts: [
+      {a: 'Reject', d: 'At least one instrument is invalid: rethink them.', go: 'iv-weak'},
+      {a: 'Do not reject, or exactly identified', d: 'Proceed with 2SLS and robust standard errors.', go: 'cs-het'},
+    ], see: ['iv']},
+  'cs-het': {kind: 'Test · homoskedasticity', title: 'Is the error variance constant?',
+    body: `<p>Regress <span class="f">û²</span> on the regressors (<b>Breusch–Pagan</b>), or on <span class="f">ŷ</span> and <span class="f">ŷ²</span> (the special form of the <b>White</b> test). Use the F statistic, or <span class="f">LM = n·R²<sub>û²</sub> ~ χ²</span> with as many degrees of freedom as regressors in that auxiliary regression.</p>
+    <p class="muted">H0: Var(u|x) = σ². Heteroskedasticity does not bias β̂; it invalidates the usual standard errors, t and F, even in large samples.</p>`,
+    opts: [
+      {a: 'Reject', d: 'Choose between robust inference and modelling the variance.', go: 'cs-het-fix'},
+      {a: 'Do not reject', d: 'Usual standard errors are fine.', go: 'cs-norm'},
+    ], see: ['diagnostics', 'robust']},
+  'cs-het-fix': {kind: 'Question', title: 'Robust standard errors, or WLS?',
+    body: '<p>Both are valid; they answer different needs.</p>',
+    opts: [
+      {a: 'Keep OLS, robust inference', d: 'The default: HC1 or HC3 standard errors, robust F (Wald) or robust LM.', go: 'cs-robust-leaf'},
+      {a: 'Model the variance (FGLS / WLS)', d: 'More efficient when you know or can estimate the form of the variance.', go: 'cs-wls-leaf'},
+    ], see: ['robust', 'remedies']},
+  'cs-robust-leaf': {kind: 'Recipe', leaf: true, title: 'OLS with heteroskedasticity-robust inference',
+    body: `<ul><li>Standard errors: HC1 (Stata's <code>robust</code>) or HC3 (better below a few hundred observations).</li>
+    <li>t tests: same formula with the robust standard error; the t distribution is only asymptotic.</li>
+    <li>Joint tests: robust Wald / F. The SSR and R² forms of the F test are <b>not</b> valid here. Or the robust LM test.</li>
+    <li>With clustered data (pupils in schools, firms in industries) use cluster-robust errors instead, with enough clusters.</li></ul>`,
+    opts: [{a: 'Next', d: 'Normality and sample size.', go: 'cs-norm'}], see: ['robust', 'inference']},
+  'cs-wls-leaf': {kind: 'Recipe', leaf: true, title: 'Feasible GLS (W §8.4)',
+    body: `<ol><li>Regress y on x by OLS, save û.</li><li>Compute <span class="f">log(û²)</span>.</li><li>Regress it on the regressors, save the fitted values ĝ.</li><li><span class="f">ĥ = exp(ĝ)</span>.</li><li>Estimate by WLS with weights <span class="f">1/ĥ</span>.</li></ol>
+    <p>If the variance model is wrong, WLS stays consistent but its usual standard errors are wrong: report robust standard errors for WLS too. If OLS and WLS estimates differ a lot, suspect misspecification of the mean, not just the variance.</p>`,
+    opts: [{a: 'Next', d: 'Normality and sample size.', go: 'cs-norm'}], see: ['remedies']},
+  'cs-norm': {kind: 'Question · sample size', title: 'Is the sample large?',
+    body: `<p>Normal errors (MLR.6) make t and F exact in small samples. Without normality they are still valid <b>asymptotically</b> (MLR.1–5, by the CLT). Check the residuals with a QQ plot and <b>Jarque–Bera</b> (H0: skewness 0, kurtosis 3).</p>
+    <p class="muted">There is no hard threshold; with a few dozen observations and heavy tails or outliers, be careful.</p>`,
+    opts: [
+      {a: 'Large, or residuals look normal', d: 'Use t and F (robust if needed).', go: 'cs-infer-leaf'},
+      {a: 'Small and non-normal, or outliers', d: 'Bootstrap, or a method robust to outliers.', go: 'cs-small-leaf'},
+    ], see: ['diagnostics']},
+  'cs-small-leaf': {kind: 'Recipe', leaf: true, title: 'Small samples and outliers',
+    body: `<ul><li>Bootstrap: pairs bootstrap (resample rows) or wild bootstrap (keeps heteroskedasticity).</li>
+    <li>Look for influential points: studentized residuals beyond ±3, leverage, Cook's distance. Check data errors before dropping anything, and report both results.</li>
+    <li>LAD (median regression) is less sensitive to outliers in y.</li>
+    <li>Logs reduce the influence of extreme positive values.</li></ul>`,
+    opts: [{a: 'Next', d: 'Test the parameters.', go: 'cs-infer-leaf'}], see: ['remedies']},
+  'cs-infer-leaf': {kind: 'Recipe', leaf: true, title: 'Test the parameters and interpret',
+    body: `<ul><li>One coefficient: t test, confidence interval <span class="f">β̂ ± c·se(β̂)</span>.</li>
+    <li>A linear combination (β₁ = β₂, β₁ + β₂ = 1): reparametrise so the combination becomes one coefficient, or use the covariance of the estimates.</li>
+    <li>Several restrictions: F test (or Wald, or LM). Exclusion of a group, equality across groups (Chow).</li>
+    <li>Then interpret magnitudes: units, logs, elasticities. Statistical significance is not economic importance.</li>
+    <li>Collinearity is not a violation: it only inflates variances. Check VIFs if standard errors are surprisingly large.</li></ul>`,
+    see: ['inference', 'spec', 'pitfalls']},
+
+  // Time series
+  'ts-kind': {kind: 'Question', title: 'One series, or a regression of y on other series?',
+    body: '<p>Tsay starts from the univariate series (returns), Wooldridge from regressions. Both start with stationarity.</p>',
+    opts: [
+      {a: 'One series (returns, a rate, a spread)', d: 'Build an ARMA mean model, then a volatility model.', go: 'u-stat'},
+      {a: 'A regression y on x₁ … x_k', d: 'Static, distributed lags, or dynamic.', go: 'r-stat'},
+      {a: 'Several series that interact', d: 'A VAR, or a VECM if they cointegrate.', go: 'var-leaf'},
+    ]},
+  'u-stat': {kind: 'Test · stationarity', title: 'Is the series stationary?',
+    body: `<p>Plot it. Then run <b>ADF</b> (H0: unit root) and <b>KPSS</b> (H0: stationary) with the deterministic terms that match the plot: a constant for a series that wanders around a level, a constant and a trend for a trending one.</p>
+    <p class="muted">Prices and log prices are almost always I(1); log returns <span class="f">r_t = ln P_t − ln P_{t−1}</span> are usually stationary.</p>`,
+    opts: [
+      {a: 'Unit root (ADF does not reject, KPSS rejects)', d: 'Difference the series.', go: 'u-diff'},
+      {a: 'Trend-stationary (rejects with a trend term)', d: 'Detrend, or keep a time trend in the model.', go: 'u-acf'},
+      {a: 'Stationary (ADF rejects, KPSS does not)', d: 'Model it in levels.', go: 'u-acf'},
+      {a: 'Ambiguous (both reject, or neither)', d: 'Breaks, long memory, or low power.', go: 'u-amb'},
+    ], see: ['unitroot']},
+  'u-diff': {kind: 'Fix', title: 'Difference, then test again',
+    body: '<p>Take <span class="f">Δx_t = x_t − x_{t−1}</span>, or the log difference for a price. Re-run ADF on the difference: if it still has a unit root, the series is I(2) (rare in finance, possible for price levels in macro). Seasonal data may need a seasonal difference <span class="f">(1 − B^s)</span>.</p>',
+    opts: [{a: 'Stationary now', d: 'Identify the dependence.', go: 'u-acf'}], see: ['unitroot']},
+  'u-amb': {kind: 'Recipe', leaf: true, title: 'When ADF and KPSS disagree',
+    body: `<ul><li><b>Both reject:</b> often a structural break or long memory. Try Zivot–Andrews (unit root with one endogenous break), and look at the ACF: a slow hyperbolic decay suggests fractional integration (ARFIMA).</li>
+    <li><b>Neither rejects:</b> the sample is too short to tell. Use economic reasoning; for inference, methods robust to persistence, or difference to be safe (the cost of over-differencing is a non-invertible MA, smaller than a spurious regression).</li>
+    <li>Check the lag length of ADF (choose by AIC/BIC) and the deterministic terms: both change the result.</li></ul>`,
+    opts: [{a: 'Decided', d: 'Identify the dependence.', go: 'u-acf'}], see: ['unitroot']},
+  'u-acf': {kind: 'Test · serial dependence', title: 'Is there linear dependence?',
+    body: `<p>Plot the sample ACF with bands <span class="f">±2/√T</span>, and run <b>Ljung–Box</b>:</p>
+    <span class="k">Q(m) = T(T+2) Σ_{ℓ=1}^{m} ρ̂_ℓ² / (T−ℓ)  ~  χ²_m</span>
+    <p class="muted">H0: ρ₁ = … = ρ_m = 0. Tsay suggests m ≈ ln(T); check a few values of m. Daily stock returns often show little serial correlation; volatility shows a lot.</p>`,
+    opts: [
+      {a: 'Significant autocorrelation', d: 'Identify an ARMA model.', go: 'u-ident'},
+      {a: 'No autocorrelation', d: 'The mean is a constant; look at the variance.', go: 'u-arch'},
+    ], see: ['tsbasics']},
+  'u-ident': {kind: 'Identify', title: 'Choose p and q',
+    body: `<div class="tw"><table style="min-width:420px"><tr><th>Model</th><th>ACF</th><th>PACF</th></tr>
+    <tr><td>AR(p)</td><td>Decays (exponential or damped sine)</td><td>Cuts off after lag p</td></tr>
+    <tr><td>MA(q)</td><td>Cuts off after lag q</td><td>Decays</td></tr>
+    <tr><td>ARMA(p,q)</td><td>Decays after lag q</td><td>Decays after lag p</td></tr></table></div>
+    <p>For ARMA use the EACF table (Tsay–Tiao) or compare candidates by AIC / BIC. BIC picks smaller models; prefer parsimony.</p>`,
+    opts: [{a: 'Estimate', d: 'By conditional or exact maximum likelihood.', go: 'u-check'}], see: ['tsbasics']},
+  'u-check': {kind: 'Test · adequacy', title: 'Are the residuals white noise?',
+    body: `<ul><li>Ljung–Box on the residuals with <span class="f">m − g</span> degrees of freedom, g = p + q estimated ARMA coefficients.</li>
+    <li>Coefficients significant? Drop insignificant high-order terms (or fix them to zero) and re-estimate.</li>
+    <li>Stationarity and invertibility: the roots of the AR and MA polynomials lie outside the unit circle. AR roots near 1 suggest a missed unit root.</li>
+    <li>Out-of-sample forecasts compared with a naive benchmark (random walk, historical mean).</li></ul>`,
+    opts: [
+      {a: 'Residuals still correlated', d: 'Change p or q.', go: 'u-ident'},
+      {a: 'White noise', d: 'Now test the squared residuals.', go: 'u-arch'},
+    ], see: ['tsbasics']},
+  'u-arch': {kind: 'Test · ARCH effects', title: 'Does the variance cluster?',
+    body: `<p>Take the residuals <span class="f">a_t</span> of the mean model.</p>
+    <ul><li>Ljung–Box on <span class="f">a_t²</span> (McLeod–Li).</li>
+    <li>Engle's LM test: regress <span class="f">a_t²</span> on <span class="f">a²_{t−1} … a²_{t−m}</span>; test the slopes jointly (F, or <span class="f">T·R² ~ χ²_m</span>).</li></ul>
+    <p class="muted">H0: no ARCH effect. Financial returns almost always reject.</p>`,
+    opts: [
+      {a: 'Reject', d: 'Model the conditional variance.', go: 'u-garch'},
+      {a: 'Do not reject', d: 'Constant variance: the ARMA model is complete.', go: 'u-done'},
+    ], see: ['vol']},
+  'u-garch': {kind: 'Recipe', leaf: true, title: 'Build the volatility model (T ch. 3)',
+    body: `<ol><li>Start with <b>GARCH(1,1)</b>: <span class="f">σ²_t = α₀ + α₁a²_{t−1} + β₁σ²_{t−1}</span>, with Student-t innovations (returns have fat tails).</li>
+    <li>Check constraints: <span class="f">α₀ &gt; 0, α₁, β₁ ≥ 0, α₁ + β₁ &lt; 1</span>. A sum close to 1 means persistent volatility (IGARCH in the limit).</li>
+    <li>Standardised residuals <span class="f">ã_t = a_t / σ̂_t</span>: Ljung–Box on ã (mean) and ã² (variance), QQ plot against the assumed distribution.</li>
+    <li>Asymmetry: do negative shocks raise volatility more (leverage)? Sign-bias test, then <b>GJR / TGARCH</b> or <b>EGARCH</b>.</li>
+    <li>Risk premium in the mean? GARCH-M. Compare models by AIC/BIC and by volatility forecasts.</li></ol>`,
+    see: ['vol']},
+  'u-done': {kind: 'Recipe', leaf: true, title: 'Forecast and evaluate',
+    body: `<ul><li>Forecasts of a stationary ARMA revert to the unconditional mean; the forecast error variance grows to the unconditional variance.</li>
+    <li>Evaluate out of sample with a rolling or expanding window: RMSE, MAE, and the Diebold–Mariano test against a benchmark.</li>
+    <li>Check stability across sub-samples (Chow, CUSUM).</li></ul>`,
+    see: ['multi', 'tsreg']},
+  'r-stat': {kind: 'Test · stationarity', title: 'Are y and the regressors stationary (I(0))?',
+    body: `<p>Run ADF and KPSS on every series. OLS asymptotics (TS.1′) need stationary, weakly dependent processes. Regressing one I(1) series on another unrelated I(1) gives a <b>spurious regression</b>: high R², significant t, meaningless.</p>
+    <p class="muted">Warning sign: R² larger than the Durbin–Watson statistic (Granger–Newbold).</p>`,
+    opts: [
+      {a: 'All I(0)', d: 'Regress in levels.', go: 'r-exog'},
+      {a: 'All I(1)', d: 'Test for cointegration.', go: 'r-coint'},
+      {a: 'A mix of I(0) and I(1)', d: 'Balance the equation.', go: 'r-mix'},
+    ], see: ['unitroot']},
+  'r-mix': {kind: 'Recipe', leaf: true, title: 'Mixed orders of integration',
+    body: `<ul><li>Difference the I(1) series, then follow the I(0) path.</li>
+    <li>Or estimate an ARDL in levels and use the Pesaran–Shin–Smith bounds test, which is valid whether the regressors are I(0) or I(1).</li>
+    <li>An I(0) y cannot be explained by a single I(1) x in levels: the regression is unbalanced.</li></ul>`,
+    opts: [{a: 'Next', d: 'Check exogeneity.', go: 'r-exog'}], see: ['unitroot']},
+  'r-coint': {kind: 'Test · cointegration', title: 'Do the I(1) series share a common trend?',
+    body: `<p><b>Engle–Granger:</b> regress y on x in levels, run ADF on the residuals without a constant, and compare with the Engle–Granger critical values, not the ADF ones (two variables, no trend: −3.90 at 1 %, −3.34 at 5 %, −3.04 at 10 %).</p>
+    <p><b>Johansen</b> for several series: trace and maximum-eigenvalue tests of the cointegration rank r.</p>
+    <p class="muted">H0 (Engle–Granger): no cointegration.</p>`,
+    opts: [
+      {a: 'Cointegrated', d: 'Long-run relation plus error correction.', go: 'r-ecm'},
+      {a: 'Not cointegrated', d: 'Work in differences.', go: 'r-diff'},
+    ], see: ['unitroot']},
+  'r-ecm': {kind: 'Recipe', leaf: true, title: 'Error-correction model',
+    body: `<p>The levels regression is superconsistent for β, but its usual t statistics are not valid. Estimate the dynamics with an ECM:</p>
+    <span class="k">Δy_t = α₀ + γ₀Δx_t + δ(y_{t−1} − β̂x_{t−1}) + u_t,   δ &lt; 0</span>
+    <p>δ is the speed of adjustment towards equilibrium; all terms are I(0), so usual inference applies. For several series, a VECM (Johansen). For inference on β itself, use DOLS (leads and lags of Δx) or FM-OLS.</p>`,
+    opts: [{a: 'Next', d: 'Check serial correlation in the ECM.', go: 'r-serial'}], see: ['unitroot']},
+  'r-diff': {kind: 'Recipe', leaf: true, title: 'Regress in differences',
+    body: '<p>Regress <span class="f">Δy</span> on <span class="f">Δx</span> (and lags). The coefficients are short-run effects; there is no long-run level relation to estimate. Then follow the I(0) path.</p>',
+    opts: [{a: 'Next', d: 'Check exogeneity.', go: 'r-exog'}], see: ['tsreg']},
+  'r-exog': {kind: 'Question · exogeneity', title: 'Strict or only contemporaneous exogeneity?',
+    body: `<p><b>Strict</b> (TS.3): <span class="f">E(u_t | x_1, …, x_n) = 0</span>, so u today is unrelated to past and <i>future</i> x. It fails when x reacts to past y (policy, feedback) and always fails with a lagged dependent variable.</p>
+    <p><b>Contemporaneous</b> (TS.3′): <span class="f">E(u_t | x_t) = 0</span>. Enough for consistency, not for unbiasedness or for FGLS.</p>
+    <p>Test: add <span class="f">x_{t+1}</span> to the regression; if it is significant, strict exogeneity fails.</p>`,
+    opts: [
+      {a: 'Strictly exogenous', d: 'All options open, FGLS included.', go: 'r-serial'},
+      {a: 'Only contemporaneous, or a lagged y included', d: 'OLS + HAC, or make the model dynamically complete.', go: 'r-serial'},
+    ], see: ['tsreg', 'assumptions']},
+  'r-serial': {kind: 'Test · serial correlation', title: 'Are the errors serially correlated?',
+    body: `<ul><li><b>Breusch–Godfrey</b> (general): regress û_t on all regressors and <span class="f">û_{t−1} … û_{t−q}</span>; F test on the lags, or <span class="f">LM = (n−q)R² ~ χ²_q</span>. Valid with a lagged dependent variable.</li>
+    <li>AR(1) shortcut with strictly exogenous regressors: regress û_t on û_{t−1}, t-test ρ.</li>
+    <li><b>Durbin–Watson</b> <span class="f">d ≈ 2(1 − ρ̂)</span>: needs strict exogeneity, normal errors, and no lagged y. Mostly historical.</li></ul>
+    <p class="muted">H0: no serial correlation. If y_{t−1} is a regressor and errors are correlated, OLS is inconsistent, not just inefficient.</p>`,
+    opts: [
+      {a: 'Reject', d: 'Choose a fix.', go: 'r-serial-fix'},
+      {a: 'Do not reject', d: 'Check the variance.', go: 'r-het'},
+    ], see: ['diagnostics', 'tsreg']},
+  'r-serial-fix': {kind: 'Question', title: 'Which fix for serial correlation?',
+    body: '<p>Pick by what you know about exogeneity and what you need.</p>',
+    opts: [
+      {a: 'Add lags (dynamically complete model)', d: 'When the dynamics are the point, or y_{t−1} is in the model.', go: 'r-dyn-leaf'},
+      {a: 'Keep OLS, HAC (Newey–West) errors', d: 'Valid under contemporaneous exogeneity; also covers heteroskedasticity.', go: 'r-hac-leaf'},
+      {a: 'FGLS (Prais–Winsten / Cochrane–Orcutt)', d: 'Only with strictly exogenous regressors; more efficient.', go: 'r-fgls-leaf'},
+      {a: 'Regression with ARMA errors (Tsay)', d: 'Model the error process jointly with the regression.', go: 'r-arma-leaf'},
+    ], see: ['tsreg', 'robust']},
+  'r-dyn-leaf': {kind: 'Recipe', leaf: true, title: 'Make the model dynamically complete',
+    body: '<p>Add lags of y and x until the residuals are white noise (Breusch–Godfrey no longer rejects): <span class="f">E(y_t | x_t, y_{t−1}, x_{t−1}, …) = E(y_t | x_t)</span>. Then usual (or heteroskedasticity-robust) inference is valid. Long-run effect in a distributed lag model: the sum of the x coefficients, divided by <span class="f">1 − Σ</span> of the y-lag coefficients if there are any.</p>',
+    opts: [{a: 'Next', d: 'Check the variance.', go: 'r-het'}], see: ['tsreg']},
+  'r-hac-leaf': {kind: 'Recipe', leaf: true, title: 'OLS with Newey–West standard errors',
+    body: `<p>Keep the OLS coefficients and replace the standard errors by HAC ones. Choose the truncation lag g: the Newey–West rule <span class="f">g = ⌊4(n/100)^{2/9}⌋</span>, or about <span class="f">n^{1/4}</span>; larger with quarterly or monthly data and strong persistence. Joint tests: HAC Wald.</p>
+    <p class="muted">HAC is consistent but can be poor in small samples with strong persistence; with overlapping returns (horizon h), g should be at least h − 1.</p>`,
+    opts: [{a: 'Next', d: 'Check stability.', go: 'r-break'}], see: ['robust']},
+  'r-fgls-leaf': {kind: 'Recipe', leaf: true, title: 'FGLS for AR(1) errors',
+    body: `<ol><li>OLS, save û_t, regress û_t on û_{t−1} to get ρ̂.</li><li>Quasi-difference: <span class="f">ỹ_t = y_t − ρ̂y_{t−1}</span>, same for each x and the constant.</li><li>Cochrane–Orcutt drops the first observation; Prais–Winsten keeps it, scaled by <span class="f">√(1 − ρ̂²)</span>. Iterate to convergence.</li></ol>
+    <p>If FGLS and OLS estimates differ sharply, strict exogeneity probably fails: prefer OLS + HAC.</p>`,
+    opts: [{a: 'Next', d: 'Check the variance.', go: 'r-het'}], see: ['remedies', 'tsreg']},
+  'r-arma-leaf': {kind: 'Recipe', leaf: true, title: 'Regression with time-series errors (T §2.9)',
+    body: '<ol><li>Fit the regression by OLS and check the residuals for serial correlation (ACF, Ljung–Box).</li><li>If correlated, identify an ARMA model for the residuals.</li><li>Estimate the regression and the ARMA errors jointly by maximum likelihood (ARIMAX / SARIMAX).</li><li>Check the residuals of the joint model; refine.</li></ol>',
+    opts: [{a: 'Next', d: 'Check the variance.', go: 'r-het'}], see: ['tsreg']},
+  'r-het': {kind: 'Test · heteroskedasticity', title: 'Is the variance constant over time?',
+    body: `<ul><li>Breusch–Pagan or White on the residuals, as in a cross-section (needs no serial correlation).</li>
+    <li>ARCH LM test on the residuals: volatility clustering.</li></ul>`,
+    opts: [
+      {a: 'Reject', d: 'Robust errors, or model the variance.', go: 'r-het-leaf'},
+      {a: 'Do not reject', d: 'Check stability.', go: 'r-break'},
+    ], see: ['diagnostics', 'vol']},
+  'r-het-leaf': {kind: 'Recipe', leaf: true, title: 'Heteroskedasticity in time series',
+    body: '<p>Heteroskedasticity-robust (HC) errors are enough if the errors are not serially correlated; otherwise HAC covers both. To gain efficiency, or when the variance is the object of interest, model it: regression with GARCH errors.</p>',
+    opts: [{a: 'Next', d: 'Check stability.', go: 'r-break'}], see: ['robust', 'vol']},
+  'r-break': {kind: 'Test · stability', title: 'Are the coefficients stable over time?',
+    body: `<ul><li>Known break date: <b>Chow</b> test, or interact every regressor with a post-break dummy and run a (robust) F test.</li>
+    <li>Unknown date: Quandt–Andrews sup-F (do not use the χ² critical values of a single Chow test), Bai–Perron for several breaks.</li>
+    <li>CUSUM / CUSUM of squares of recursive residuals for gradual drift.</li></ul>`,
+    opts: [
+      {a: 'Unstable', d: 'Split the sample, add break dummies, or use rolling estimates.', go: 'r-infer-leaf'},
+      {a: 'Stable', d: 'Test the parameters.', go: 'r-infer-leaf'},
+    ], see: ['diagnostics']},
+  'r-infer-leaf': {kind: 'Recipe', leaf: true, title: 'Inference and interpretation for time-series regressions',
+    body: `<ul><li>t and F tests with the standard errors chosen above (usual, HC or HAC).</li>
+    <li>Trends: include a time trend if y or x trend, or the regression picks up spurious correlation between two trending series. Detrending y first gives the same slopes (Frisch–Waugh) but a more honest R².</li>
+    <li>Seasonality: seasonal dummies, test them jointly.</li>
+    <li>Distributed lags: impact multiplier = coefficient of x_t; long-run propensity = sum of the lag coefficients (test it by reparametrising).</li>
+    <li>Granger causality is about prediction, not causation.</li></ul>`,
+    see: ['tsreg', 'inference', 'multi']},
+  'var-leaf': {kind: 'Recipe', leaf: true, title: 'Several series: VAR or VECM (T ch. 8)',
+    body: `<ol><li>Test each series for a unit root.</li><li>All I(0): VAR in levels. I(1) and cointegrated (Johansen): VECM. I(1), not cointegrated: VAR in differences.</li>
+    <li>Choose the lag order by AIC / BIC / HQ, or sequential LR tests.</li>
+    <li>Check residuals with the multivariate Portmanteau test <span class="f">Q_k(m)</span>.</li>
+    <li>Granger causality: F / Wald test that all lags of x are zero in the y equation.</li>
+    <li>Impulse responses and variance decompositions: with a Cholesky ordering, the order of the variables matters; report it.</li></ol>`,
+    see: ['multi', 'unitroot']},
+
+  // Panel
+  'pn-ai': {kind: 'Question · unobserved effect', title: 'Is the unobserved, time-constant effect aᵢ correlated with x?',
+    body: `<p>Model: <span class="f">y_it = β x_it + a_i + u_it</span>. Pooled OLS puts aᵢ in the error, so it is biased if aᵢ is correlated with any x (ability and education, firm culture and investment).</p>`,
+    opts: [
+      {a: 'Probably correlated', d: 'Remove aᵢ: fixed effects or first differences.', go: 'pn-fe'},
+      {a: 'Not sure', d: 'Let a Hausman test decide between FE and RE.', go: 'pn-haus'},
+      {a: 'Uncorrelated (e.g. randomised x)', d: 'Random effects is more efficient.', go: 'pn-re'},
+    ], see: ['panel']},
+  'pn-fe': {kind: 'Recipe', leaf: true, title: 'Fixed effects or first differences',
+    body: `<ul><li><b>FE (within):</b> demean every variable by unit, run OLS. <b>FD:</b> regress Δy on Δx.</li>
+    <li>T = 2: identical. FE more efficient when u_it is serially uncorrelated, FD when u_it is close to a random walk.</li>
+    <li>Time-constant regressors (gender, distance) drop out; their interactions with time dummies stay.</li>
+    <li>Add time dummies for common shocks (two-way FE).</li>
+    <li>Standard errors clustered by unit: valid with any serial correlation and heteroskedasticity within a unit.</li>
+    <li>FE still needs strict exogeneity of x_it with respect to u_is; a lagged y with FE and small T is biased (Nickell): use Arellano–Bond GMM.</li></ul>`,
+    see: ['panel', 'robust']},
+  'pn-haus': {kind: 'Test · FE vs RE', title: 'Hausman test',
+    body: `<p>Compare the FE and RE estimates of the time-varying coefficients:</p>
+    <span class="k">H = (β̂_FE − β̂_RE)′ [V̂_FE − V̂_RE]⁻¹ (β̂_FE − β̂_RE) ~ χ²_k</span>
+    <p class="muted">H0: aᵢ uncorrelated with x, both consistent, RE efficient. The classic form assumes RE is fully efficient; the robust alternative is Mundlak's correlated random effects: add the unit means x̄ᵢ to an RE (or pooled) regression and test them jointly with clustered errors.</p>`,
+    opts: [
+      {a: 'Reject', d: 'RE is inconsistent: use FE.', go: 'pn-fe'},
+      {a: 'Do not reject', d: 'RE is acceptable (or report both).', go: 'pn-re'},
+    ], see: ['panel']},
+  'pn-re': {kind: 'Recipe', leaf: true, title: 'Random effects',
+    body: `<ul><li>GLS with quasi-demeaning: <span class="f">y_it − λȳ_i</span>, <span class="f">λ = 1 − [σ²_u / (σ²_u + Tσ²_a)]^{1/2}</span>. λ = 0 is pooled OLS, λ → 1 is FE.</li>
+    <li>Keeps time-constant regressors.</li>
+    <li>Breusch–Pagan LM test of σ²_a = 0 decides between RE and pooled OLS.</li>
+    <li>Cluster the standard errors by unit anyway.</li></ul>`,
+    see: ['panel']},
+}
+
+// Rendering: the current node, the path to it, and an outline of the whole tree.
+const treeState = {path: ['start']}
+const escTree = s => String(s).replace(/[&<>]/g, c => ({'&': '&amp;', '<': '&lt;', '>': '&gt;'})[c])
+const SECTION_TITLES = {}
+
+function treeGo(id, push = true) {
+  if (push) treeState.path.push(id)
+  renderTree()
+}
+
+function renderTree() {
+  const box = document.getElementById('tnode')
+  const id = treeState.path[treeState.path.length - 1]
+  const n = TREE[id]
+  document.getElementById('tcrumbs').innerHTML = treeState.path.map((p, i) =>
+    (i ? '<span>›</span>' : '') + `<button data-i="${i}">${escTree(TREE[p].title.length > 38 ? TREE[p].title.slice(0, 36) + '…' : TREE[p].title)}</button>`).join('')
+  let h = `<div class="kind${n.leaf ? ' leaf' : ''}">${n.kind}</div><h3>${n.title}</h3>${n.body}`
+  if (n.opts) h += `<div class="opts">${n.opts.map((o, i) => `<button data-go="${o.go}"><b>${String.fromCharCode(65 + i)}</b>${o.a}<small>${o.d}</small></button>`).join('')}</div>`
+  else h += '<p class="muted" style="margin-top:12px">End of this branch. Restart, or step back through the path above.</p>'
+  if (n.see) h += `<div class="see"><span class="mono">Details</span>${n.see.map(s => `<a href="#${s}">${SECTION_TITLES[s] || s}</a>`).join('')}</div>`
+  box.innerHTML = h
+  mathify(box)
+  mathify(document.getElementById('tcrumbs'))
+}
+
+function outline(id, seen, label) {
+  const n = TREE[id]
+  const a = label ? `<span class="a">${escTree(label)}</span>` : ''
+  // Each node is expanded once, where it first appears; later mentions point to it.
+  if (seen.has(id)) return `<li>${a}<span class="back">→ continues at “${n.title}”</span><button class="go" data-jump="${id}">open</button></li>`
+  seen.add(id)
+  const kids = (n.opts || []).map(o => outline(o.go, seen, o.a)).join('')
+  return `<li>${a}<span class="${n.leaf ? 'l' : 'q'}">${n.title}</span><button class="go" data-jump="${id}">open</button>${kids ? `<ul>${kids}</ul>` : ''}</li>`
+}
+
+function initTree() {
+  document.querySelectorAll('main section[id]').forEach(s => { SECTION_TITLES[s.id] = s.querySelector('h2').childNodes[s.querySelector('h2').childNodes.length - 1].textContent.trim() })
+  document.getElementById('tnode').addEventListener('click', e => { const b = e.target.closest('button[data-go]'); if (b) treeGo(b.dataset.go) })
+  document.getElementById('tcrumbs').addEventListener('click', e => { const b = e.target.closest('button[data-i]'); if (b) { treeState.path = treeState.path.slice(0, +b.dataset.i + 1); renderTree() } })
+  document.getElementById('trestart').addEventListener('click', () => { treeState.path = ['start']; renderTree() })
+  document.getElementById('tback').addEventListener('click', () => { if (treeState.path.length > 1) treeState.path.pop(); renderTree() })
+  const all = document.getElementById('tall'), out = document.getElementById('toutline')
+  all.addEventListener('click', () => {
+    const on = all.getAttribute('aria-pressed') !== 'true'
+    all.setAttribute('aria-pressed', on)
+    out.hidden = !on
+    if (on && !out.innerHTML) { out.innerHTML = `<ul>${outline('start', new Set())}</ul>`; mathify(out) }
+  })
+  out.addEventListener('click', e => {
+    const b = e.target.closest('button[data-jump]')
+    if (!b) return
+    treeState.path = b.dataset.jump === 'start' ? ['start'] : ['start', b.dataset.jump]
+    renderTree()
+    document.getElementById('tree').scrollIntoView()
+  })
+  renderTree()
+}
+</script>
+<script>
+// Formulas are written in plain text: x_t, x_{t−1}, z^p, (n/100)^{2/9}. mathify turns those into real
+// subscripts and superscripts everywhere except in code, and in formulas (.f, .k) sets single-letter
+// variables and lowercase Greek in italics, as in typeset mathematics. Multi-letter names (ln, Var, SSR) stay upright.
+const SCRIPT = /([_^])(\{[^{}]*\}|[A-Za-z0-9]+|[ℓũα-ω])/g
+const LETTER = /(?:[A-Za-z\u00C0-\u024F\u1E00-\u1EFF][\u0300-\u036f]*)+|[α-ω][\u0300-\u036f]*/gu
+const SKIP = 'pre,code,script,style,textarea'
+
+function textNodes(root, test) {
+  const out = [], walk = document.createTreeWalker(root, NodeFilter.SHOW_TEXT)
+  for (let n; (n = walk.nextNode());) if (test(n) && !n.parentElement.closest(SKIP)) out.push(n)
+  return out
+}
+
+// Combining hats, tildes and bars sit badly on italic letters in most fonts, so a letter that carries one
+// is drawn with the accent as a separate, centred mark. Precomposed letters (û, ŷ) are left alone.
+const ACCENTS = {'\u0302': 'ˆ', '\u0303': '˜', '\u0304': '¯'}
+const TALL = /[A-Zbdfhklβδθλζξ]/
+function accented(text, tag) {
+  const el = document.createElement(tag)
+  const parts = text.match(/[^\u0300-\u036f][\u0300-\u036f]*/g)
+  for (const part of parts) {
+    const mark = [...part].find(c => ACCENTS[c])
+    if (!mark) { el.append(part); continue }
+    const base = part.replace(/[\u0300-\u036f]/g, '')
+    const acc = document.createElement('span')
+    acc.className = TALL.test(base) ? 'acc tall' : 'acc'
+    acc.dataset.a = ACCENTS[mark]
+    acc.textContent = base
+    el.append(acc)
+  }
+  return el
+}
+
+function mathify(root) {
+  for (const node of textNodes(root, n => /[_^]/.test(n.data))) {
+    const frag = document.createDocumentFragment()
+    let last = 0
+    for (const m of node.data.matchAll(SCRIPT)) {
+      if (m.index > last) frag.append(node.data.slice(last, m.index))
+      const el = document.createElement(m[1] === '_' ? 'sub' : 'sup')
+      el.textContent = m[2].replace(/^\{|\}$/g, '')
+      frag.append(el)
+      last = m.index + m[0].length
+    }
+    frag.append(node.data.slice(last))
+    node.replaceWith(frag)
+  }
+  // A subscript followed by a superscript (Σ_{i=1}^{m}) is stacked, superscript on top.
+  for (const sub of root.querySelectorAll('sub')) {
+    const sup = sub.nextSibling
+    if (sup?.nodeName !== 'SUP' || sub.parentElement.classList.contains('ss')) continue
+    const ss = document.createElement('span')
+    ss.className = 'ss'
+    sub.before(ss)
+    ss.append(sup, sub)
+  }
+  for (const node of textNodes(root, n => n.parentElement.closest('.f,.k'))) {
+    const frag = document.createDocumentFragment()
+    let last = 0, changed = false
+    for (const m of node.data.matchAll(LETTER)) {
+      const single = m[0].normalize('NFD').replace(/[\u0300-\u036f]/g, '').length === 1
+      if (!single) {
+        if (!/[\u0302\u0303\u0304]/.test(m[0])) continue
+        frag.append(node.data.slice(last, m.index))
+        frag.append(accented(m[0], 'span'))
+        last = m.index + m[0].length
+        changed = true
+        continue
+      }
+      frag.append(node.data.slice(last, m.index))
+      frag.append(accented(m[0], 'i'))
+      last = m.index + m[0].length
+      changed = true
+    }
+    if (!changed) continue
+    frag.append(node.data.slice(last))
+    node.replaceWith(frag)
+  }
+}
+
+// Table of contents, table filter, and the active section in the contents.
+(() => {
+  const sections = [...document.querySelectorAll('main section[id]')]
+  const title = s => s.querySelector('h2').lastChild.textContent.trim()
+  document.getElementById('toc').innerHTML = sections.map((s, i) => `<a href="#${s.id}"><b>${String(i).padStart(2, '0')}</b>${title(s)}</a>`).join('')
+  document.getElementById('mtoc').innerHTML = sections.map(s => `<a href="#${s.id}">${title(s)}</a>`).join('')
+  sections.forEach((s, i) => s.querySelector('h2 b').textContent = String(i).padStart(2, '0'))
+
+  // The filter hides table rows that do not contain every word typed.
+  const rows = [...document.querySelectorAll('main table tr')].filter(r => r.querySelector('td'))
+  const q = document.getElementById('q'), qn = document.getElementById('qn')
+  q.addEventListener('input', () => {
+    const words = q.value.toLowerCase().split(/\s+/).filter(Boolean)
+    let shown = 0
+    for (const r of rows) {
+      const hit = words.every(w => r.textContent.toLowerCase().includes(w))
+      r.classList.toggle('hide', !hit)
+      if (hit) shown++
+    }
+    qn.textContent = words.length ? `${shown} rows` : ''
+  })
+
+  const links = [...document.querySelectorAll('#toc a')]
+  const io = new IntersectionObserver(entries => {
+    for (const e of entries) if (e.isIntersecting) links.forEach(a => a.classList.toggle('on', a.getAttribute('href') === `#${e.target.id}`))
+  }, {rootMargin: '-10% 0px -80% 0px'})
+  sections.forEach(s => io.observe(s))
+
+  mathify(document.getElementById('main'))
+  initTree()
+})()
+</script>
+</body></html>
